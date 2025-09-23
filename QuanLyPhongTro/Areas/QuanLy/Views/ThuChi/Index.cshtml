@@ -1,0 +1,115 @@
+﻿<div id="finance-section" class="section hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Tổng thu tháng này</p>
+                    <p class="text-3xl font-bold text-green-600 mt-2">45,200,000 VNĐ</p>
+                </div>
+                <div class="gradient-green p-3 rounded-lg">
+                    <i class="fas fa-arrow-up text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Tổng chi tháng này</p>
+                    <p class="text-3xl font-bold text-red-600 mt-2">8,500,000 VNĐ</p>
+                </div>
+                <div class="gradient-orange p-3 rounded-lg">
+                    <i class="fas fa-arrow-down text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Lợi nhuận tháng này</p>
+                    <p class="text-3xl font-bold text-blue-600 mt-2">36,700,000 VNĐ</p>
+                </div>
+                <div class="gradient-blue p-3 rounded-lg">
+                    <i class="fas fa-chart-line text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Ghi nhận Thu</h3>
+                <button onclick="openModal('incomeModal')" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center text-sm">
+                    <i class="fas fa-plus mr-2"></i>Thêm thu
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-home text-green-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Tiền thuê P101</p>
+                                <p class="text-xs text-gray-500">01/04/2024</p>
+                            </div>
+                        </div>
+                        <span class="text-green-600 font-semibold">+2,500,000</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-bolt text-green-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Tiền điện P102</p>
+                                <p class="text-xs text-gray-500">02/04/2024</p>
+                            </div>
+                        </div>
+                        <span class="text-green-600 font-semibold">+350,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Ghi nhận Chi</h3>
+                <button onclick="openModal('expenseModal')" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center text-sm">
+                    <i class="fas fa-plus mr-2"></i>Thêm chi
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-tools text-red-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Sửa chữa P103</p>
+                                <p class="text-xs text-gray-500">28/03/2024</p>
+                            </div>
+                        </div>
+                        <span class="text-red-600 font-semibold">-500,000</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-broom text-red-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Vệ sinh chung</p>
+                                <p class="text-xs text-gray-500">30/03/2024</p>
+                            </div>
+                        </div>
+                        <span class="text-red-600 font-semibold">-200,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

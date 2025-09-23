@@ -1,0 +1,74 @@
+﻿<div id="reports-section" class="section hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Báo cáo Doanh thu</h3>
+            <div class="chart-container">
+                <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tỷ lệ lấp đầy phòng</h3>
+            <div class="chart-container">
+                <canvas id="occupancyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Danh sách phòng trống</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">P102</p>
+                            <p class="text-sm text-gray-500">Phòng đôi - 35m²</p>
+                        </div>
+                        <span class="text-gray-600">3,200,000 VNĐ</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">P105</p>
+                            <p class="text-sm text-gray-500">Phòng đơn - 25m²</p>
+                        </div>
+                        <span class="text-gray-600">2,500,000 VNĐ</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">P201</p>
+                            <p class="text-sm text-gray-500">Phòng gia đình - 45m²</p>
+                        </div>
+                        <span class="text-gray-600">4,500,000 VNĐ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">Khách chưa thanh toán</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">Trần Thị B - P104</p>
+                            <p class="text-sm text-red-600">Quá hạn 5 ngày</p>
+                        </div>
+                        <span class="text-red-600 font-semibold">3,450,000 VNĐ</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">Lê Văn C - P106</p>
+                            <p class="text-sm text-yellow-600">Sắp đến hạn</p>
+                        </div>
+                        <span class="text-yellow-600 font-semibold">2,800,000 VNĐ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

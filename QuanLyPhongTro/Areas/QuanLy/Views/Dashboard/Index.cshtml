@@ -1,0 +1,117 @@
+﻿<div id="dashboard-section" class="section fade-in">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Tổng số phòng</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">24</p>
+                    <p class="text-green-600 text-sm mt-1">
+                        <i class="fas fa-arrow-up mr-1"></i>+2 từ tháng trước
+                    </p>
+                </div>
+                <div class="gradient-blue p-3 rounded-lg">
+                    <i class="fas fa-door-open text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Phòng đã thuê</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">18</p>
+                    <p class="text-green-600 text-sm mt-1">
+                        <i class="fas fa-arrow-up mr-1"></i>75% tỷ lệ lấp đầy
+                    </p>
+                </div>
+                <div class="gradient-green p-3 rounded-lg">
+                    <i class="fas fa-home text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Doanh thu tháng</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">45M</p>
+                    <p class="text-green-600 text-sm mt-1">
+                        <i class="fas fa-arrow-up mr-1"></i>+12% so với tháng trước
+                    </p>
+                </div>
+                <div class="gradient-orange p-3 rounded-lg">
+                    <i class="fas fa-money-bill-wave text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Khách thuê</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">32</p>
+                    <p class="text-blue-600 text-sm mt-1">
+                        <i class="fas fa-users mr-1"></i>Đang hoạt động
+                    </p>
+                </div>
+                <div class="gradient-purple p-3 rounded-lg">
+                    <i class="fas fa-users text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Doanh thu theo tháng</h3>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tỷ lệ phòng</h3>
+            <div class="chart-container">
+                <canvas id="roomChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 card-hover">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Hoạt động gần đây</h3>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-plus text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Khách thuê mới: Nguyễn Văn B</p>
+                        <p class="text-xs text-gray-500">Thuê phòng P103 - 2 giờ trước</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-money-bill text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Thanh toán hóa đơn</p>
+                        <p class="text-xs text-gray-500">P101 - 2,500,000 VNĐ - 4 giờ trước</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-tools text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Bảo trì phòng P205</p>
+                        <p class="text-xs text-gray-500">Sửa chữa điện nước - 1 ngày trước</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
