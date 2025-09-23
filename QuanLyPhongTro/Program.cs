@@ -10,7 +10,7 @@ namespace QuanLyPhongTro
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<QuanLyPhongTroContext>(options => options
-            .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            .UseSqlServer(builder.Configuration.GetConnectionString("QuanLyPhongTroConnectionString")));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
