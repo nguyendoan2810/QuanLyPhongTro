@@ -30,7 +30,7 @@
 
     <!-- Finance Section -->
     <!--Trang quản lý thu chi-->
-    @await Html.PartialAsync("~/Areas/QuanLy/Views/ThuChi/Index.cshtml")
+    @await Component.InvokeAsync("ThuChi")
 
     <!-- Reports Section -->
     <!--Trang báo cáo-thống kê-->
