@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace QuanLyPhongTro.Controllers
+namespace QuanLyPhongTro.Areas.QuanLy.Controllers
 {
-    public class KhachThueMainController : Controller
+    public class QuanLyMainController : Controller
     {
+        [Area("QuanLy")]
         public IActionResult Index()
         {
             return View();

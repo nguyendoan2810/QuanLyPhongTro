@@ -19,9 +19,9 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             var thuChiList = _context.ThuChis.OrderByDescending(tc => tc.Ngay).ToList();
 
             //tong thu / tong chi / loi nhuan
-            var tongThu = thuChiList.Where(tc => tc.Loai == "Thu").Sum(tc => tc.SoTien);
+            var tongThu = thuChiList.Where(tc => tc.Loai != null && tc.Loai.Trim().ToLower() == "thu").Sum(tc => tc.SoTien);
 
-            var tongChi = thuChiList.Where(tc => tc.Loai == "Chi").Sum(tc => tc.SoTien);
+            var tongChi = thuChiList.Where(tc => tc.Loai != null && tc.Loai.Trim().ToLower() == "chi").Sum(tc => tc.SoTien);
 
             var loiNhuan = tongThu - tongChi;
 
@@ -30,12 +30,10 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             ViewBag.TongChi = tongChi;
             ViewBag.LoiNhuan = loiNhuan;
 
-            ViewBag.ThuList = thuChiList.Where(tc => tc.Loai == "Thu").OrderByDescending(x => x.Ngay).ToList() ?? new List<ThuChi>();
-            ViewBag.ChiList = thuChiList.Where(tc => tc.Loai == "Chi").OrderByDescending(x => x.Ngay).ToList() ?? new List<ThuChi>();
+            ViewBag.ThuList = thuChiList.Where(tc => tc.Loai != null && tc.Loai.Trim().ToLower() == "thu").OrderByDescending(x => x.Ngay).ToList();
+            ViewBag.ChiList = thuChiList.Where(tc => tc.Loai != null && tc.Loai.Trim().ToLower() == "chi").OrderByDescending(x => x.Ngay).ToList();
 
             return View();
-        }
-
-         
+        }     
     }
 }
