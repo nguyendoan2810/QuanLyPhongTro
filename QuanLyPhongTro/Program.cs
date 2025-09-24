@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using QuanLyPhongTro.Models;
 
 namespace QuanLyPhongTro
@@ -32,9 +32,11 @@ namespace QuanLyPhongTro
 
             app.UseAuthorization();
 
+
+            // Route cho Areas
             app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=QuanLyMain}/{action=Index}/{id?}");
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }

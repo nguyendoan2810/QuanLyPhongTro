@@ -7,7 +7,7 @@ public partial class ThuChi
 {
     public int MaTc { get; set; }
 
-    public DateOnly? Ngay { get; set; }
+    public DateTime? Ngay { get; set; }
 
     public string? Loai { get; set; }
 
