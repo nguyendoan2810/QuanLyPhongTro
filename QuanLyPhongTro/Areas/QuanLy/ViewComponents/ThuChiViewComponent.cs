@@ -13,6 +13,8 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
         {
             _context = context;
         }
+         // Test Nguyen Phuong Nam
+
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
