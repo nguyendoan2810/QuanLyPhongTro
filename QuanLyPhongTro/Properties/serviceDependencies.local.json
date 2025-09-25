@@ -4,10 +4,11 @@
       "type": "secrets.user"
     },
     "mssql1": {
+      "serviceConnectorResourceId": "",
       "secretStore": "LocalSecretsFile",
+      "resourceId": null,
       "type": "mssql.onprem",
-      "connectionId": "ConnectionStrings:QuanLyPhongTroConnectionString",
-      "dynamicId": null
+      "connectionId": "ConnectionStrings:QuanLyPhongTroConnectionString"
     }
   }
 }
