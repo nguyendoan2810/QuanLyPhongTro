@@ -19,7 +19,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
             var dichVuList = _context.DichVus.ToList();
 
             //truyen sang view
-            ViewBag.DichVList = dichVuList.Where(tc => tc.TenDv != null).ToList();
+            ViewBag.DichVuList = dichVuList.Where(tc => tc.TenDv != null).ToList();
             
 
             return View("~/Areas/QuanLy/Views/DichVu/Index.cshtml");
