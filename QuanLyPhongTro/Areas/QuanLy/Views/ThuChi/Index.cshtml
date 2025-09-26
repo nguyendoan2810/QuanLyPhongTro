@@ -1,4 +1,9 @@
 ﻿@{
+    ViewData["Title"] = "Trang Thu Chi";
+    Layout = "~/Areas/QuanLy/Views/Shared/_QuanLyLayout.cshtml";
+}
+
+@{
     var thuList = ViewBag.ThuList as List<QuanLyPhongTro.Models.ThuChi>;
     var chiList = ViewBag.ChiList as List<QuanLyPhongTro.Models.ThuChi>;
 
@@ -12,7 +17,7 @@
     var loiNhuan = ViewBag.LoiNhuan ?? 0;
 }
 
-<div id="finance-section" class="section hidden">
+<div id="finance-section" class="section">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
             <div class="flex items-center justify-between">

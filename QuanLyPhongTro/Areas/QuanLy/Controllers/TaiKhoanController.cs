@@ -2,6 +2,7 @@
 
 namespace QuanLyPhongTro.Areas.QuanLy.Controllers
 {
+    [Area("QuanLy")]
     public class TaiKhoanController : Controller
     {
         public IActionResult Index()

@@ -14,7 +14,11 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             _context = context;
         }
         public IActionResult Index()
-        {           
+        {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView(); // chỉ trả phần body
+            }
             return View();
         }
 
