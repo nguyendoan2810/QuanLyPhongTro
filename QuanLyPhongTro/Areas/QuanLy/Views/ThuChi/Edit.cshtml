@@ -1,0 +1,119 @@
+﻿<!-- Modal sửa khoản thu/chi -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto bounce-in">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Sửa khoản</h3>
+            <button onclick="closeModal('editModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <form id="editForm" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="EditId">
+                <input type="hidden" name="Loai" id="EditLoai">
+
+                <div>
+                    <label for="EditNoiDung" class="block text-sm font-medium text-gray-700 mb-2">Nội dung *</label>
+                    <input id="EditNoiDung" name="NoiDung" type="text" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <div>
+                    <label for="EditSoTien" class="block text-sm font-medium text-gray-700 mb-2">Số tiền (VNĐ) *</label>
+                    <input id="EditSoTien" name="SoTien" type="number" min="1" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <div>
+                    <label for="EditNgay" class="block text-sm font-medium text-gray-700 mb-2">Ngày *</label>
+                    <input id="EditNgay" name="Ngay" type="date" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+            </form>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 flex justify-between">
+            <button onclick="deleteItem()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Xóa</button>
+            <button onclick="updateItem()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Lưu thay đổi</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, noiDung, soTien, ngay, loai) {
+        document.getElementById('EditId').value = id;
+        document.getElementById('EditNoiDung').value = noiDung;
+        document.getElementById('EditSoTien').value = soTien;
+        document.getElementById('EditNgay').value = ngay;
+        document.getElementById('EditLoai').value = loai;
+        openModal('editModal');
+    }
+
+        function updateItem() {
+        const form = document.getElementById('editForm');
+        const id = form.Id.value;
+        const noiDung = form.NoiDung.value.trim();
+        const soTien = parseFloat(form.SoTien.value);
+        const ngay = form.Ngay.value;
+        const loai = form.Loai.value;
+        const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        if (!noiDung || isNaN(soTien) || soTien <= 0) {
+            showNotification('Vui lòng nhập đầy đủ và hợp lệ!', 'error');
+            return;
+        }
+
+        $.ajax({
+            url: '/QuanLy/ThuChi/Update',
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            data: {
+                Id: id, // quan trọng: trùng tên tham số trong controller
+                NoiDung: noiDung,
+                SoTien: soTien,
+                Ngay: ngay,
+                Loai: loai
+            },
+            success: function () {
+                showNotification('Cập nhật thành công!', 'success');
+                closeModal('editModal');
+                reloadThuChiList();
+            },
+            error: function (xhr) {
+                showNotification('Lỗi: ' + xhr.responseText, 'error');
+            }
+        });
+    }
+
+
+        function deleteItem() {
+        const id = document.getElementById('EditId').value;
+        const token = document.querySelector('#editForm input[name="__RequestVerificationToken"]').value;
+
+        if (!confirm('Bạn có chắc muốn xóa khoản này?')) return;
+
+        $.ajax({
+            url: '/QuanLy/ThuChi/Delete',
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            data: { id: id },
+            success: function () {
+                showNotification('Đã xóa thành công!', 'success');
+                closeModal('editModal');
+                reloadThuChiList();
+            },
+            error: function (xhr) {
+                showNotification('Lỗi: ' + xhr.responseText, 'error');
+            }
+        });
+    }
+
+        function reloadThuChiList() {
+        // gọi ViewComponent trả về HTML mới
+        $.get('/QuanLy/ThuChi/ReloadPartial', function (html) {
+            // html này là ViewComponent render => cập nhật lại list Thu + Chi
+            $('#thuListContainer').html($(html).find('#thuListContainer').html());
+            $('#chiListContainer').html($(html).find('#chiListContainer').html());
+            $('#thongkeContainer').html($(html).find('#thongkeContainer').html());
+        });
+    }
+</script>

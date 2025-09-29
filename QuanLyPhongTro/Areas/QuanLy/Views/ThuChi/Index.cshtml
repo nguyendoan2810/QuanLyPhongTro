@@ -9,7 +9,7 @@
 
 <div id="finance-section" class="section">
     <!-- Tổng quan -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <div id="thongkeContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
@@ -63,7 +63,8 @@
                     {
                         foreach (var item in thuList)
                         {
-                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg cursor-pointer"
+                                onclick="openEditModal(@item.MaTc, '@item.NoiDung', @item.SoTien, '@item.Ngay?.ToString("yyyy-MM-dd")', 'thu')">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-home text-green-600 text-sm"></i>
@@ -99,7 +100,8 @@
                     {
                         foreach (var item in chiList)
                         {
-                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg cursor-pointer"
+                                onclick="openEditModal(@item.MaTc, '@item.NoiDung', @item.SoTien, '@item.Ngay?.ToString("yyyy-MM-dd")', 'chi')">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-tools text-red-600 text-sm"></i>
@@ -123,4 +125,7 @@
     </div>
 </div>
 
+
 @await Html.PartialAsync("~/Areas/QuanLy/Views/ThuChi/Create.cshtml")
+
+@await Html.PartialAsync("~/Areas/QuanLy/Views/ThuChi/Edit.cshtml")

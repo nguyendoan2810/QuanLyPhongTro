@@ -13,6 +13,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         {
             _context = context;
         }
+
         public IActionResult Index()
         {           
             return View();
@@ -50,6 +51,35 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         public IActionResult ReloadPartial()
         {
             return ViewComponent("ThuChi");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Update(int Id, string NoiDung, decimal SoTien, DateTime Ngay, string Loai)
+        {
+            var item = _context.ThuChis.Find(Id);
+            if (item == null) return NotFound("Không tìm thấy khoản thu/chi.");
+
+            item.NoiDung = NoiDung;
+            item.SoTien = SoTien;
+            item.Ngay = Ngay;
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var item = _context.ThuChis.Find(id);
+            if (item == null) return NotFound("Không tìm thấy khoản thu/chi.");
+
+            _context.ThuChis.Remove(item);
+            _context.SaveChanges();
+
+            return Ok();
         }
     }
 }

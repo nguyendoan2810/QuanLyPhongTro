@@ -67,6 +67,7 @@
                 if (res.success) {
                     showNotification('Thêm khoản thu thành công!', 'success');
                     closeModal('incomeModal');
+                    reloadThuChiList(); // Tải lại danh sách thu chi
 
                     const html = `
                     <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
@@ -163,23 +164,7 @@
                 if (res.success) {
                     showNotification('Thêm khoản chi thành công!', 'success');
                     closeModal('expenseModal');
-
-                    const html = `
-                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-tools text-red-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">${res.data.noiDung}</p>
-                                <p class="text-xs text-gray-500">${res.data.ngay}</p>
-                            </div>
-                        </div>
-                        <span class="text-red-600 font-semibold">-${res.data.soTien}</span>
-                    </div>`;
-
-                    $('#chiListContainer').prepend(html);
-                    form.reset();
+                    reloadThuChiList(); // Tải lại danh sách thu chi                   
                 }
             },
             error: function (xhr) {
@@ -188,4 +173,6 @@
             }
         });
     });
+
+    //hàm reloadThuChiList ở trong script của Edit
 </script>
