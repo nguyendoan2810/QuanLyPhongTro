@@ -43,7 +43,8 @@
 
 <!--Script thêm thu-->
 <script>
-    document.getElementById('saveIncomeBtn')?.addEventListener('click', function (e) {
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.id === 'saveIncomeBtn') {
         e.preventDefault();
 
         const form = document.getElementById('incomeForm');
@@ -68,22 +69,6 @@
                     showNotification('Thêm khoản thu thành công!', 'success');
                     closeModal('incomeModal');
                     reloadThuChiList(); // Tải lại danh sách thu chi
-
-                    const html = `
-                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-home text-green-600 text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">${res.data.noiDung}</p>
-                                <p class="text-xs text-gray-500">${res.data.ngay}</p>
-                            </div>
-                        </div>
-                        <span class="text-green-600 font-semibold">+${res.data.soTien}</span>
-                    </div>`;
-                    $('#thuListContainer').prepend(html);
-                    form.reset();
                 }
             },
             error: function (xhr) {
@@ -91,6 +76,7 @@
                 showNotification('Lỗi: ' + xhr.responseText, 'error');
             }
         });
+      }      
     });
 </script>
 
@@ -140,7 +126,8 @@
 
 <!--Script thêm chi-->
 <script>
-    document.getElementById('saveExpenseBtn')?.addEventListener('click', function (e) {
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.id === 'saveExpenseBtn') {
         e.preventDefault();
 
         const form = document.getElementById('expenseForm');
@@ -172,6 +159,7 @@
                 showNotification('Lỗi: ' + xhr.responseText, 'error');
             }
         });
+        }
     });
 
     //hàm reloadThuChiList ở trong script của Edit

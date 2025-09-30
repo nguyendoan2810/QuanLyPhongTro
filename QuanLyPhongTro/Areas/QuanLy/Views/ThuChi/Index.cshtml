@@ -8,12 +8,40 @@
 }
 
 <div id="finance-section" class="section">
+    <!-- Bộ lọc tháng và năm -->
+    <div class="flex justify-end mb-6">
+        <div class="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <!-- Ô chọn tháng -->
+            <select id="monthSelect" class="form-select px-3 py-2 rounded-lg border-gray-300">
+                <option disabled selected>Chọn tháng</option>
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i" @(i == ViewBag.SelectedMonth ? "selected" : "")>Tháng @i</option>
+                }
+            </select>
+
+            <!-- Ô chọn năm -->
+            <select id="yearSelect" class="form-select px-3 py-2 rounded-lg border-gray-300">
+                <option disabled selected>Chọn năm</option>
+                @for (int y = DateTime.Now.Year - 5; y <= DateTime.Now.Year + 1; y++)
+                {
+                    <option value="@y" @(y == ViewBag.SelectedYear ? "selected" : "")>@y</option>
+                }
+            </select>
+
+            <!-- Nút lọc -->
+            <button id="filterBtn" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center text-sm">
+                <i class="fas fa-filter mr-2"></i>Lọc dữ liệu
+            </button>
+        </div>
+    </div>
+
     <!-- Tổng quan -->
     <div id="thongkeContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-600 text-sm font-medium">Tổng thu tháng này</p>
+                    <p class="text-gray-600 text-sm font-medium">Tổng thu tháng @ViewBag.SelectedMonth/@ViewBag.SelectedYear</p>
                     <p class="text-3xl font-bold text-green-600 mt-2">@tongThu.ToString("N0") VNĐ</p>
                 </div>
                 <div class="gradient-green p-3 rounded-lg">
@@ -25,7 +53,7 @@
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-600 text-sm font-medium">Tổng chi tháng này</p>
+                    <p class="text-gray-600 text-sm font-medium">Tổng chi tháng @ViewBag.SelectedMonth/@ViewBag.SelectedYear</p>
                     <p class="text-3xl font-bold text-red-600 mt-2">@tongChi.ToString("N0") VNĐ</p>
                 </div>
                 <div class="gradient-orange p-3 rounded-lg">
@@ -37,7 +65,7 @@
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-600 text-sm font-medium">Lợi nhuận tháng này</p>
+                    <p class="text-gray-600 text-sm font-medium">Lợi nhuận tháng @ViewBag.SelectedMonth/@ViewBag.SelectedYear</p>
                     <p class="text-3xl font-bold text-blue-600 mt-2">@loiNhuan.ToString("N0") VNĐ</p>
                 </div>
                 <div class="gradient-blue p-3 rounded-lg">
@@ -125,6 +153,21 @@
     </div>
 </div>
 
+//script lọc dữ liệu theo tháng năm
+<script>
+         document.addEventListener("click", function (e) {
+        if (e.target && e.target.id === "filterBtn") {
+            let month = document.getElementById("monthSelect").value;
+            let year = document.getElementById("yearSelect").value;
+
+            fetch(`/QuanLy/ThuChi/FilterByMonth?month=${month}&year=${year}`)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("finance-section").innerHTML = html;
+                });
+        }
+    });
+</script>
 
 @await Html.PartialAsync("~/Areas/QuanLy/Views/ThuChi/Create.cshtml")
 

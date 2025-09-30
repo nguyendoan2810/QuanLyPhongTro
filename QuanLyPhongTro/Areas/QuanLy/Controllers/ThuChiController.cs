@@ -19,6 +19,16 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult FilterByMonth(int month, int year)
+        {
+            if (month < 1 || month > 12) return BadRequest("Tháng không hợp lệ!");
+            if (year == 0) year = DateTime.Now.Year;
+
+            return ViewComponent("ThuChi", new { month = month, year = year });
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(ThuChi model)
