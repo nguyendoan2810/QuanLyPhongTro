@@ -1,42 +1,5 @@
 ﻿// Global Variables
-let currentUser = null;
 let currentSection = 'dashboard';
-
-// Authentication Functions
-function showLogin() {
-    document.getElementById('loginPage').classList.remove('hidden');
-    document.getElementById('registerPage').classList.add('hidden');
-}
-
-function showRegister() {
-    document.getElementById('loginPage').classList.add('hidden');
-    document.getElementById('registerPage').classList.remove('hidden');
-}
-
-function login() {
-    // Simulate login process
-    const username = document.getElementById('loginUsername').value;
-    const password = document.getElementById('loginPassword').value;
-
-    if (username && password) {
-        currentUser = { username, role: 'admin' };
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('dashboardPage').classList.remove('hidden');
-        initCharts();
-        showNotification('Đăng nhập thành công!', 'success');
-    } else {
-        showNotification('Vui lòng nhập đầy đủ thông tin!', 'error');
-    }
-}
-
-function logout() {
-    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-        currentUser = null;
-        document.getElementById('dashboardPage').classList.add('hidden');
-        document.getElementById('loginPage').classList.remove('hidden');
-        showNotification('Đã đăng xuất thành công!', 'success');
-    }
-}
 
 // Navigation Functions
 function showSection(sectionName) {
@@ -148,41 +111,6 @@ function showNotification(message, type = 'info') {
             notification.remove();
         }
     }, 5000);
-}
-
-// CRUD Functions
-function saveRoom() {
-    showNotification('Phòng đã được thêm thành công!', 'success');
-    closeModal('roomModal');
-}
-
-function editRoom(roomId) {
-    showNotification(`Đang chỉnh sửa phòng ${roomId}`, 'info');
-}
-
-function deleteRoom(roomId) {
-    if (confirm(`Bạn có chắc chắn muốn xóa phòng ${roomId}?`)) {
-        showNotification(`Phòng ${roomId} đã được xóa!`, 'success');
-    }
-}
-
-function saveTenant() {
-    showNotification('Khách thuê đã được thêm thành công!', 'success');
-    closeModal('tenantModal');
-}
-
-function viewTenant(tenantId) {
-    showNotification(`Đang xem thông tin khách thuê ${tenantId}`, 'info');
-}
-
-function editTenant(tenantId) {
-    showNotification(`Đang chỉnh sửa khách thuê ${tenantId}`, 'info');
-}
-
-function deleteTenant(tenantId) {
-    if (confirm('Bạn có chắc chắn muốn xóa khách thuê này?')) {
-        showNotification('Khách thuê đã được xóa!', 'success');
-    }
 }
 
 // Chart Functions
@@ -334,34 +262,6 @@ function initCharts() {
 }
 
 // Event Listeners
-document.addEventListener('DOMContentLoaded', function () {
-    // Login form handler
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        login();
-    });
-
-    // Register form handler
-    document.getElementById('registerForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const password = document.querySelector('#registerForm input[type="password"]').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (password !== confirmPassword) {
-            showNotification('Mật khẩu xác nhận không khớp!', 'error');
-            return;
-        }
-
-        showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
-        showLogin();
-    });
-
-    // Set first nav item as active
-    const firstNavItem = document.querySelector('.nav-item');
-    if (firstNavItem) {
-        firstNavItem.classList.add('nav-item-active');
-    }
-});
 
 // Handle window resize
 window.addEventListener('resize', function () {
@@ -385,5 +285,3 @@ document.addEventListener('click', function (e) {
         });
     }
 });
-
-(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'97334c2d910e044f',t:'MTc1NTg3NTQzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();

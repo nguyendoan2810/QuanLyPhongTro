@@ -13,43 +13,83 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         {
             _context = context;
         }
+
         public IActionResult Index()
         {           
             return View();
         }
 
         [HttpGet]
-        public IActionResult Create(string loai)
+        public IActionResult FilterByMonth(int month, int year)
         {
-            var model = new ThuChi
-            {
-                Loai = loai,             // "Thu" hoặc "Chi"
-                Ngay = DateTime.Now      // mặc định ngày hiện tại
-            };
-            return View(model);
+            if (month < 1 || month > 12) return BadRequest("Tháng không hợp lệ!");
+            if (year == 0) year = DateTime.Now.Year;
+
+            return ViewComponent("ThuChi", new { month = month, year = year });
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(ThuChi model)
         {
-            if (string.IsNullOrWhiteSpace(model.NoiDung))
-                ModelState.AddModelError("NoiDung", "Vui lòng nhập nội dung");
-            if (model.SoTien <= 0)
-                ModelState.AddModelError("SoTien", "Số tiền phải lớn hơn 0");
-
-            if (!ModelState.IsValid)
-            {
-                // trả về trang hiện tại nếu lỗi
-                return RedirectToAction("Index", "QuanLyMain", new { area = "QuanLy" });
-            }
-
+            model.Loai = model.Loai?.Trim().ToLowerInvariant();
             model.Ngay ??= DateTime.Now;
+
+            if (string.IsNullOrWhiteSpace(model.NoiDung) || model.SoTien <= 0 || (model.Loai != "thu" && model.Loai != "chi"))
+                return BadRequest("Dữ liệu không hợp lệ!");
+
             _context.ThuChis.Add(model);
             _context.SaveChanges();
 
-            // sau khi lưu xong quay lại trang tổng
-            return RedirectToAction("Index", "QuanLyMain", new { area = "QuanLy" });          
+            return Json(new
+            {
+                success = true,
+                data = new
+                {
+                    MaTc = model.MaTc,
+                    NoiDung = model.NoiDung,
+                    SoTien = model.SoTien.ToString("N0"),
+                    Ngay = model.Ngay?.ToString("dd/MM/yyyy")
+                }
+            });
+        }
+
+
+        // Trả về ViewComponent để cập nhật danh sách thu chi (dùng cho AJAX)
+        [HttpGet]
+        public IActionResult ReloadPartial()
+        {
+            return ViewComponent("ThuChi");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Update(int Id, string NoiDung, decimal SoTien, DateTime Ngay, string Loai)
+        {
+            var item = _context.ThuChis.Find(Id);
+            if (item == null) return NotFound("Không tìm thấy khoản thu/chi.");
+
+            item.NoiDung = NoiDung;
+            item.SoTien = SoTien;
+            item.Ngay = Ngay;
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var item = _context.ThuChis.Find(id);
+            if (item == null) return NotFound("Không tìm thấy khoản thu/chi.");
+
+            _context.ThuChis.Remove(item);
+            _context.SaveChanges();
+
+            return Ok();
         }
     }
 }

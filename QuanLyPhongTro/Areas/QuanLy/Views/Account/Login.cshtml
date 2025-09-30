@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Quản lý Phòng trọ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/quanly.css">
+    <script src="~/js/quanly.js"></script>
+</head>
+<body>
+    <div id="loginPage" class="login-container flex items-center justify-center p-4">
+        <div class="login-card rounded-2xl shadow-2xl p-8 w-full max-w-md bounce-in">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+                    <i class="fas fa-building text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Quản lý Phòng trọ</h1>
+                <p class="text-gray-600">Đăng nhập để tiếp tục</p>
+            </div>
+
+            @* hiện lỗi ModelState nếu có *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mb-4 text-red-600">
+                    @foreach (var m in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@m.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+            @* form post về Account/Login *@
+            <form asp-area="QuanLy" asp-controller="Account" asp-action="Login" method="post" class="space-y-6">
+                @Html.AntiForgeryToken()
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
+                    <input name="Username" type="text" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nhập email hoặc tên đăng nhập" required />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
+                    <div class="relative">
+                        <input name="Password" type="password" id="loginPassword" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none pr-12" placeholder="Nhập mật khẩu" required />
+                        <button type="button" onclick="togglePassword('loginPassword')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="RememberMe" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-600">Ghi nhớ đăng nhập</span>
+                    </label>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn-primary w-full py-3 text-white font-semibold rounded-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
+                </button>
+
+                <div class="text-center">
+                    <span class="text-gray-600">Chưa có tài khoản? </span>
+                    @* nút chuyển sang trang Register *@
+                    <a href="/QuanLy/Account/Register"
+                       class="text-blue-600 hover:text-blue-800 font-medium">Đăng ký ngay</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

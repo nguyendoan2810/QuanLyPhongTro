@@ -1,0 +1,166 @@
+﻿<!-- Modal thêm khoản thu -->
+<div id="incomeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto bounce-in">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Thêm khoản thu</h3>
+            <button onclick="closeModal('incomeModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <div class="p-6">
+            <form id="incomeForm" class="space-y-4">
+                @Html.AntiForgeryToken()
+
+                <div>
+                    <label for="NoiDung" class="block text-sm font-medium text-gray-700 mb-2">Nội dung *</label>
+                    <input id="NoiDung" name="NoiDung" type="text" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <div>
+                    <label for="SoTien" class="block text-sm font-medium text-gray-700 mb-2">Số tiền (VNĐ) *</label>
+                    <input id="SoTien" name="SoTien" type="number" min="1" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <div>
+                    <label for="Ngay" class="block text-sm font-medium text-gray-700 mb-2">Ngày thu *</label>
+                    <input id="Ngay" name="Ngay" type="date" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <input type="hidden" name="Loai" value="thu">
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <button onclick="closeModal('incomeModal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Hủy</button>
+            <button id="saveIncomeBtn" type="button" class="btn-primary px-4 py-2 text-white rounded-lg">Lưu</button>
+        </div>
+    </div>
+</div>
+
+<!--Script thêm thu-->
+<script>
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.id === 'saveIncomeBtn') {
+        e.preventDefault();
+
+        const form = document.getElementById('incomeForm');
+        const noiDung = form.NoiDung.value.trim();
+        const soTien = parseFloat(form.SoTien.value);
+        const ngay = form.Ngay.value;
+        const loai = form.Loai.value;
+        const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        if (!noiDung || isNaN(soTien) || soTien <= 0) {
+            showNotification('Vui lòng nhập đầy đủ và hợp lệ!', 'error');
+            return;
+        }
+
+        $.ajax({
+            url: '/QuanLy/ThuChi/Create',
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            data: { NoiDung: noiDung, SoTien: soTien, Ngay: ngay, Loai: loai },
+            success: function (res) {
+                if (res.success) {
+                    showNotification('Thêm khoản thu thành công!', 'success');
+                    closeModal('incomeModal');
+                    reloadThuChiList(); // Tải lại danh sách thu chi
+                }
+            },
+            error: function (xhr) {
+                console.error('Lỗi:', xhr.responseText);
+                showNotification('Lỗi: ' + xhr.responseText, 'error');
+            }
+        });
+      }      
+    });
+</script>
+
+
+<!-- Modal thêm khoản chi -->
+<div id="expenseModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto bounce-in">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Thêm khoản chi</h3>
+            <button onclick="closeModal('expenseModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <div class="p-6">
+            <form id="expenseForm" class="space-y-4">
+                @Html.AntiForgeryToken()
+
+                <div>
+                    <label for="NoiDungChi" class="block text-sm font-medium text-gray-700 mb-2">Nội dung *</label>
+                    <input id="NoiDungChi" name="NoiDung" type="text" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <div>
+                    <label for="SoTienChi" class="block text-sm font-medium text-gray-700 mb-2">Số tiền (VNĐ) *</label>
+                    <input id="SoTienChi" name="SoTien" type="number" min="1" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <div>
+                    <label for="NgayChi" class="block text-sm font-medium text-gray-700 mb-2">Ngày chi *</label>
+                    <input id="NgayChi" name="Ngay" type="date" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <input type="hidden" name="Loai" value="chi">
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <button onclick="closeModal('expenseModal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Hủy</button>
+            <button id="saveExpenseBtn" type="button" class="btn-primary px-4 py-2 text-white rounded-lg">Lưu</button>
+        </div>
+    </div>
+</div>
+
+<!--Script thêm chi-->
+<script>
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.id === 'saveExpenseBtn') {
+        e.preventDefault();
+
+        const form = document.getElementById('expenseForm');
+        const noiDung = form.NoiDung.value.trim();
+        const soTien = parseFloat(form.SoTien.value);
+        const ngay = form.Ngay.value;
+        const loai = form.Loai.value;
+        const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        if (!noiDung || isNaN(soTien) || soTien <= 0) {
+            showNotification('Vui lòng nhập đầy đủ và hợp lệ!', 'error');
+            return;
+        }
+
+        $.ajax({
+            url: '/QuanLy/ThuChi/Create',
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            data: { NoiDung: noiDung, SoTien: soTien, Ngay: ngay, Loai: loai },
+            success: function (res) {
+                if (res.success) {
+                    showNotification('Thêm khoản chi thành công!', 'success');
+                    closeModal('expenseModal');
+                    reloadThuChiList(); // Tải lại danh sách thu chi                   
+                }
+            },
+            error: function (xhr) {
+                console.error('Lỗi:', xhr.responseText);
+                showNotification('Lỗi: ' + xhr.responseText, 'error');
+            }
+        });
+        }
+    });
+
+    //hàm reloadThuChiList ở trong script của Edit
+</script>

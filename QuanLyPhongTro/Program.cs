@@ -12,6 +12,15 @@ namespace QuanLyPhongTro
             builder.Services.AddDbContext<QuanLyPhongTroContext>(options => options
             .UseSqlServer(builder.Configuration.GetConnectionString("QuanLyPhongTroConnectionString")));
 
+            // Session (cần cho lưu Session thông tin user)
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(1);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
@@ -30,13 +39,16 @@ namespace QuanLyPhongTro
 
             app.UseRouting();
 
+            app.UseSession();
             app.UseAuthorization();
 
-
-            // Route cho Areas
             app.MapControllerRoute(
                 name: "areas",
                 pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }
