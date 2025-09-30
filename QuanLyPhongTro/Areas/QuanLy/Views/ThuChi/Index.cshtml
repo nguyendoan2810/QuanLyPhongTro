@@ -86,7 +86,7 @@
                 </button>
             </div>
             <div class="p-6">
-                <div class="space-y-4" id="thuListContainer">
+                <div class="space-y-4 max-h-96 overflow-y-auto pr-2" id="thuListContainer">
                     @if (thuList.Any())
                     {
                         foreach (var item in thuList)
@@ -123,7 +123,7 @@
                 </button>
             </div>
             <div class="p-6">
-                <div class="space-y-4" id="chiListContainer">
+                <div class="space-y-4 max-h-96 overflow-y-auto pr-2" id="chiListContainer">
                     @if (chiList.Any())
                     {
                         foreach (var item in chiList)
@@ -153,7 +153,7 @@
     </div>
 </div>
 
-//script lọc dữ liệu theo tháng năm
+<!--script lọc dữ liệu theo tháng năm-->
 <script>
          document.addEventListener("click", function (e) {
         if (e.target && e.target.id === "filterBtn") {
