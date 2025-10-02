@@ -12,10 +12,35 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         {
             _context = context;
         }
-       
-        public IActionResult Index()
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(DichVu model)
         {
-            return View();
+            if (string.IsNullOrWhiteSpace(model.TenDv) || model.DonGia <= 0)
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ!" });
+            }
+
+            _context.DichVus.Add(model);
+            _context.SaveChanges();
+
+            return Json(new
+            {
+                success = true,
+                data = new
+                {
+                    MaDv = model.MaDv,
+                    TenDv = model.TenDv,
+                    DonGia = model.DonGia.ToString("N0")
+                }
+            });
+        }
+
+        [HttpGet]
+        public IActionResult ReloadPartial()
+        {
+            return ViewComponent("DichVu");
         }
     }
 }
