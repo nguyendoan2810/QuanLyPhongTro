@@ -10,11 +10,11 @@
 
     <!-- Rooms Section -->
     <!--Trang quản lý phòng-->
-    @await Html.PartialAsync("~/Areas/QuanLy/Views/Phong/Index.cshtml")
+    @await Component.InvokeAsync("Phong")
 
     <!-- Tenants Section -->
     <!--Trang quản lý khách thuê-->
-    @await Html.PartialAsync("~/Areas/QuanLy/Views/KhachThue/Index.cshtml")
+    @await Component.InvokeAsync("KhachThue")
 
     <!-- Contracts Section -->
     <!--Trang quản lý hợp đồng-->
