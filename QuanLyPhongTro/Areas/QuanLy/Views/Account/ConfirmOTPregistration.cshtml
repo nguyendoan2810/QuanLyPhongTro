@@ -1,0 +1,71 @@
+﻿<!-- Modal OTP -->
+<div id="otpModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm">
+        <h2 class="text-xl font-semibold mb-4 text-center">Xác nhận đăng ký</h2>
+        <p class="text-sm text-gray-600 mb-2 text-center">Nhập mã OTP đã gửi đến email của bạn</p>
+        <input id="otpCode" type="text" placeholder="Nhập mã OTP" class="form-input w-full mb-4 px-4 py-2 rounded-lg border" />
+        <div id="otpMessage" class="text-sm text-red-600 mb-2 text-center"></div>
+        <div class="flex justify-end space-x-2">
+            <button onclick="closeModal('otpModal')" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Hủy</button>
+            <button onclick="confirmRegister()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Gửi form đăng ký
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch("/QuanLy/Account/Register", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification(result.message, "success");
+                openModal("otpModal");
+            } else {
+                showNotification(result.message, "error");
+            }
+        } catch (error) {
+            showNotification("Lỗi kết nối đến máy chủ", "error");
+        }
+    });
+
+    // Xác nhận OTP
+    async function confirmRegister() {
+        const code = document.getElementById("otpCode").value.trim();
+        const message = document.getElementById("otpMessage");
+
+        if (!code) {
+            message.innerText = "Vui lòng nhập mã OTP!";
+            return;
+        }
+
+        try {
+            const response = await fetch("/QuanLy/Account/ConfirmRegister", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ otp: code })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                showNotification(result.message, "success");
+                closeModal("otpModal");
+                setTimeout(() => window.location.href = "/QuanLy/Account/Login", 2000);
+            } else {
+                message.innerText = result.message;
+                showNotification(result.message, "error");
+            }
+        } catch (error) {
+            message.innerText = "Lỗi xác nhận OTP!";
+            showNotification("Lỗi xác nhận OTP!", "error");
+        }
+    }
+</script>

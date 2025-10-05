@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuanLyPhongTro.Areas.QuanLy.Services;
 using QuanLyPhongTro.Models;
 
 namespace QuanLyPhongTro
@@ -9,8 +10,12 @@ namespace QuanLyPhongTro
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Kết nối SQL Server
             builder.Services.AddDbContext<QuanLyPhongTroContext>(options => options
             .UseSqlServer(builder.Configuration.GetConnectionString("QuanLyPhongTroConnectionString")));
+
+            // Đăng ký SendGridService để sử dụng trong các controller
+            builder.Services.AddTransient<SendGridService>();
 
             // Session (cần cho lưu Session thông tin user)
             builder.Services.AddDistributedMemoryCache();
