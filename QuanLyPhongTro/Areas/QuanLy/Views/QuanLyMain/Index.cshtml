@@ -22,7 +22,7 @@
 
     <!-- Services Section -->
     <!--Trang quản lý dịch vụ-->
-    @await Html.PartialAsync("~/Areas/QuanLy/Views/DichVu/Index.cshtml")
+    @await Component.InvokeAsync("DichVu")
 
     <!-- Bills Section -->
     <!--Trang quản lý hóa đơn-->

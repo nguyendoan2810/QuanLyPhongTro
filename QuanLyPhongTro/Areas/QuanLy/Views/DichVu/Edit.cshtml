@@ -1,0 +1,105 @@
+﻿<!-- Modal sửa dịch vụ -->
+<div id="editServiceModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto bounce-in">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Cập nhật dịch vụ</h3>
+            <button onclick="closeModal('editServiceModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <form id="editServiceForm" class="space-y-4">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" id="editMaDv" name="MaDv">
+
+                <div>
+                    <label for="editTenDv" class="block text-sm font-medium text-gray-700 mb-2">Tên dịch vụ *</label>
+                    <input id="editTenDv" name="TenDv" type="text" class="form-input w-full px-3 py-2 rounded-lg border" required>
+                </div>
+
+                <div>
+                    <label for="editDonGia" class="block text-sm font-medium text-gray-700 mb-2">Đơn giá (VNĐ) *</label>
+                    <input id="editDonGia" name="DonGia" type="number" min="1" class="form-input w-full px-3 py-2 rounded-lg border" required>
+                </div>
+            </form>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <button onclick="closeModal('editServiceModal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Hủy</button>
+            <button onclick="updateService()" type="button" class="btn-primary px-4 py-2 bg-blue-600 text-white rounded-lg">Cập nhật</button>
+            <button onclick="deleteService()" type="button" class="btn-primary px-4 py-2 bg-blue-600 text-white rounded-lg">Xóa</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditServiceModal(maDv, tenDv, donGia) {
+        document.getElementById('editMaDv').value = maDv;      // dùng để gửi về server
+        document.getElementById('editTenDv').value = tenDv;    // hiển thị cho người dùng
+        document.getElementById('editDonGia').value = donGia;  // hiển thị cho người dùng
+        openModal('editServiceModal');
+    }
+    function updateService() {
+        const form = document.getElementById('editServiceForm');
+        const maDv = form.MaDv.value;
+        const tenDv = form.TenDv.value.trim();
+        const donGia = parseFloat(form.DonGia.value);
+        const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        if (!tenDv || isNaN(donGia) || donGia <= 0) {
+            showNotification('Vui lòng nhập đầy đủ và hợp lệ!', 'error');
+            return;
+        }
+
+        $.ajax({
+            url: '/QuanLy/DichVu/Update',
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            data: {
+                MaDv: maDv, // trùng tên tham số trong controller
+                TenDv: tenDv,
+                DonGia: donGia
+            },
+            success: function () {
+                showNotification('Cập nhật dịch vụ thành công!', 'success');
+                closeModal('editServiceModal');
+                reloadDichVuList();
+            },
+            error: function (xhr) {
+                showNotification('Lỗi: ' + xhr.responseText, 'error');
+            }
+        });
+    }
+
+    function deleteService() {
+        const maDv = document.getElementById('editMaDv').value;
+        const token = document.querySelector('#editServiceForm input[name="__RequestVerificationToken"]').value;
+
+        if (!confirm('Bạn có chắc muốn xóa dịch vụ này?')) return;
+
+        $.ajax({
+            url: '/QuanLy/DichVu/Delete',
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            data: { maDv: maDv },
+            success: function () {
+                showNotification('Đã xóa dịch vụ thành công!', 'success');
+                closeModal('editServiceModal');
+                reloadDichVuList();
+            },
+            error: function (xhr) {
+                showNotification('Lỗi: ' + xhr.responseText, 'error');
+            }
+        });
+    }
+
+    function reloadDichVuList() {
+        $.get('/QuanLy/DichVu/ReloadPartial', function (html) {
+            $('#dichVuListContainer').html($(html).find('#dichVuListContainer').html());
+        });
+    }
+
+    
+</script>
