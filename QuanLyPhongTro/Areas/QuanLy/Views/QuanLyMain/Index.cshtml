@@ -26,7 +26,7 @@
 
     <!-- Bills Section -->
     <!--Trang quản lý hóa đơn-->
-    @await Html.PartialAsync("~/Areas/QuanLy/Views/HoaDon/Index.cshtml")
+    @await Component.InvokeAsync("HoaDon")
 
     <!-- Finance Section -->
     <!--Trang quản lý thu chi-->
