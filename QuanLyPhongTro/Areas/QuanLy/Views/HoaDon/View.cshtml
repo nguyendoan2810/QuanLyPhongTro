@@ -1,0 +1,200 @@
+﻿<!-- Modal Chi Tiết / Sửa / Xóa Hóa Đơn -->
+<div id="billDetailModal"
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+
+    <div class="bg-white rounded-xl max-w-5xl w-full max-h-[95vh] overflow-y-auto shadow-lg bounce-in">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Chi tiết hóa đơn</h3>
+            <button onclick="closeModal('billDetailModal')" class="text-gray-400 hover:text-gray-600 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <form id="billDetailForm" class="p-6 space-y-6">
+            <!-- Thông tin cơ bản -->
+            <div class="grid grid-cols-3 gap-4">
+                <!-- Phòng -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phòng *</label>
+                    <input id="billRoomName" type="text" class="form-input w-full px-3 py-2 rounded-lg border-gray-300 bg-gray-100" readonly />
+                </div>
+
+                <!-- Khách thuê -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Khách thuê</label>
+                    <input id="billTenantName" type="text" readonly class="form-input w-full px-3 py-2 bg-gray-100 rounded-lg border-gray-300">
+                </div>
+
+                <!-- Kỳ hóa đơn -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kỳ hóa đơn *</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="billMonth" placeholder="Tháng" min="1" max="12" class="form-input w-1/2 px-3 py-2 rounded-lg border-gray-300">
+                        <input type="number" id="billYear" placeholder="Năm" min="2020" class="form-input w-1/2 px-3 py-2 rounded-lg border-gray-300">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bảng chi tiết -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border border-gray-300 rounded-lg">
+                    <thead class="bg-gray-100 text-gray-700 border-b border-gray-300">
+                        <tr>
+                            <th class="px-3 py-2 text-center border-r border-gray-300 w-12">STT</th>
+                            <th class="px-3 py-2 text-left border-r border-gray-300">Nội dung</th>
+                            <th class="px-3 py-2 text-center border-r border-gray-300 w-32">Số lượng</th>
+                            <th class="px-3 py-2 text-right border-r border-gray-300 w-28">Đơn giá</th>
+                            <th class="px-3 py-2 text-right w-32">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-300">
+                        <!-- Tiền phòng -->
+                        <tr>
+                            <td class="text-center py-2 border-r border-gray-300">1</td>
+                            <td class="font-medium border-r border-gray-300">Tiền phòng</td>
+                            <td class="text-center border-r border-gray-300">1</td>
+                            <td class="text-right border-r border-gray-300"><span id="billRoomPrice">0</span></td>
+                            <td class="text-right"><span id="billRoomTotal">0</span></td>
+                        </tr>
+
+                        <!-- Điện -->
+                        <tr>
+                            <td class="text-center py-2 border-r border-gray-300">2</td>
+                            <td class="font-medium border-r border-gray-300">Điện</td>
+                            <td class="border-r border-gray-300 w-32">
+                                <div class="flex flex-col gap-1">
+                                    <input type="number" id="billElectricOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="number" id="billElectricNew" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="text" id="billElectricUsage" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
+                                </div>
+                            </td>
+                            <td class="text-right border-r border-gray-300"><span id="billElectricPrice">0</span></td>
+                            <td class="text-right"><span id="billElectricTotal">0</span></td>
+                        </tr>
+
+                        <!-- Nước -->
+                        <tr>
+                            <td class="text-center py-2 border-r border-gray-300">3</td>
+                            <td class="font-medium border-r border-gray-300">Nước</td>
+                            <td class="border-r border-gray-300 w-32">
+                                <div class="flex flex-col gap-1">
+                                    <input type="number" id="billWaterOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="number" id="billWaterNew" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="text" id="billWaterUsage" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
+                                </div>
+                            </td>
+                            <td class="text-right border-r border-gray-300"><span id="billWaterPrice">0</span></td>
+                            <td class="text-right"><span id="billWaterTotal">0</span></td>
+                        </tr>
+
+                        <!-- Dịch vụ -->
+                        <tr>
+                            <td class="text-center py-2 border-r border-gray-300">4</td>
+                            <td class="font-medium border-r border-gray-300">Dịch vụ khác</td>
+                            <td class="border-r border-gray-300 text-center">
+                                <input type="number" id="billPeopleCount" placeholder="Số người" class="form-input w-full px-2 py-1 text-sm rounded-lg border-gray-300 text-center">
+                            </td>
+                            <td class="text-right border-r border-gray-300"><span id="billServicePrice">0</span></td>
+                            <td class="text-right"><span id="billServiceTotal">0</span></td>
+                        </tr>
+
+                        <!-- Dịch vụ động -->
+                        <tr>
+                            <td colspan="5" class="p-0">
+                                <div id="billDynamicServices"
+                                     class="mt-2 border-t border-gray-200 bg-gray-50 p-3 rounded-b-lg">
+                                    <!-- AJAX sẽ load vào -->
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Tổng cộng -->
+                        <tr class="bg-blue-50 font-semibold">
+                            <td class="text-center py-2 border-r border-gray-300">5</td>
+                            <td class="text-center py-2 border-r border-gray-300">Số tiền phải thanh toán tháng này</td>
+                            <td colspan="2" class="border-r border-gray-300"></td>
+                            <td class="text-right text-blue-700"><span id="billTotalAmount">0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+
+        <!-- Footer Buttons -->
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <button onclick="closeModal('billDetailModal')" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Đóng</button>
+            <button id="btnDeleteBill" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Xóa hóa đơn</button>
+            <button id="btnUpdateBill" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Cập nhật hóa đơn</button>
+        </div>
+    </div>
+</div> 
+
+<script>
+    async function xemChiTietHoaDon(maHd) {
+        try {
+            const res = await fetch(`/QuanLy/HoaDon/LayChiTietHoaDon?maHd=${maHd}`);
+            const data = await res.json();
+
+            if (!data.success) {
+                alert(data.message || "Không lấy được chi tiết hóa đơn");
+                return;
+            }
+
+            const hd = data.data;
+
+            // Gán thông tin cơ bản
+            document.getElementById("billRoomName").value = hd.tenPhong;
+            document.getElementById("billTenantName").value = hd.tenKhachThue;
+            document.getElementById("billMonth").value = hd.thang;
+            document.getElementById("billYear").value = hd.nam;
+
+            // --- Tiền phòng ---
+            document.getElementById("billRoomPrice").innerText = Number(hd.giaPhong).toLocaleString();
+            document.getElementById("billRoomTotal").innerText = Number(hd.giaPhong).toLocaleString();
+
+            // --- Điện ---
+            if (hd.chiSoDien) {
+                const dien = hd.chiTiet.find(ct => ct.maDv === 1);
+                document.getElementById("billElectricOld").value = hd.chiSoDien.chiSoCu;
+                document.getElementById("billElectricNew").value = hd.chiSoDien.chiSoMoi;
+                const soDien = hd.chiSoDien.chiSoMoi - hd.chiSoDien.chiSoCu;
+                document.getElementById("billElectricUsage").value = soDien;
+                document.getElementById("billElectricPrice").innerText = dien?.donGia?.toLocaleString() || 0;
+                document.getElementById("billElectricTotal").innerText = dien?.thanhTien?.toLocaleString() || 0;
+            }
+
+            // --- Nước ---
+            if (hd.chiSoNuoc) {
+                const nuoc = hd.chiTiet.find(ct => ct.maDv === 2);
+                document.getElementById("billWaterOld").value = hd.chiSoNuoc.chiSoCu;
+                document.getElementById("billWaterNew").value = hd.chiSoNuoc.chiSoMoi;
+                const soNuoc = hd.chiSoNuoc.chiSoMoi - hd.chiSoNuoc.chiSoCu;
+                document.getElementById("billWaterUsage").value = soNuoc;
+                document.getElementById("billWaterPrice").innerText = nuoc?.donGia?.toLocaleString() || 0;
+                document.getElementById("billWaterTotal").innerText = nuoc?.thanhTien?.toLocaleString() || 0;
+            }
+
+            // --- Dịch vụ khác ---
+            const dvKhac = hd.chiTiet.filter(ct => ct.maDv !== 1 && ct.maDv !== 2);
+            let html = "";
+            dvKhac.forEach(dv => {
+                html += `<div class="flex justify-between text-sm py-1 border-b">
+                            <span>${dv.tenDv}</span>
+                            <span>${dv.soLuong} x ${dv.donGia.toLocaleString()} = <b>${dv.thanhTien.toLocaleString()}</b></span>
+                        </div>`;
+            });
+            document.getElementById("billDynamicServices").innerHTML = html || "<p class='text-gray-500 text-sm'>Không có dịch vụ khác</p>";
+
+            // --- Tổng tiền ---
+            document.getElementById("billTotalAmount").innerText = Number(hd.tongTien).toLocaleString();
+
+            // Hiển thị modal
+            openModal('billDetailModal');
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi khi tải chi tiết hóa đơn");
+        }
+    }
+</script>

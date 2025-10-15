@@ -26,6 +26,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
 
             var hoaDonList = hoaDons.Select(hd => new HoaDonViewModel 
             { 
+                MaHd = hd.MaHd,
                 MaHoaDonHienThi = $"HĐ{hd.Nam}{hd.MaHd.ToString().PadLeft(4, '0')}", 
                 TenPhong = hd.MaHopDongNavigation?.MaPhongNavigation?.TenPhong ?? "Không rõ", 
                 TenKhachThue = hd.MaHopDongNavigation?.MaKhachNavigation?.HoTen ?? "Không rõ", 
