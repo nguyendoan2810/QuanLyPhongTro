@@ -209,12 +209,12 @@ $(function () {
             const chiTiet = [];
 
             // Tiền phòng (bạn có thể đặt MaDv = 0 hoặc 999 tùy DB của bạn)
-            chiTiet.push({
-                MaDv: 0,
-                SoLuong: 1,
-                DonGia: parseInt(removeCommas($("#donGiaPhong").text())) || 0,
-                ThanhTien: parseInt(removeCommas($("#thanhTienPhong").text())) || 0
-            });
+            // chiTiet.push({
+            //     MaDv: 0,
+            //     SoLuong: 1,
+            //     DonGia: parseInt(removeCommas($("#donGiaPhong").text())) || 0,
+            //     ThanhTien: parseInt(removeCommas($("#thanhTienPhong").text())) || 0
+            // });
 
             // Điện (nếu có tiêu thụ > 0)
             const tieuThuDien = parseInt($("#tieuThuDien").val()) || 0;
@@ -398,7 +398,7 @@ $(function () {
                 <table class="w-full text-sm border border-gray-300 rounded-lg">
                     <thead class="bg-gray-100 text-gray-700">
                         <tr>
-                            <th class="text-center w-12 border-r border-gray-300">STT</th>
+                            <th class="text-center w-12 border-r border-gray-300">Chọn</th>
                             <th class="text-left border-r border-gray-300">Nội dung</th>
                             <th class="text-right border-r border-gray-300 w-28">Đơn giá</th>
                             <th class="text-right w-32">Thành tiền</th>

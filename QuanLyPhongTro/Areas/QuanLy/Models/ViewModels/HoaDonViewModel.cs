@@ -16,6 +16,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Models.ViewModels
 
     public class TaoHoaDonRequest
     {
+        public int MaHd { get; set; } // dùng cho cập nhật
         public int MaHopDong { get; set; }
         public int Thang { get; set; }
         public int Nam { get; set; }

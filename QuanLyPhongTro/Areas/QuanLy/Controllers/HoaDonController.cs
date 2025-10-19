@@ -21,6 +21,16 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         }
 
         [HttpGet]
+        public IActionResult Filter(string trangThai, int? thang, int? nam)
+        {
+            // nếu thang/nam = 0 thì coi là null (nếu model binder set 0 khi empty)
+            int? th = (thang.HasValue && thang.Value > 0) ? thang : null;
+            int? ny = (nam.HasValue && nam.Value > 0) ? nam : null;
+
+            return ViewComponent("HoaDon", new { trangThai, thang = th, nam = ny });
+        }
+
+        [HttpGet]
         public IActionResult LayDanhSachPhongDangThue()
         {
             // Lấy danh sách hợp đồng còn hiệu lực
@@ -65,7 +75,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         [HttpGet]
         public IActionResult LayChiSoHopDong(int maHopDong)
         {
-            if (maHopDong <= 0) return BadRequest("MaHopDong không hợp lệ");
+            if (maHopDong <= 0) return Json("MaHopDong không hợp lệ");
 
             var dvIds = new[] { 1, 2 }; // 1: Điện, 2: Nước (theo cấu trúc DB của bạn)
             var result = dvIds.Select(id =>
@@ -91,9 +101,9 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         [HttpPost]
         public IActionResult TaoHoaDon([FromBody] TaoHoaDonRequest model)
         {
-            if (model == null) return BadRequest(new { success = false, message = "Dữ liệu rỗng." });
+            if (model == null) return Json(new { success = false, message = "Dữ liệu rỗng." });
             if (model.MaHopDong <= 0 || model.Thang < 1 || model.Nam < 2000)
-                return BadRequest(new { success = false, message = "Dữ liệu hóa đơn không hợp lệ." });
+                return Json(new { success = false, message = "Dữ liệu hóa đơn không hợp lệ." });
             
             // Kiểm tra trùng hóa đơn (MaHopDong + Thang + Nam)
             var hoaDonTonTai = _context.HoaDons
@@ -266,6 +276,303 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             };
 
             return Json(new { success = true, data = result });
+        }
+
+        [HttpPost]
+        public IActionResult XoaHoaDon(int maHd)
+        {
+            if (maHd <= 0)
+                return Json(new { success = false, message = "Mã hóa đơn không hợp lệ." });
+
+            var hoaDon = _context.HoaDons
+                .Include(h => h.MaHopDongNavigation)
+                .FirstOrDefault(h => h.MaHd == maHd);
+
+            if (hoaDon == null)
+                return NotFound(new { success = false, message = "Không tìm thấy hóa đơn cần xóa." });
+
+            if (hoaDon.TrangThai == "Đã thanh toán")
+                return Json(new { success = false, message = "Không thể xóa hóa đơn đã thanh toán." });
+
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                // ✅ Kiểm tra Tháng/Năm có null không
+                if (hoaDon.Thang == null || hoaDon.Nam == null)
+                    return Json(new { success = false, message = "Hóa đơn thiếu thông tin tháng hoặc năm." });
+
+                int maHopDong = hoaDon.MaHopDong ?? 0;
+                int thang = hoaDon.Thang.Value;
+                int nam = hoaDon.Nam.Value;
+
+                // ✅ Xóa chi tiết hóa đơn
+                var chiTiet = _context.ChiTietHoaDons
+                    .Where(ct => ct.MaHd == maHd)
+                    .ToList();
+
+                if (chiTiet.Any())
+                {
+                    _context.ChiTietHoaDons.RemoveRange(chiTiet);
+                    _context.SaveChanges();
+                }
+
+                // ✅ Xóa chỉ số điện nước thuộc hóa đơn này
+                var chiSoLienQuan = _context.ChiSoDichVus
+                    .Where(cs => cs.MaHopDong == maHopDong && cs.Thang == thang && cs.Nam == nam)
+                    .ToList();
+
+                if (chiSoLienQuan.Any())
+                {
+                    _context.ChiSoDichVus.RemoveRange(chiSoLienQuan);
+                    _context.SaveChanges();
+                }
+
+                // ✅ Cuối cùng xóa hóa đơn
+                _context.HoaDons.Remove(hoaDon);
+                _context.SaveChanges();
+
+                transaction.Commit();
+                return Ok(new { success = true, message = "Xóa hóa đơn thành công!" });
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Lỗi khi xóa hóa đơn: " + (ex.InnerException?.Message ?? ex.Message)
+                });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult CapNhatHoaDon([FromBody] TaoHoaDonRequest model)
+        {
+            if (model == null) return Json(new { success = false, message = "Dữ liệu rỗng." });
+            
+            if (model.MaHd <= 0) return Json(new { success = false, message = "Thiếu mã hóa đơn cần cập nhật." });
+            
+            if (model.Thang < 1 || model.Nam < 2000)
+                return Json(new { success = false, message = "Dữ liệu hóa đơn không hợp lệ." });
+
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                var hoaDon = _context.HoaDons
+                    .Include(h => h.ChiTietHoaDons)
+                    .FirstOrDefault(h => h.MaHd == model.MaHd);
+
+                if (hoaDon == null)
+                    return NotFound(new { success = false, message = "Không tìm thấy hóa đơn." });
+
+                // Nếu MaHopDong null thì lỗi (an toàn hơn)
+                if (hoaDon.MaHopDong == null)
+                    return Json(new { success = false, message = "Hóa đơn thiếu MaHopDong." });
+
+                // ======= KIỂM TRA TRÙNG KỲ =======
+                bool trungKy = _context.HoaDons.Any(h =>
+                    h.MaHopDong == hoaDon.MaHopDong &&
+                    h.Thang == model.Thang &&
+                    h.Nam == model.Nam &&
+                    h.MaHd != hoaDon.MaHd);
+
+                if (trungKy)
+                    return Json(new { success = false, message = "Đã tồn tại hóa đơn cho hợp đồng này trong tháng/năm này." });
+
+                // ===== Valid backend: kiểm tra chỉ số điện/nước =====
+                if (model.ChiSoDien != null && model.ChiSoDien.Moi < model.ChiSoDien.Cu)
+                    return Json(new { success = false, message = "Chỉ số điện mới phải lớn hơn hoặc bằng chỉ số cũ." });
+
+                if (model.ChiSoNuoc != null && model.ChiSoNuoc.Moi < model.ChiSoNuoc.Cu)
+                    return Json(new { success = false, message = "Chỉ số nước mới phải lớn hơn hoặc bằng chỉ số cũ." });
+
+                // ===== Cập nhật thông tin hóa đơn =====
+                hoaDon.Thang = model.Thang;
+                hoaDon.Nam = model.Nam;
+                hoaDon.TongTien = model.ThanhTienThangNay;
+                hoaDon.TrangThai = "Chưa thanh toán";
+
+                // ===== Cập nhật chi tiết hóa đơn =====
+                _context.ChiTietHoaDons.RemoveRange(hoaDon.ChiTietHoaDons);
+
+                if (model.ChiTiet != null)
+                {
+                    foreach (var ct in model.ChiTiet)
+                    {
+                        if (ct.MaDv <= 0) continue;
+
+                        _context.ChiTietHoaDons.Add(new ChiTietHoaDon
+                        {
+                            MaHd = hoaDon.MaHd,
+                            MaDv = ct.MaDv,
+                            DonGia = ct.DonGia,
+                            SoLuong = ct.SoLuong,
+                            ThanhTien = ct.ThanhTien
+                        });
+                    }
+                }
+
+                // ===== Cập nhật chỉ số điện/nước =====
+                var csDien = _context.ChiSoDichVus.FirstOrDefault(x =>
+                    x.MaHopDong == hoaDon.MaHopDong && x.MaDv == 1 && x.Thang == model.Thang && x.Nam == model.Nam);
+
+                var csNuoc = _context.ChiSoDichVus.FirstOrDefault(x =>
+                    x.MaHopDong == hoaDon.MaHopDong && x.MaDv == 2 && x.Thang == model.Thang && x.Nam == model.Nam);
+
+                if (model.ChiSoDien != null)
+                {
+                    if (csDien != null)
+                    {
+                        csDien.ChiSoCu = model.ChiSoDien.Cu;
+                        csDien.ChiSoMoi = model.ChiSoDien.Moi;
+                    }
+                    else
+                    {
+                        _context.ChiSoDichVus.Add(new ChiSoDichVu
+                        {
+                            MaHopDong = hoaDon.MaHopDong ?? 0,
+                            MaDv = 1,
+                            Thang = model.Thang,
+                            Nam = model.Nam,
+                            ChiSoCu = model.ChiSoDien.Cu,
+                            ChiSoMoi = model.ChiSoDien.Moi
+                        });
+                    }
+                }
+
+                if (model.ChiSoNuoc != null)
+                {
+                    if (csNuoc != null)
+                    {
+                        csNuoc.ChiSoCu = model.ChiSoNuoc.Cu;
+                        csNuoc.ChiSoMoi = model.ChiSoNuoc.Moi;
+                    }
+                    else
+                    {
+                        _context.ChiSoDichVus.Add(new ChiSoDichVu
+                        {
+                            MaHopDong = hoaDon.MaHopDong ?? 0,
+                            MaDv = 2,
+                            Thang = model.Thang,
+                            Nam = model.Nam,
+                            ChiSoCu = model.ChiSoNuoc.Cu,
+                            ChiSoMoi = model.ChiSoNuoc.Moi
+                        });
+                    }
+                }
+
+                _context.SaveChanges();
+                transaction.Commit();
+
+                return Ok(new { success = true, message = "Cập nhật hóa đơn thành công!" });
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Lỗi khi cập nhật hóa đơn: " + (ex.InnerException?.Message ?? ex.Message)
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ThanhToanHoaDon(int maHd)
+        {
+            try
+            {
+                var hoaDon = await _context.HoaDons
+                    .Include(h => h.MaHopDongNavigation)
+                    .ThenInclude(hd => hd.MaPhongNavigation)
+                    .ThenInclude(p => p.ChiTietPhong)
+                    .FirstOrDefaultAsync(h => h.MaHd == maHd);
+
+                if (hoaDon == null)
+                    return Json(new { success = false, message = "Không tìm thấy hóa đơn." });
+
+                if (hoaDon.TrangThai == "Đã thanh toán")
+                    return Json(new { success = false, message = "Hóa đơn này đã được thanh toán." });
+
+                // Cập nhật trạng thái hóa đơn
+                hoaDon.TrangThai = "Đã thanh toán";
+                _context.HoaDons.Update(hoaDon);
+
+                // Lấy thông tin bổ sung
+                var phong = hoaDon.MaHopDongNavigation?.MaPhongNavigation?.TenPhong ?? "Không rõ";
+                var diaChi = hoaDon.MaHopDongNavigation?.MaPhongNavigation?.ChiTietPhong?.DiaChi ?? "Không rõ";
+                var ky = $"{hoaDon.Thang}/{hoaDon.Nam}";
+
+                // Tạo bản ghi ThuChi
+                var thuChi = new ThuChi
+                {
+                    Ngay = DateTime.Now,
+                    Loai = "Thu",
+                    SoTien = hoaDon.TongTien,
+                    NoiDung = $"Thanh toán hóa đơn {phong} - {diaChi} kỳ {ky}",
+                    MaHd = hoaDon.MaHd
+                };
+
+                _context.ThuChis.Add(thuChi);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Thanh toán hóa đơn thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi thanh toán: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuiThongBaoThanhToan(int maHd)
+        {
+            try
+            {
+                var hoaDon = await _context.HoaDons
+                    .Include(h => h.MaHopDongNavigation)
+                        .ThenInclude(hd => hd.MaKhachNavigation)
+                    .Include(h => h.MaHopDongNavigation)
+                        .ThenInclude(hd => hd.MaPhongNavigation)
+                        .ThenInclude(p => p.ChiTietPhong)
+                    .FirstOrDefaultAsync(h => h.MaHd == maHd);
+
+                if (hoaDon == null)
+                    return Json(new { success = false, message = "Không tìm thấy hóa đơn." });
+
+                var khach = hoaDon.MaHopDongNavigation?.MaKhachNavigation;
+                if (khach == null)
+                    return Json(new { success = false, message = "Không tìm thấy khách thuê liên quan." });
+
+                // Tìm tài khoản của khách thuê
+                var taiKhoan = await _context.TaiKhoans
+                    .FirstOrDefaultAsync(t => t.MaKhach == khach.MaKhach);
+
+                if (taiKhoan == null)
+                    return Json(new { success = false, message = "Khách thuê chưa có tài khoản." });
+
+                // Lấy thông tin phòng
+                var tenPhong = hoaDon.MaHopDongNavigation?.MaPhongNavigation?.TenPhong ?? "Không rõ phòng";
+                var diaChi = hoaDon.MaHopDongNavigation?.MaPhongNavigation?.ChiTietPhong?.DiaChi ?? "Không rõ địa chỉ";
+
+                // Tạo thông báo
+                var thongBao = new ThongBao
+                {
+                    MaTk = taiKhoan.MaTk,
+                    NoiDung = $"Bạn có hóa đơn tháng {hoaDon.Thang}/{hoaDon.Nam} của phòng {tenPhong}-{diaChi} cần thanh toán.",
+                    NgayGui = DateTime.Now,
+                    Loai = "ThanhToan"
+                };
+
+                _context.ThongBaos.Add(thongBao);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Đã gửi thông báo nhắc nhở thanh toán cho khách thuê." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi gửi thông báo: " + ex.Message });
+            }
         }
     }
 }

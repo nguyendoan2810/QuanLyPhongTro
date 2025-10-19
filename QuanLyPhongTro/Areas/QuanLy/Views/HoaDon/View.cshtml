@@ -65,7 +65,7 @@
                             <td class="font-medium border-r border-gray-300">Điện</td>
                             <td class="border-r border-gray-300 w-32">
                                 <div class="flex flex-col gap-1">
-                                    <input type="number" id="billElectricOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="number" id="billElectricOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300" readonly>
                                     <input type="number" id="billElectricNew" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
                                     <input type="text" id="billElectricUsage" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
                                 </div>
@@ -80,7 +80,7 @@
                             <td class="font-medium border-r border-gray-300">Nước</td>
                             <td class="border-r border-gray-300 w-32">
                                 <div class="flex flex-col gap-1">
-                                    <input type="number" id="billWaterOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="number" id="billWaterOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300" readonly>
                                     <input type="number" id="billWaterNew" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
                                     <input type="text" id="billWaterUsage" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
                                 </div>
@@ -138,23 +138,33 @@
             const data = await res.json();
 
             if (!data.success) {
-                alert(data.message || "Không lấy được chi tiết hóa đơn");
+                showNotification(data.message || "Không lấy được chi tiết hóa đơn", "warning");
                 return;
             }
 
             const hd = data.data;
 
-            // Gán thông tin cơ bản
+            // ===== RESET FORM =====
+            const form = document.getElementById("billDetailForm");
+            if (form) form.reset();
+            document.getElementById("billDynamicServices").innerHTML = "";
+
+            // ===== GÁN MÃ HÓA ĐƠN VÀO MODAL =====
+            const modal = document.getElementById("billDetailModal");
+            modal.dataset.mahd = maHd;
+
+            // ===== GÁN THÔNG TIN CƠ BẢN =====
             document.getElementById("billRoomName").value = hd.tenPhong;
             document.getElementById("billTenantName").value = hd.tenKhachThue;
             document.getElementById("billMonth").value = hd.thang;
             document.getElementById("billYear").value = hd.nam;
+            document.getElementById("billTotalAmount").innerText = Number(hd.tongTien).toLocaleString();
 
-            // --- Tiền phòng ---
+            // ===== TIỀN PHÒNG =====
             document.getElementById("billRoomPrice").innerText = Number(hd.giaPhong).toLocaleString();
             document.getElementById("billRoomTotal").innerText = Number(hd.giaPhong).toLocaleString();
 
-            // --- Điện ---
+            // ===== ĐIỆN =====
             if (hd.chiSoDien) {
                 const dien = hd.chiTiet.find(ct => ct.maDv === 1);
                 document.getElementById("billElectricOld").value = hd.chiSoDien.chiSoCu;
@@ -165,7 +175,7 @@
                 document.getElementById("billElectricTotal").innerText = dien?.thanhTien?.toLocaleString() || 0;
             }
 
-            // --- Nước ---
+            // ===== NƯỚC =====
             if (hd.chiSoNuoc) {
                 const nuoc = hd.chiTiet.find(ct => ct.maDv === 2);
                 document.getElementById("billWaterOld").value = hd.chiSoNuoc.chiSoCu;
@@ -176,25 +186,269 @@
                 document.getElementById("billWaterTotal").innerText = nuoc?.thanhTien?.toLocaleString() || 0;
             }
 
-            // --- Dịch vụ khác ---
-            const dvKhac = hd.chiTiet.filter(ct => ct.maDv !== 1 && ct.maDv !== 2);
-            let html = "";
-            dvKhac.forEach(dv => {
-                html += `<div class="flex justify-between text-sm py-1 border-b">
-                            <span>${dv.tenDv}</span>
-                            <span>${dv.soLuong} x ${dv.donGia.toLocaleString()} = <b>${dv.thanhTien.toLocaleString()}</b></span>
-                        </div>`;
+            // ===== DỊCH VỤ KHÁC =====
+            const dichVuRes = await fetch("/QuanLy/HoaDon/LayDanhSachDichVu");
+            const dichVuData = await dichVuRes.json();
+            const container = document.getElementById("billDynamicServices");
+
+            if (!dichVuData || dichVuData.length === 0) {
+                container.innerHTML = "<p class='text-gray-500 text-sm text-center'>Không có dịch vụ nào.</p>";
+                return;
+            }
+
+            let soNguoi = 0;
+            const dvKhacTrongHd = hd.chiTiet.filter(ct =>
+                ct.maDv !== 1 && ct.maDv !== 2 && !ct.tenDv.toLowerCase().includes("internet") && !ct.tenDv.toLowerCase().includes("mạng")
+            );
+            if (dvKhacTrongHd.length > 0) {
+                soNguoi = dvKhacTrongHd[0].soLuong || 0;
+            }
+            document.getElementById("billPeopleCount").value = soNguoi;
+
+            const soNguoiInput = document.getElementById("billPeopleCount");
+
+            let html = `<table class="w-full text-sm border border-gray-300 rounded">
+                            <thead class="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th class="text-center w-10 border-r border-gray-300">Chọn</th>
+                                    <th class="text-left border-r border-gray-300 px-2">Tên dịch vụ</th>
+                                    <th class="text-right border-r border-gray-300 w-24">Đơn giá</th>
+                                    <th class="text-right w-32">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+            dichVuData.forEach(dv => {
+                const maDv = dv.maDv || dv.MaDv;
+                if (maDv === 1 || maDv === 2) return;
+
+                const tenDv = dv.tenDv || dv.TenDv;
+                const donGia = parseInt(dv.donGia || dv.DonGia) || 0;
+
+                const existed = hd.chiTiet.find(ct => ct.maDv === maDv);
+                const checked = existed ? "checked" : "";
+
+                // chỉ tính tiền nếu checked
+                const thanhTien = existed
+                    ? existed.thanhTien
+                    : (checked ? (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng") ? donGia : donGia * soNguoi) : 0);
+
+                html += `
+                    <tr class="border-t border-gray-200">
+                        <td class="text-center border-r border-gray-300">
+                            <input type="checkbox" class="dv-check" data-id="${maDv}" data-ten="${tenDv}" data-dongia="${donGia}" ${checked}>
+                        </td>
+                        <td class="border-r border-gray-300 px-2">${tenDv}</td>
+                        <td class="text-right border-r border-gray-300">${donGia.toLocaleString()}</td>
+                        <td class="text-right">
+                            <span class="dv-thanh-tien" data-id="${maDv}">${thanhTien.toLocaleString()}</span>
+                        </td>
+                    </tr>`;
             });
-            document.getElementById("billDynamicServices").innerHTML = html || "<p class='text-gray-500 text-sm'>Không có dịch vụ khác</p>";
 
-            // --- Tổng tiền ---
-            document.getElementById("billTotalAmount").innerText = Number(hd.tongTien).toLocaleString();
+            html += `</tbody></table>`;
+            container.innerHTML = html;
 
-            // Hiển thị modal
-            openModal('billDetailModal');
+            // ===== TÍNH TOÁN REALTIME =====
+            function tinhThanhTienDichVu(tenDv, donGia, checked) {
+                if (!checked) return 0;
+                if (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng"))
+                    return donGia;
+                return donGia * (parseInt(soNguoiInput.value) || 0);
+            }
+
+            function capNhatThanhTienDichVu() {
+                $(".dv-check").each(function () {
+                    const id = $(this).data("id");
+                    const ten = $(this).data("ten");
+                    const donGia = parseInt($(this).data("dongia")) || 0;
+                    const checked = $(this).is(":checked");
+                    const thanhTien = tinhThanhTienDichVu(ten, donGia, checked);
+                    $(`.dv-thanh-tien[data-id='${id}']`).text(thanhTien.toLocaleString());
+                });
+                capNhatTongTienDichVu();
+                capNhatTongTien();
+            }
+
+            // ===== HÀM TÍNH TỔNG DỊCH VỤ KHÁC =====
+            function capNhatTongTienDichVu() {
+                let tong = 0;
+                $(".dv-check:checked").each(function () {
+                    const ten = $(this).data("ten");
+                    const donGia = parseInt($(this).data("dongia")) || 0;
+                    tong += tinhThanhTienDichVu(ten, donGia, true);
+                });
+                document.getElementById("billServiceTotal").innerText = tong.toLocaleString();
+            }
+
+            $(".dv-check").on("change", capNhatThanhTienDichVu);
+            $("#billPeopleCount").on("input", capNhatThanhTienDichVu);
+
+            $("#billElectricOld, #billElectricNew").on("input", function () {
+                const cu = parseInt($("#billElectricOld").val()) || 0;
+                const moi = parseInt($("#billElectricNew").val()) || 0;
+                const gia = parseInt(removeCommas($("#billElectricPrice").text())) || 0;
+                const tieuThu = Math.max(0, moi - cu);
+                const thanhTien = tieuThu * gia;
+                $("#billElectricUsage").val(tieuThu);
+                $("#billElectricTotal").text(numberWithCommas(thanhTien));
+                capNhatTongTien();
+            });
+
+            $("#billWaterOld, #billWaterNew").on("input", function () {
+                const cu = parseInt($("#billWaterOld").val()) || 0;
+                const moi = parseInt($("#billWaterNew").val()) || 0;
+                const gia = parseInt(removeCommas($("#billWaterPrice").text())) || 0;
+                const tieuThu = Math.max(0, moi - cu);
+                const thanhTien = tieuThu * gia;
+                $("#billWaterUsage").val(tieuThu);
+                $("#billWaterTotal").text(numberWithCommas(thanhTien));
+                capNhatTongTien();
+            });
+
+            function capNhatTongTien() {
+                const tienPhong = parseInt(removeCommas($("#billRoomTotal").text())) || 0;
+                const tienDien = parseInt(removeCommas($("#billElectricTotal").text())) || 0;
+                const tienNuoc = parseInt(removeCommas($("#billWaterTotal").text())) || 0;
+                const tienDv = parseInt(removeCommas($("#billServiceTotal").text())) || 0;
+                const tong = tienPhong + tienDien + tienNuoc + tienDv;
+                $("#billTotalAmount").text(numberWithCommas(tong));
+            }        
+            capNhatTongTien();
+            capNhatTongTienDichVu();
+
+             // ===== KIỂM TRA TRẠNG THÁI VÀ KHÓA FORM =====
+            if (hd.trangThai === "Đã thanh toán") {
+                $("#btnDeleteBill").hide();
+                $("#btnUpdateBill").hide();
+                $("#billDetailForm input, #billDetailForm select").prop("disabled", true);
+            } else {
+                $("#btnDeleteBill").show();
+                $("#btnUpdateBill").show();
+                $("#billDetailForm input, #billDetailForm select").prop("disabled", false);
+            }
+
+            openModal("billDetailModal");
+
+            // Gắn sự kiện khi bấm nút "Xóa hóa đơn"
+            $(document).off("click", "#btnDeleteBill").on("click", "#btnDeleteBill", function () {
+                const maHd = $("#billDetailModal").data("mahd"); // lưu sẵn khi mở modal xem chi tiết
+                console.log("Mã hóa đơn cần xóa:", maHd);
+
+                if (!maHd) {
+                    showNotification("Không xác định được mã hóa đơn cần xóa.", "warning");
+                    return;
+                }
+
+                if (!confirm("Bạn có chắc chắn muốn xóa hóa đơn này không?")) return;
+
+                $.ajax({
+                    url: "/QuanLy/HoaDon/XoaHoaDon",
+                    type: "POST",
+                    data: { maHd: maHd },
+                    success: function (res) {
+                        if (res.success) {
+                            showNotification(res.message, "success");
+                            closeModal("billDetailModal");
+
+                            // Reload lại danh sách hóa đơn
+                            $("#bills-section").load("/QuanLy/HoaDon/ReloadPartial #bills-section > *");
+                        } else {
+                            showNotification(res.message || "Không thể xóa hóa đơn.", "warning");
+                        }
+                    },
+                    error: function (xhr) {
+                        showNotification("Lỗi khi xóa hóa đơn: " + xhr.statusText, "error");
+                    }
+                });
+            });
+
+            // ===== GẮN SỰ KIỆN SỬA HÓA ĐƠN =====
+    $(document).off("click", "#btnUpdateBill").on("click", "#btnUpdateBill", function () {
+        const maHd = $("#billDetailModal").data("mahd");
+        if (!maHd) {
+            showNotification("Không xác định được mã hóa đơn cần cập nhật.", "warning");
+            return;
+        }
+
+        const thang = parseInt($("#billMonth").val()) || 0;
+        const nam = parseInt($("#billYear").val()) || 0;
+        const thanhTienThangNay = parseInt(removeCommas($("#billTotalAmount").text())) || 0;
+
+        const dienCu = parseInt($("#billElectricOld").val()) || 0;
+        const dienMoi = parseInt($("#billElectricNew").val()) || 0;
+        const nuocCu = parseInt($("#billWaterOld").val()) || 0;
+        const nuocMoi = parseInt($("#billWaterNew").val()) || 0;
+
+        if (dienMoi < dienCu || nuocMoi < nuocCu) {
+            showNotification("Chỉ số mới phải lớn hơn hoặc bằng chỉ số cũ.", "warning");
+            return;
+        }
+
+        const chiTiet = [];
+
+        // Điện
+        const soDien = parseInt($("#billElectricUsage").val()) || 0;
+        chiTiet.push({
+            MaDv: 1,
+            SoLuong: soDien,
+            DonGia: parseInt(removeCommas($("#billElectricPrice").text())) || 0,
+            ThanhTien: parseInt(removeCommas($("#billElectricTotal").text())) || 0
+        });
+
+        // Nước
+        const soNuoc = parseInt($("#billWaterUsage").val()) || 0;
+        chiTiet.push({
+            MaDv: 2,
+            SoLuong: soNuoc,
+            DonGia: parseInt(removeCommas($("#billWaterPrice").text())) || 0,
+            ThanhTien: parseInt(removeCommas($("#billWaterTotal").text())) || 0
+        });
+
+        // Dịch vụ khác
+        $(".dv-check:checked").each(function () {
+            const maDv = parseInt($(this).data("id")) || 0;
+            const ten = $(this).data("ten") || "";
+            const donGia = parseInt($(this).data("dongia")) || 0;
+            let soLuong = ten.toLowerCase().includes("internet") ? 1 : parseInt($("#billPeopleCount").val()) || 0;
+            const thanhTien = ten.toLowerCase().includes("internet") ? donGia : donGia * soLuong;
+
+            chiTiet.push({ MaDv: maDv, SoLuong: soLuong, DonGia: donGia, ThanhTien: thanhTien });
+        });
+
+        const payload = {
+            maHd: maHd,
+            thang: thang,
+            nam: nam,
+            thanhTienThangNay: thanhTienThangNay,
+            chiTiet: chiTiet,
+            chiSoDien: { cu: dienCu, moi: dienMoi },
+            chiSoNuoc: { cu: nuocCu, moi: nuocMoi }
+        };
+
+        $.ajax({
+            url: "/QuanLy/HoaDon/CapNhatHoaDon",
+            type: "POST",
+            data: JSON.stringify(payload),
+            contentType: "application/json",
+            success: function (res) {
+                if (res.success) {
+                    showNotification(res.message || "Cập nhật hóa đơn thành công!", "success");
+                    closeModal("billDetailModal");
+                    $("#bills-section").load("/QuanLy/HoaDon/ReloadPartial #bills-section > *");
+                } else {
+                    showNotification(res.message || "Không thể cập nhật hóa đơn.", "warning");
+                }
+            },
+            error: function (xhr) {
+                showNotification("Lỗi khi cập nhật hóa đơn: " + xhr.statusText, "error");
+            }
+        });
+    });
+
         } catch (err) {
             console.error(err);
-            alert("Lỗi khi tải chi tiết hóa đơn");
+            showNotification("Lỗi khi tải chi tiết hóa đơn", "error");
         }
-    }
+    }   
 </script>
