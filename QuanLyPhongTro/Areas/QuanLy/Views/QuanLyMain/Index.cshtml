@@ -6,7 +6,7 @@
 <main class="p-6">
     <!-- Dashboard Section -->
     <!--Trang dashboard-->
-    @await Html.PartialAsync("~/Areas/QuanLy/Views/Dashboard/Index.cshtml")
+    @await Component.InvokeAsync("Dashboard")
 
     <!-- Rooms Section -->
     <!--Trang quản lý phòng-->
@@ -34,7 +34,7 @@
 
     <!-- Reports Section -->
     <!--Trang báo cáo-thống kê-->
-    @await Html.PartialAsync("~/Areas/QuanLy/Views/BaoCaoThongKe/Index.cshtml")
+    @await Component.InvokeAsync("BaoCaoThongKe")
 
     <!-- Accounts Section -->
     <!--Trang quản lý tài khoản-->

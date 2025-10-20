@@ -1,4 +1,48 @@
-﻿<div id="reports-section" class="section hidden">
+﻿@{
+    var doanhThuThang = ViewBag.DoanhThuThang as IEnumerable<object>;
+    var monthlyRevenueLabels = new List<string>();
+    var monthlyRevenueData = new List<decimal>();
+
+    if (doanhThuThang != null)
+    {
+        foreach (var item in doanhThuThang)
+        {
+            var type = item.GetType();
+            var thang = type.GetProperty("Thang")?.GetValue(item)?.ToString();
+            var tong = type.GetProperty("TongDoanhThu")?.GetValue(item);
+
+            if (thang != null && tong != null)
+            {
+                monthlyRevenueLabels.Add($"T{thang}");
+                monthlyRevenueData.Add(Convert.ToDecimal(tong) / 1000000); // triệu VNĐ
+            }
+        }
+    }
+
+    var tyLeLapDay = ViewBag.TyLeLapDayTheoThang as IEnumerable<object>;
+    var occupancyChartlabels = new List<string>();
+    var occupancyChartdata = new List<decimal>();
+
+    if (tyLeLapDay != null)
+    {
+        foreach (var item in tyLeLapDay)
+        {
+            var type = item.GetType();
+            var thang = type.GetProperty("Thang")?.GetValue(item)?.ToString();
+            var tyLe = type.GetProperty("TyLe")?.GetValue(item);
+
+            if (thang != null && tyLe != null)
+            {
+                occupancyChartlabels.Add(thang);
+                occupancyChartdata.Add(Convert.ToDecimal(tyLe));
+            }
+        }
+    }
+
+    var danhSachPhongTrong = ViewBag.DanhSachPhongTrong as IEnumerable<object> ?? new List<object>();
+}
+
+<div id="reports-section" class="section hidden">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Báo cáo Doanh thu</h3>
@@ -10,65 +54,102 @@
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Tỷ lệ lấp đầy phòng</h3>
             <div class="chart-container">
+               
                 <canvas id="occupancyChart"></canvas>
             </div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <!-- 🏠 Danh sách phòng trống -->
+        <div class="flex flex-col bg-white rounded-xl shadow-sm border border-gray-100">
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800">Danh sách phòng trống</h3>
             </div>
-            <div class="p-6">
+
+            <div class="flex-1 p-6 overflow-y-auto max-h-96">
                 <div class="space-y-3">
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <p class="font-medium text-gray-900">P102</p>
-                            <p class="text-sm text-gray-500">Phòng đôi - 35m²</p>
+                    @foreach (var item in danhSachPhongTrong)
+                    {
+                        var type = item.GetType();
+                        var tenPhong = type.GetProperty("TenPhong")?.GetValue(item)?.ToString();
+                        var giaPhong = type.GetProperty("GiaPhong")?.GetValue(item);
+                        var diaChi = type.GetProperty("DiaChi")?.GetValue(item)?.ToString();
+                        var dienTich = type.GetProperty("DienTich")?.GetValue(item);
+                        var loaiPhong = type.GetProperty("LoaiPhong")?.GetValue(item)?.ToString();
+                        var moTa = type.GetProperty("MoTa")?.GetValue(item)?.ToString();
+
+                        <div class="p-4 rounded-xl shadow-sm border border-gray-200 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-door-open text-green-700"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-green-900">@tenPhong</p>
+                                        <p class="text-sm text-green-700">@loaiPhong - @dienTich m²</p>
+                                    </div>
+                                </div>
+                                <span class="text-green-800 font-bold">@Convert.ToDecimal(giaPhong).ToString("N0") VNĐ</span>
+                            </div>
+                            <p class="text-sm text-gray-700"><strong>Địa chỉ:</strong> @diaChi</p>
+                            <p class="text-sm text-gray-700"><strong>Mô tả:</strong> @moTa</p>
                         </div>
-                        <span class="text-gray-600">3,200,000 VNĐ</span>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <p class="font-medium text-gray-900">P105</p>
-                            <p class="text-sm text-gray-500">Phòng đơn - 25m²</p>
-                        </div>
-                        <span class="text-gray-600">2,500,000 VNĐ</span>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <p class="font-medium text-gray-900">P201</p>
-                            <p class="text-sm text-gray-500">Phòng gia đình - 45m²</p>
-                        </div>
-                        <span class="text-gray-600">4,500,000 VNĐ</span>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <!-- 💰 Khách chưa thanh toán -->
+        <div class="flex flex-col bg-white rounded-xl shadow-sm border border-gray-100">
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800">Khách chưa thanh toán</h3>
             </div>
-            <div class="p-6">
+
+            <div class="flex-1 p-6 overflow-y-auto max-h-96">
                 <div class="space-y-3">
-                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                        <div>
-                            <p class="font-medium text-gray-900">Trần Thị B - P104</p>
-                            <p class="text-sm text-red-600">Quá hạn 5 ngày</p>
-                        </div>
-                        <span class="text-red-600 font-semibold">3,450,000 VNĐ</span>
-                    </div>
-                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                        <div>
-                            <p class="font-medium text-gray-900">Lê Văn C - P106</p>
-                            <p class="text-sm text-yellow-600">Sắp đến hạn</p>
-                        </div>
-                        <span class="text-yellow-600 font-semibold">2,800,000 VNĐ</span>
-                    </div>
+                    @if (ViewBag.DanhSachKhachChuaThanhToan == null || !((IEnumerable<dynamic>)ViewBag.DanhSachKhachChuaThanhToan).Any())
+                    {
+                        <p class="text-gray-500 text-center">Không có khách nào chưa thanh toán.</p>
+                    }
+                    else
+                    {
+                        foreach (var item in ViewBag.DanhSachKhachChuaThanhToan)
+                        {
+                            var isQuaHan = item.TrangThai == "Quá hạn";
+                            var bgColor = isQuaHan ? "bg-red-50" : "bg-yellow-50";
+                            var textColor = isQuaHan ? "text-red-700" : "text-yellow-700";
+                            var borderColor = isQuaHan ? "border-red-100" : "border-yellow-100";
+
+                            <div class="flex items-center justify-between p-4 rounded-lg border transition @bgColor @borderColor hover:shadow-md">
+                                <div>
+                                    <p class="font-medium text-gray-900">@item.HoTen</p>
+                                    <p class="text-sm text-gray-600">@item.TenPhong</p>
+                                    <p class="text-sm font-medium @textColor">@item.TrangThai (@item.SoNgayChenhLech ngày)</p>
+                                </div>
+                                <span class="font-semibold @textColor">@string.Format("{0:N0} VNĐ", item.TongTien)</span>
+                            </div>
+                        }
+                    }
                 </div>
             </div>
         </div>
     </div>
 </div>
+            
+<script>
+    const monthlyRevenueLabels = @Html.Raw(Json.Serialize(monthlyRevenueLabels));
+    const monthlyRevenueData = @Html.Raw(Json.Serialize(monthlyRevenueData));
+</script>
+
+<script>
+    const occupancyChartlabels = @Html.Raw(Json.Serialize(occupancyChartlabels));
+    const occupancyChartdata = @Html.Raw(Json.Serialize(occupancyChartdata));
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        initCharts();
+    });
+</script>

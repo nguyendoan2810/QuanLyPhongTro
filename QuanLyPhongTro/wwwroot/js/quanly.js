@@ -112,19 +112,29 @@ function showNotification(message, type = 'info') {
         }
     }, 5000);
 }
+let chartInstances = {};
 
 // Chart Functions
 function initCharts() {
-    // Revenue Chart
+    // Hàm tiện ích: hủy chart cũ nếu tồn tại
+    function destroyIfExists(id) {
+        if (chartInstances[id]) {
+            chartInstances[id].destroy();
+            delete chartInstances[id];
+        }
+    }
+
+    // ===== 1️⃣ Biểu đồ Doanh thu tổng =====
     const revenueCtx = document.getElementById('revenueChart');
-    if (revenueCtx) {
-        new Chart(revenueCtx, {
+    if (revenueCtx && typeof revenueLabels !== 'undefined' && typeof revenueData !== 'undefined') {
+        destroyIfExists('revenueChart');
+        chartInstances['revenueChart'] = new Chart(revenueCtx, {
             type: 'line',
             data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                labels: revenueLabels,
                 datasets: [{
                     label: 'Doanh thu (triệu VNĐ)',
-                    data: [35, 42, 38, 45, 41, 48],
+                    data: revenueData,
                     borderColor: '#667eea',
                     backgroundColor: 'rgba(102, 126, 234, 0.1)',
                     borderWidth: 3,
@@ -139,9 +149,7 @@ function initCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -157,16 +165,17 @@ function initCharts() {
         });
     }
 
-    // Room Chart
+    // ===== 2️⃣ Biểu đồ Tình trạng phòng =====
     const roomCtx = document.getElementById('roomChart');
-    if (roomCtx) {
-        new Chart(roomCtx, {
+    if (roomCtx && typeof roomLabels !== 'undefined' && typeof roomData !== 'undefined' && typeof roomColors !== 'undefined') {
+        destroyIfExists('roomChart');
+        chartInstances['roomChart'] = new Chart(roomCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Đã thuê', 'Trống', 'Bảo trì'],
+                labels: roomLabels,
                 datasets: [{
-                    data: [18, 4, 2],
-                    backgroundColor: ['#667eea', '#e5e7eb', '#f59e0b'],
+                    data: roomData,
+                    backgroundColor: roomColors,
                     borderWidth: 0,
                     cutout: '70%'
                 }]
@@ -188,16 +197,17 @@ function initCharts() {
         });
     }
 
-    // Monthly Revenue Chart (Reports section)
+    // ===== 3️⃣ Biểu đồ Doanh thu theo tháng =====
     const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart');
-    if (monthlyRevenueCtx) {
-        new Chart(monthlyRevenueCtx, {
+    if (monthlyRevenueCtx && typeof monthlyRevenueLabels !== 'undefined' && typeof monthlyRevenueData !== 'undefined') {
+        destroyIfExists('monthlyRevenueChart');
+        chartInstances['monthlyRevenueChart'] = new Chart(monthlyRevenueCtx, {
             type: 'bar',
             data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                labels: monthlyRevenueLabels,
                 datasets: [{
-                    label: 'Doanh thu',
-                    data: [35, 42, 38, 45, 41, 48],
+                    label: 'Doanh thu (triệu VNĐ)',
+                    data: monthlyRevenueData,
                     backgroundColor: 'rgba(102, 126, 234, 0.8)',
                     borderColor: '#667eea',
                     borderWidth: 1,
@@ -207,59 +217,65 @@ function initCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#f3f4f6' }
+                        grid: { color: '#f3f4f6' },
+                        ticks: { color: '#6b7280' }
                     },
                     x: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { color: '#6b7280' }
                     }
                 }
             }
         });
     }
 
-    // Occupancy Chart (Reports section)
+    // ===== 4️⃣ Biểu đồ Tỷ lệ lấp đầy =====
     const occupancyCtx = document.getElementById('occupancyChart');
-    if (occupancyCtx) {
-        new Chart(occupancyCtx, {
+    if (occupancyCtx && typeof occupancyChartlabels !== 'undefined' && typeof occupancyChartdata !== 'undefined') {
+        destroyIfExists('occupancyChart');
+        chartInstances['occupancyChart'] = new Chart(occupancyCtx, {
             type: 'line',
             data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                labels: occupancyChartlabels,
                 datasets: [{
                     label: 'Tỷ lệ lấp đầy (%)',
-                    data: [70, 75, 72, 80, 78, 85],
+                    data: occupancyChartdata,
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     borderWidth: 3,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
                     y: {
                         beginAtZero: true,
                         max: 100,
-                        grid: { color: '#f3f4f6' }
+                        grid: { color: '#f3f4f6' },
+                        ticks: { color: '#6b7280' }
                     },
                     x: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { color: '#6b7280' }
                     }
                 }
             }
         });
     }
 }
+ // ✅ kết thúc đúng hàm initCharts
 
 // Event Listeners
 
