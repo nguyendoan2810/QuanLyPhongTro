@@ -1,13 +1,86 @@
-﻿<div id="dashboard-section" class="section fade-in">
+﻿@{
+    var soLuongPhong = ViewBag.SoLuongPhong ?? 0;
+    var soPhongDaThue = ViewBag.SoPhongDaThue ?? 0;
+    var thuList = ViewBag.ThuList as List<QuanLyPhongTro.Models.ThuChi> ?? new();
+    var chiList = ViewBag.ChiList as List<QuanLyPhongTro.Models.ThuChi> ?? new();
+
+    var tongThu = ViewBag.TongThu ?? 0;
+    var tongChi = ViewBag.TongChi ?? 0;
+    var loiNhuan = ViewBag.LoiNhuan ?? 0;
+
+    var tongKhachThue = ViewBag.TongKhachThue ?? 0;
+
+
+    var doanhThuThang = ViewBag.DoanhThuThang as IEnumerable<object>;
+    var revenueLabels = new List<string>();
+    var revenueData = new List<decimal>();
+
+    if (doanhThuThang != null)
+    {
+        foreach (var item in doanhThuThang)
+        {
+            var type = item.GetType();
+            var thang = type.GetProperty("Thang")?.GetValue(item)?.ToString();
+            var tong = type.GetProperty("TongDoanhThu")?.GetValue(item);
+
+            if (thang != null && tong != null)
+            {
+                revenueLabels.Add($"T{thang}");
+                revenueData.Add(Convert.ToDecimal(tong) / 1000000); // triệu VNĐ
+            }
+        }
+    }
+
+    
+    var phongTheoTrangThai = ViewBag.PhongTheoTrangThai as IEnumerable<object>;
+    var roomLabels = new List<string>();
+    var roomData = new List<int>();
+    var roomColors = new List<string>();
+
+    if (phongTheoTrangThai != null)
+    {
+        foreach (var item in phongTheoTrangThai)
+        {
+            var type = item.GetType();
+            var trangThai = type.GetProperty("TrangThai")?.GetValue(item)?.ToString();
+            var soLuong = type.GetProperty("SoLuong")?.GetValue(item);
+
+            if (trangThai != null && soLuong != null)
+            {
+                roomLabels.Add(trangThai);
+                roomData.Add(Convert.ToInt32(soLuong));
+
+                // Gán màu theo trạng thái
+                roomColors.Add(trangThai switch {
+                    "Đang thuê" => "#667eea",     // xanh dương
+                    "Trống" => "#e5e7eb",         // xám
+                    "Bảo trì" => "#9ca3af",       // cam
+                    _ => "#9ca3af"                // mặc định
+                });
+            }
+        }
+    
+}
+
+
+
+
+   
+
+   
+
+
+
+}
+
+<div id="dashboard-section" class="section fade-in">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm font-medium">Tổng số phòng</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-2">24</p>
-                    <p class="text-green-600 text-sm mt-1">
-                        <i class="fas fa-arrow-up mr-1"></i>+2 từ tháng trước
-                    </p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">@soLuongPhong.ToString("N0")</p>
+                  
                 </div>
                 <div class="gradient-blue p-3 rounded-lg">
                     <i class="fas fa-door-open text-white text-xl"></i>
@@ -19,9 +92,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm font-medium">Phòng đã thuê</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-2">18</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">@soPhongDaThue.ToString("N0")</p>
                     <p class="text-green-600 text-sm mt-1">
-                        <i class="fas fa-arrow-up mr-1"></i>75% tỷ lệ lấp đầy
+                        <i class="fas fa-arrow-up mr-1"></i>@Math.Round((decimal)ViewBag.TyLeLapDay, 0)% tỷ lệ lấp đầy
                     </p>
                 </div>
                 <div class="gradient-green p-3 rounded-lg">
@@ -34,9 +107,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm font-medium">Doanh thu tháng</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-2">45M</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">@tongThu.ToString("N0")  VNĐ</p>
                     <p class="text-green-600 text-sm mt-1">
-                        <i class="fas fa-arrow-up mr-1"></i>+12% so với tháng trước
+                        <i class="fas fa-arrow-up mr-1"></i>@ViewBag.TyLeTangTruong% so với tháng trước
                     </p>
                 </div>
                 <div class="gradient-orange p-3 rounded-lg">
@@ -49,7 +122,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-600 text-sm font-medium">Khách thuê</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-2">32</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">@tongKhachThue.ToString("N0")</p>
                     <p class="text-blue-600 text-sm mt-1">
                         <i class="fas fa-users mr-1"></i>Đang hoạt động
                     </p>
@@ -64,6 +137,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 card-hover">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Doanh thu theo tháng</h3>
+           
             <div class="chart-container">
                 <canvas id="revenueChart"></canvas>
             </div>
@@ -115,3 +189,19 @@
         </div>
     </div>
 </div>
+<script>
+    const roomLabels = @Html.Raw(Json.Serialize(roomLabels));
+    const roomData = @Html.Raw(Json.Serialize(roomData));
+    const roomColors = @Html.Raw(Json.Serialize(roomColors));
+</script>
+
+<script>
+    const revenueLabels = @Html.Raw(Json.Serialize(revenueLabels));
+    const revenueData = @Html.Raw(Json.Serialize(revenueData));
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        initCharts();
+    });
+</script>
