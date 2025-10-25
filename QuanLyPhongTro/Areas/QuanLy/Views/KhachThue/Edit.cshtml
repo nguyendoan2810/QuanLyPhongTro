@@ -1,0 +1,61 @@
+﻿<div id="editTenantModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+    <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-lg">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Chỉnh sửa thông tin khách thuê</h3>
+        </div>
+
+        <form id="editTenantForm" method="post" onsubmit="handleEditTenant(event)">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="edit_MaKhach" name="MaKhach">
+
+            <div id="edit-error-message" class="p-4 text-red-700 bg-red-100 rounded-lg hidden" role="alert"></div>
+
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit_HoTen" class="block text-sm font-medium text-gray-700">Họ tên</label>
+                        <input id="edit_HoTen" name="HoTen" type="text"
+                               class="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    </div>
+                    <div>
+                        <label for="edit_Cccd" class="block text-sm font-medium text-gray-700">CCCD/CMND</label>
+                        <input id="edit_Cccd" name="Cccd" type="text"
+                               class="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit_SoDienThoai" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                        <input id="edit_SoDienThoai" name="SoDienThoai" type="tel"
+                               class="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    </div>
+                    <div>
+                        <label for="edit_NgaySinh" class="block text-sm font-medium text-gray-700">Ngày sinh</label>
+                        <input id="edit_NgaySinh" name="NgaySinh" type="date"
+                               class="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="edit_DiaChi" class="block text-sm font-medium text-gray-700">Địa chỉ (Quê quán)</label>
+                    <input id="edit_DiaChi" name="DiaChi" type="text"
+                           class="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+            </div>
+
+            <div class="p-6 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                <button type="button"
+                        onclick="closeModal('editTenantModal')"
+                        class="btn-secondary px-4 py-2 rounded-lg">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="btn-primary text-white px-4 py-2 rounded-lg">
+                    Cập nhật
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+

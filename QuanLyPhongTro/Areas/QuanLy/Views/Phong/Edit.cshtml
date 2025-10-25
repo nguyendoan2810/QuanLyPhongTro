@@ -1,0 +1,106 @@
+﻿@* Partial View: Sửa phòng *@
+<div id="roomEditModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl w-full max-w-lg p-6 relative">
+        <h3 class="text-xl font-semibold mb-4">Cập nhật thông tin phòng</h3>
+
+        <form id="editPhongForm" class="space-y-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="MaPhong" />
+
+            <div>
+                <label class="font-semibold">Tên phòng</label>
+                <input type="text" name="TenPhong" class="w-full border p-2 rounded" required />
+            </div>
+
+            <div>
+                <label class="font-semibold">Giá phòng</label>
+                <input type="number" name="GiaPhong" class="w-full border p-2 rounded" required />
+            </div>
+
+            <div>
+                <label class="font-semibold">Trạng thái</label>
+                <select name="TrangThai" class="w-full border p-2 rounded" required>
+                    <option value="Trống">Trống</option>
+                    <option value="Đang thuê">Đang thuê</option>
+                    <option value="Sửa chữa">Sửa chữa</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="font-semibold">Tầng</label>
+                <input type="text" name="Tang" class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+                <label class="font-semibold">Loại phòng</label>
+                <select name="LoaiPhong" class="w-full border p-2 rounded" required>
+                    <option value="Đơn">Đơn</option>
+                    <option value="Đôi">Đôi</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="font-semibold">Diện tích (m²)</label>
+                <input type="number" name="DienTich" class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+                <label class="font-semibold">Địa chỉ</label>
+                <input type="text" name="DiaChi" class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+                <label class="font-semibold">Mô tả</label>
+                <textarea name="MoTa" class="w-full border p-2 rounded"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" onclick="closeModal('roomEditModal')" class="bg-gray-400 text-white px-4 py-2 rounded">Hủy</button>
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* <script>
+    async function openPhongEditModal(maPhong) {
+        const res = await fetch(`/QuanLy/Phong/GetPhong?id=${maPhong}`);
+        const result = await res.json();
+
+        if (result.success) {
+            const data = result.data;
+            const form = document.getElementById("editPhongForm");
+
+            form.MaPhong.value = data.maPhong;
+            form.TenPhong.value = data.tenPhong;
+            form.GiaPhong.value = data.giaPhong;
+            form.TrangThai.value = data.trangThai;
+            form.Tang.value = data.tang;
+            form.LoaiPhong.value = data.loaiPhong;
+            form.DienTich.value = data.dienTich;
+            form.DiaChi.value = data.diaChi;
+            form.MoTa.value = data.moTa;
+
+            openModal('roomEditModal');
+        } else {
+            alert(result.message);
+        }
+    }
+
+    document.getElementById("editPhongForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        const response = await fetch('/QuanLy/Phong/Edit', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        alert(result.message);
+        if (result.success) {
+            location.reload();
+        }
+    });
+</script>
+ *@

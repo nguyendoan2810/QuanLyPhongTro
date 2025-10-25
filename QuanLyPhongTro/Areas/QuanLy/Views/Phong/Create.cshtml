@@ -1,0 +1,76 @@
+﻿@* Partial View: Thêm phòng *@
+<div id="roomModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl w-full max-w-lg p-6 relative">
+        <h3 class="text-xl font-semibold mb-4">Thêm phòng mới</h3>
+
+        <form id="createPhongForm" class="space-y-3">
+            @Html.AntiForgeryToken()
+            <div>
+                <label class="font-semibold">Tên phòng</label>
+                <input type="text" name="TenPhong" class="w-full border p-2 rounded" required />
+            </div>
+
+            <div>
+                <label class="font-semibold">Giá phòng</label>
+                <input type="number" name="GiaPhong" class="w-full border p-2 rounded" required />
+            </div>
+
+            <div>
+                <label class="font-semibold">Trạng thái</label>
+                <select name="TrangThai" class="w-full border p-2 rounded">
+                    <option value="Trống">Trống</option>
+                    <option value="Đang thuê">Đang thuê</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="font-semibold">Tầng</label>
+                <input type="text" name="Tang" class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+                <label class="font-semibold">Loại phòng</label>
+                <input type="text" name="LoaiPhong" class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+                <label class="font-semibold">Diện tích (m²)</label>
+                <input type="number" name="DienTich" class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+                <label class="font-semibold">Địa chỉ</label>
+                <input type="text" name="DiaChi" class="w-full border p-2 rounded" />
+            </div>
+
+            <div>
+                <label class="font-semibold">Mô tả</label>
+                <textarea name="MoTa" class="w-full border p-2 rounded"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" onclick="closeModal('roomModal')" class="bg-gray-400 text-white px-4 py-2 rounded">Hủy</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* <script>
+    document.getElementById("createPhongForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        const response = await fetch('/QuanLy/Phong/Create', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        alert(result.message);
+        if (result.success) {
+            location.reload();
+        }
+    });
+</script>
+ *@
