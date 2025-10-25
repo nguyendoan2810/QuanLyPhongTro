@@ -1,67 +1,82 @@
-﻿<div id="accounts-section" class="section hidden">
+﻿@model IEnumerable<QuanLyPhongTro.Areas.QuanLy.Models.ViewModels.TaiKhoanViewModel>
+
+<div id="accounts-section" class="section hidden">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="p-6 border-b border-gray-200">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-800">Quản lý Tài khoản</h3>
+                <button onclick="openAddCustomerAccountModal()"
+                        class="btn-primary text-white px-4 py-2 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-plus mr-2"></i>Thêm tài khoản khách
+                </button>
             </div>
             <div class="p-6">
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                        <div class="flex items-center">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%234F46E5'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-family='Arial' font-size='16' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E" alt="Avatar" class="w-10 h-10 rounded-full mr-4">
-                            <div>
-                                <p class="font-medium text-gray-900">Admin User</p>
-                                <p class="text-sm text-gray-500">admin@example.com</p>
+                    @if (!Model.Any())
+                    {
+                        <p class="text-gray-500">Chưa có tài khoản nào.</p>
+                    }
+                    else
+                    {
+                        @foreach (var tk in Model)
+                        {
+                            string initial = tk.VaiTro == "Admin" ? "A" : "K";
+                            string color = tk.VaiTro == "Admin" ? "#4F46E5" : "#10B981";
+                            string labelClass = tk.VaiTro == "Admin" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800";
+
+                            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center mr-4"
+                                         style="background-color:@color; color:white; font-weight:bold;">
+                                        @initial
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">@tk.HoTen</p>
+                                        <p class="text-sm text-gray-500">@tk.Email</p>
+                                        @if (tk.VaiTro == "Khach")
+                                        {
+                                            <p class="text-xs text-gray-500">@tk.TenPhong - @tk.DiaChi</p>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-3 py-1 @labelClass text-xs font-semibold rounded-full">
+                                        @tk.VaiTro
+                                    </span>
+                                    @if (tk.VaiTro == "Khach")
+                                    {
+                                        <button class="text-blue-600 hover:text-blue-900" onclick="openEditCustomerAccountModal(@tk.MaTk)" title="Chỉnh sửa tài khoản khách">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">Admin</span>
-                            <button class="text-blue-600 hover:text-blue-900">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                        <div class="flex items-center">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%2310B981'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-family='Arial' font-size='16' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E" alt="Avatar" class="w-10 h-10 rounded-full mr-4">
-                            <div>
-                                <p class="font-medium text-gray-900">Staff User</p>
-                                <p class="text-sm text-gray-500">staff@example.com</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Nhân viên</span>
-                            <button class="text-blue-600 hover:text-blue-900">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                    </div>
+                        }
+                    }
                 </div>
-                <button onclick="openModal('userModal')" class="w-full mt-4 btn-primary text-white py-2 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-plus mr-2"></i>Thêm tài khoản
-                </button>
             </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100">
             <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-800">Đổi mật khẩu</h3>
+                <h3 class="text-lg font-semibold text-gray-800">Đổi mật khẩu *Chủ Trọ*</h3>
             </div>
             <div class="p-6">
-                <form class="space-y-4">
+                <form id="changePasswordForm" class="space-y-4">
+                    @Html.AntiForgeryToken()
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu hiện tại</label>
-                        <input type="password" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nhập mật khẩu hiện tại">
+                        <input type="password" name="matKhauCu" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nhập mật khẩu hiện tại">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
-                        <input type="password" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nhập mật khẩu mới">
+                        <input type="password" name="matKhauMoi" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nhập mật khẩu mới">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu mới</label>
-                        <input type="password" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nhập lại mật khẩu mới">
+                        <input type="password" name="xacNhanMatKhau" class="form-input w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="Nhập lại mật khẩu mới">
                     </div>
-                    <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+                    <button type="submit" id="btnDoiMatKhau" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
                         <i class="fas fa-key mr-2"></i>Đổi mật khẩu
                     </button>
                 </form>
@@ -69,3 +84,53 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById("changePasswordForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const form = this;
+        const formData = new FormData(form);
+        const token = form.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        const matKhauCu = formData.get("matKhauCu")?.trim();
+        const matKhauMoi = formData.get("matKhauMoi")?.trim();
+        const xacNhanMatKhau = formData.get("xacNhanMatKhau")?.trim();
+
+        if (!matKhauCu || !matKhauMoi || !xacNhanMatKhau) {
+            showNotification("Vui lòng nhập đầy đủ thông tin!", "error");
+            return;
+        }
+
+        if (matKhauMoi !== xacNhanMatKhau) {
+            showNotification("Mật khẩu mới và xác nhận không khớp!", "error");
+            return;
+        }
+
+        $.ajax({
+            url: '/QuanLy/TaiKhoan/DoiMatKhau',
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            data: {
+                matKhauCu: matKhauCu,
+                matKhauMoi: matKhauMoi,
+                xacNhanMatKhau: xacNhanMatKhau
+            },
+            success: function (data) {
+                if (data.success) {
+                    showNotification(data.message || "Đổi mật khẩu thành công!", "success");
+                    form.reset();
+                } else {
+                    showNotification(data.message || "Đổi mật khẩu thất bại!", "error");
+                }
+            },
+            error: function (xhr) {
+                const errMsg = xhr.responseJSON?.message || xhr.responseText || "Lỗi kết nối đến máy chủ.";
+                showNotification("Lỗi: " + errMsg, "error");
+            }
+        });
+    });
+</script>
+
+@await Html.PartialAsync("~/Areas/QuanLy/Views/TaiKhoan/Create.cshtml")
+@await Html.PartialAsync("~/Areas/QuanLy/Views/TaiKhoan/Edit.cshtml")

@@ -1,0 +1,141 @@
+﻿<!-- Modal thêm tài khoản khách -->
+<div id="addCustomerAccountModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto bounce-in">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Thêm tài khoản khách</h3>
+            <button onclick="closeModal('addCustomerAccountModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <!-- Form -->
+        <div class="p-6">
+            <form id="addCustomerAccountForm" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <!-- Chọn phòng -->
+                <div>
+                    <label for="MaPhong" class="block text-sm font-medium text-gray-700 mb-2">Chọn phòng *</label>
+                    <select id="MaPhong" name="MaPhong" class="form-select w-full px-3 py-2 rounded-lg" required>
+                        <option value="">-- Chọn phòng --</option> 
+                    </select>
+                </div>
+                <!-- Tên khách -->
+                <div>
+                    <label for="TenKhach" class="block text-sm font-medium text-gray-700 mb-2">Tên khách</label>
+                    <input id="TenKhach" name="TenKhach" type="text" class="form-input w-full px-3 py-2 rounded-lg bg-gray-100" readonly>
+                </div>
+                <!-- Tên đăng nhập -->
+                <div>
+                    <label for="TenDangNhap" class="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập *</label>
+                    <input id="TenDangNhap" name="TenDangNhap" type="text" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+                <!-- Mật khẩu -->
+                <div>
+                    <label for="MatKhau" class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu *</label>
+                    <input id="MatKhau" name="MatKhau" type="password" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+            </form>
+        </div>
+        <!-- Footer -->
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <button onclick="closeModal('addCustomerAccountModal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Hủy</button>
+            <button id="saveCustomerAccountBtn" type="button" class="btn-primary px-4 py-2 text-white rounded-lg">Lưu</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======= MỞ MODAL & RESET FORM =======
+    function openAddCustomerAccountModal() {
+        const form = document.getElementById("addCustomerAccountForm");
+
+        // Reset toàn bộ input
+        form.reset();
+
+        // Xóa tên khách hiển thị
+        document.getElementById("TenKhach").value = "";
+
+        // Reset dropdown phòng
+        const select = document.getElementById("MaPhong");
+        select.innerHTML = '<option value="">-- Chọn phòng --</option>';
+
+        // Load lại danh sách phòng
+        loadAvailableRooms();
+
+        // Mở modal
+        openModal("addCustomerAccountModal");
+    }
+
+    // ======= LOAD PHÒNG KHÁCH CHƯA CÓ TÀI KHOẢN =======
+    function loadAvailableRooms() {
+        fetch('/QuanLy/TaiKhoan/GetAvailableRooms')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    showNotification(data.message, "warning");
+                    return;
+                }
+
+                const select = document.getElementById("MaPhong");
+                select.innerHTML = '<option value="">-- Chọn phòng --</option>';
+
+                data.data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.maPhong;
+                    option.textContent = `${item.tenPhong} – ${item.diaChi}`;
+                    option.dataset.tenKhach = item.tenKhach;
+                    select.appendChild(option);
+                });
+
+                // Khi chọn phòng → hiển thị tên khách
+                select.addEventListener("change", function () {
+                    const selected = this.options[this.selectedIndex];
+                    document.getElementById("TenKhach").value = selected.dataset.tenKhach || "";
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                showNotification("Không thể tải danh sách phòng.", "error");
+            });
+    }
+
+    // ======= LƯU TÀI KHOẢN KHÁCH =======
+    document.getElementById("saveCustomerAccountBtn").addEventListener("click", function () {
+        const maPhong = document.getElementById("MaPhong").value;
+        const tenDangNhap = document.getElementById("TenDangNhap").value.trim();
+        const matKhau = document.getElementById("MatKhau").value.trim();
+        const token = document.querySelector('#addCustomerAccountForm input[name="__RequestVerificationToken"]').value;
+
+        if (!maPhong || !tenDangNhap || !matKhau) {
+            showNotification("Vui lòng nhập đầy đủ thông tin.", "warning");
+            return;
+        }
+
+        fetch('/QuanLy/TaiKhoan/ThemTaiKhoanKhach', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: new URLSearchParams({
+                maPhong,
+                tenDangNhap,
+                matKhau
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, "success");
+                closeModal('addCustomerAccountModal');
+                $("#accounts-section").load("/QuanLy/TaiKhoan/ReloadPartial #accounts-section > *");
+            } else {
+                showNotification(data.message, "error");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showNotification("Lỗi khi thêm tài khoản.", "error");
+        });
+    });
+</script>

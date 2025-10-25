@@ -1,0 +1,127 @@
+﻿<!-- Modal sửa tài khoản khách -->
+<div id="editCustomerAccountModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto bounce-in">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Chỉnh sửa tài khoản khách</h3>
+            <button onclick="closeModal('editCustomerAccountModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <form id="editCustomerAccountForm" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="EditId" name="EditId">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
+                    <input id="EditTenDangNhap" type="text" class="form-input w-full px-3 py-2 rounded-lg bg-gray-100" readonly>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
+                    <input id="EditMatKhauMoi" type="password" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu mới</label>
+                    <input id="EditXacNhanMatKhau" type="password" class="form-input w-full px-3 py-2 rounded-lg" required>
+                </div>
+            </form>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <button id="deleteCustomerAccountBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg">Xóa</button>
+            <button id="saveEditCustomerAccountBtn" class="btn-primary px-4 py-2 text-white rounded-lg">Lưu</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== MỞ MODAL EDIT =====
+    function openEditCustomerAccountModal(id) {
+        fetch(`/QuanLy/TaiKhoan/GetTaiKhoanKhach?id=${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    showNotification(data.message, "error");
+                    return;
+                }
+                document.getElementById("EditId").value = data.data.id;
+                document.getElementById("EditTenDangNhap").value = data.data.tenDangNhap;
+                document.getElementById("EditMatKhauMoi").value = "";
+                document.getElementById("EditXacNhanMatKhau").value = "";
+                openModal("editCustomerAccountModal");
+            })
+            .catch(err => {
+                console.error(err);
+                showNotification("Lỗi khi tải thông tin tài khoản!", "error");
+            });
+    }
+
+    // ===== LƯU (SỬA) TÀI KHOẢN =====
+    document.getElementById("saveEditCustomerAccountBtn").addEventListener("click", function () {
+        const id = document.getElementById("EditId").value;
+        const matKhauMoi = document.getElementById("EditMatKhauMoi").value.trim();
+        const xacNhanMatKhau = document.getElementById("EditXacNhanMatKhau").value.trim();
+        const token = document.querySelector('#editCustomerAccountForm input[name="__RequestVerificationToken"]').value;
+
+        if (!matKhauMoi || !xacNhanMatKhau) {
+            showNotification("Vui lòng nhập đầy đủ thông tin!", "warning");
+            return;
+        }
+
+        fetch('/QuanLy/TaiKhoan/SuaTaiKhoanKhach', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: new URLSearchParams({ id, matKhauMoi, xacNhanMatKhau })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, "success");
+                    closeModal("editCustomerAccountModal");
+                } else {
+                    showNotification(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showNotification("Lỗi khi cập nhật mật khẩu!", "error");
+            });
+    });
+
+    // ===== XÓA TÀI KHOẢN =====
+    document.getElementById("deleteCustomerAccountBtn").addEventListener("click", function () {
+        const id = document.getElementById("EditId").value;
+        const token = document.querySelector('#editCustomerAccountForm input[name="__RequestVerificationToken"]').value;
+
+        if (!confirm("Bạn có chắc muốn xóa tài khoản này?")) return;
+
+        fetch('/QuanLy/TaiKhoan/XoaTaiKhoanKhach', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: new URLSearchParams({ id })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, "success");
+                    closeModal("editCustomerAccountModal");
+                    $("#accounts-section").load("/QuanLy/TaiKhoan/ReloadPartial #accounts-section > *");
+                } else {
+                    showNotification(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showNotification("Lỗi khi xóa tài khoản!", "error");
+            });
+    });
+</script>
