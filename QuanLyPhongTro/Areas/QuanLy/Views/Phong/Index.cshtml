@@ -1,116 +1,297 @@
-﻿<div id="rooms-section" class="section hidden">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="p-6 border-b border-gray-200">
+﻿@{
+    ViewBag.Title = "Danh sách phòng";
+}
+
+<div id="rooms-section" class="section">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- ===== Header đẹp ===== -->
+        <div class="p-6 border-b border-gray-200 bg-white">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h3 class="text-lg font-semibold text-gray-800">Danh sách phòng</h3>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="flex gap-2">
-                        <input type="text" placeholder="Tìm kiếm phòng..." class="form-input px-4 py-2 rounded-lg focus:outline-none">
-                        <select class="form-input px-4 py-2 rounded-lg focus:outline-none">
-                            <option>Tất cả trạng thái</option>
-                            <option>Phòng trống</option>
-                            <option>Đã thuê</option>
-                            <option>Bảo trì</option>
+
+                <!-- Nhóm hành động: lọc + thêm -->
+                <div class="flex items-center gap-3">
+                    <!-- Bộ lọc trạng thái -->
+                    <div class="flex items-center gap-2 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                        <i class="fas fa-filter text-gray-500 text-base"></i>
+                        <label for="filterTrangThai" class="text-sm text-gray-700 font-medium">Trạng thái:</label>
+                        <select id="filterTrangThai"
+                                class="bg-white border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="">Tất cả</option>
+                            <option value="Đang thuê">Đang thuê</option>
+                            <option value="Trống">Trống</option>
                         </select>
-                        <select class="form-input px-4 py-2 rounded-lg focus:outline-none">
-                            <option>Tất cả loại phòng</option>
-                            <option>Phòng đơn</option>
-                            <option>Phòng đôi</option>
-                            <option>Phòng gia đình</option>
-                        </select>
+                        <button id="btnLocTrangThai"
+                                class="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition duration-150">
+                            <i class="fas fa-search"></i>
+                            <span>Lọc</span>
+                        </button>
                     </div>
-                    <button onclick="openModal('roomModal')" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center">
+
+                    <!-- Nút thêm phòng -->
+                    <button onclick="openModal('roomCreateModal')"
+                            class="btn-primary text-white px-4 py-2 rounded-md flex items-center text-sm shadow-sm hover:opacity-90 transition">
                         <i class="fas fa-plus mr-2"></i>Thêm phòng
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- ===== Bảng phòng ===== -->
         <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
+            <table class="min-w-max w-full border-collapse">
+                <thead class="bg-gray-50 rounded-t-xl">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số phòng</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại phòng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên phòng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tầng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diện tích</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá thuê</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa chỉ</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách thuê</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Thao tác</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr class="table-row">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">P101</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Phòng đơn</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">25m²</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2,500,000 VNĐ</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="status-occupied px-3 py-1 text-xs font-semibold rounded-full text-white">Đã thuê</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Nguyễn Văn A</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="editRoom('P101')" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit mr-1"></i>Sửa
-                            </button>
-                            <button onclick="deleteRoom('P101')" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash mr-1"></i>Xóa
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="table-row">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">P102</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Phòng đôi</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">35m²</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3,200,000 VNĐ</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="status-available px-3 py-1 text-xs font-semibold rounded-full text-white">Trống</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="editRoom('P102')" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit mr-1"></i>Sửa
-                            </button>
-                            <button onclick="deleteRoom('P102')" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash mr-1"></i>Xóa
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="table-row">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">P103</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Phòng gia đình</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">45m²</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4,500,000 VNĐ</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="status-maintenance px-3 py-1 text-xs font-semibold rounded-full text-white">Bảo trì</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="editRoom('P103')" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit mr-1"></i>Sửa
-                            </button>
-                            <button onclick="deleteRoom('P103')" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash mr-1"></i>Xóa
-                            </button>
-                        </td>
-                    </tr>
+
+                <tbody class="bg-white divide-y divide-gray-200 rounded-b-xl">
+                    @foreach (var p in ViewBag.PhongList)
+                    {
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-medium text-gray-800">@p.TenPhong</td>
+                            <td class="px-6 py-4 text-gray-600">@p.Tang</td>
+                            <td class="px-6 py-4 text-gray-600">@p.LoaiPhong</td>
+                            <td class="px-6 py-4 text-gray-600">@p.DienTich m²</td>
+                            <td class="px-6 py-4 font-semibold text-gray-800">@p.GiaPhong.ToString("N0") VNĐ</td>
+                            <td class="px-6 py-4 text-gray-600">@p.DiaChi</td>
+                            <td class="px-6 py-4 text-gray-600">@p.HoTenKhach</td>
+                            <td class="px-6 py-4 text-gray-600">@p.TrangThai</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="openPhongEditModal(@p.MaPhong, this)" class="text-yellow-600 hover:text-yellow-800 mr-3 font-medium">
+                                    <i class="fas fa-edit mr-1"></i>Sửa
+                                </button>
+                                <button onclick="deletePhong(@p.MaPhong, this)" class="text-red-600 hover:text-red-800 font-medium">
+                                    <i class="fas fa-trash-alt mr-1"></i>Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination -->
-        <!--Phân trang-->
-        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-            <div class="text-sm text-gray-700">
-                Hiển thị <span class="font-medium">1</span> đến <span class="font-medium">10</span> của <span class="font-medium">24</span> kết quả
-            </div>
-            <div class="flex space-x-2">
-                <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">Trước</button>
-                <button class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">1</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">2</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">3</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">Sau</button>
-            </div>
-        </div>
     </div>
 </div>
+
+@await Html.PartialAsync("~/Areas/QuanLy/Views/Phong/Create.cshtml")
+@await Html.PartialAsync("~/Areas/QuanLy/Views/Phong/Edit.cshtml")
+
+ <script>
+    // === HÀM XÓA PHÒNG ===
+    async function deletePhong(id) {
+        if (!confirm("Bạn có chắc muốn xóa phòng này không?")) return;
+
+        // 🔒 Lấy token từ form thêm phòng (vì luôn tồn tại trên trang)
+        const tokenInput = document.querySelector('#createPhongForm input[name="__RequestVerificationToken"]');
+        if (!tokenInput) {
+            showNotification("Lỗi bảo mật: Không tìm thấy token xác thực.", "error");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/QuanLy/Phong/Delete?id=${id}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': tokenInput.value
+                }
+            });
+
+            const result = await res.json();
+
+            // ✅ Dùng showNotification thay cho alert()
+            if (result.success) {
+                showNotification(result.message, "success");
+                $("#rooms-section").load("/QuanLy/Phong/ReloadPartial #rooms-section > *");
+            } else {
+                showNotification(result.message, "error");
+            }
+        } catch (err) {
+            console.error(err);
+            showNotification("Đã xảy ra lỗi khi xóa phòng!", "error");
+        }
+    }
+
+    // === HÀM THÊM PHÒNG (TỪ CREATE.CSHTML) ===
+    document.getElementById("createPhongForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // ✅ Danh sách các trường cần kiểm tra
+        const requiredFields = [
+            "TenPhong",
+            "GiaPhong",
+            "TrangThai",
+            "Tang",
+            "LoaiPhong",
+            "DienTich",
+            "DiaChi",
+            "MoTa"
+        ];
+
+        let isValid = true;
+
+        // ✅ Kiểm tra các trường
+        for (const name of requiredFields) {
+            const input = this.querySelector(`[name="${name}"]`);
+            if (!input || !input.value.trim()) {
+                input.classList.add("border-red-500", "focus:ring-red-500");
+                isValid = false;
+            } else {
+                input.classList.remove("border-red-500", "focus:ring-red-500");
+            }
+        }
+
+        // ✅ Nếu còn ô trống thì cảnh báo và dừng lại
+        if (!isValid) {
+            showNotification("Vui lòng nhập đầy đủ thông tin trước khi lưu!", 'warning');
+            return;
+        }
+
+        // ✅ Nếu hợp lệ thì gửi dữ liệu
+        const formData = new FormData(this);
+        const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        try {
+            const response = await fetch('/QuanLy/Phong/Create', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Phản hồi không hợp lệ từ server");
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification(result.message || "Thêm phòng thành công!", 'success');
+                closeModal('roomCreateModal'); // Đóng modal
+                $("#rooms-section").load("/QuanLy/Phong/ReloadPartial #rooms-section > *");
+            }else {
+                showNotification(result.message || "Thêm phòng thất bại!", 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            showNotification("Đã xảy ra lỗi khi gửi dữ liệu. Vui lòng thử lại!", 'error');
+        }
+    });
+
+    // === HÀM MỞ MODAL SỬA (TỪ EDIT.CSHTML) ===
+    async function openPhongEditModal(maPhong) {
+        try {
+            const res = await fetch(`/QuanLy/Phong/GetPhong?id=${maPhong}`);
+            const result = await res.json();
+
+            if (result.success) {
+                const data = result.data;
+                const form = document.getElementById("editPhongForm");
+
+                form.MaPhong.value = data.maPhong;
+                form.TenPhong.value = data.tenPhong;
+                form.GiaPhong.value = data.giaPhong;
+                form.TrangThai.value = data.trangThai;
+                form.Tang.value = data.tang;
+                form.LoaiPhong.value = data.loaiPhong;
+                form.DienTich.value = data.dienTich;
+                form.DiaChi.value = data.diaChi;
+                form.MoTa.value = data.moTa;
+
+                openModal('roomEditModal');
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert("Lỗi khi tải dữ liệu phòng: " + error.message);
+        }
+    }
+
+    // === HÀM SỬA PHÒNG (TỪ EDIT.CSHTML) ===
+    document.getElementById("editPhongForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // ✅ Danh sách các trường cần nhập
+        const requiredFields = [
+            "TenPhong",
+            "GiaPhong",
+            "TrangThai",
+            "Tang",
+            "LoaiPhong",
+            "DienTich",
+            "DiaChi",
+            "MoTa"
+        ];
+
+        let isValid = true;
+
+        // ✅ Kiểm tra các trường
+        for (const name of requiredFields) {
+            const input = this.querySelector(`[name="${name}"]`);
+            if (!input || !input.value.trim()) {
+                input.classList.add("border-red-500", "focus:ring-red-500");
+                isValid = false;
+            } else {
+                input.classList.remove("border-red-500", "focus:ring-red-500");
+            }
+        }
+
+        // ⚠️ Nếu còn trường trống → dừng lại
+        if (!isValid) {
+            showNotification("Vui lòng nhập đầy đủ thông tin trước khi lưu!", "warning");
+            return;
+        }
+
+        // ✅ Nếu hợp lệ → gửi request
+        const formData = new FormData(this);
+        const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        try {
+            const response = await fetch('/QuanLy/Phong/Edit', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': token
+                }
+            });
+
+            const result = await response.json();
+
+            // ✅ Hiển thị kết quả bằng showNotification
+            if (result.success) {
+                showNotification(result.message, "success");
+                closeModal('roomEditModal'); // Đóng modal
+                $("#rooms-section").load("/QuanLy/Phong/ReloadPartial #rooms-section > *");
+            } else {
+                showNotification(result.message, "error");
+            }
+        } catch (error) {
+            console.error(error);
+            showNotification("Đã xảy ra lỗi khi lưu thông tin phòng!", "error");
+        }
+    });
+
+    //Lọc dữ liệu
+    document.addEventListener("click", function (e) {
+        if (e.target.closest("#btnLocTrangThai")) {
+            const trangThai = document.getElementById("filterTrangThai").value;
+
+            $("#rooms-section").load(`/QuanLy/Phong/ReloadFilterPartial?trangThai=${encodeURIComponent(trangThai)} #rooms-section > *`, function (response, status, xhr) {
+                if (status === "error") {
+                    showNotification("Không thể lọc danh sách phòng.", "error");
+                } else {
+                    showNotification("Đã lọc danh sách phòng.", "success");
+                }
+            });
+        }
+    });
+ </script>

@@ -1,94 +1,303 @@
 ﻿<div id="tenants-section" class="section hidden">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="p-6 border-b border-gray-200">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-200 bg-white">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h3 class="text-lg font-semibold text-gray-800">Danh sách khách thuê</h3>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" placeholder="Tìm kiếm khách..." class="form-input px-4 py-2 rounded-lg focus:outline-none">
-                    <button onclick="openModal('tenantModal')" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center">
+
+                <div class="flex flex-col sm:flex-row gap-3 items-center">
+                    <!-- Ô nhập tìm kiếm -->
+                    <div class="flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-72 shadow-sm">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>
+                        <input type="text"
+                               id="khachThueSearchInput"
+                               placeholder="Tìm theo tên, SĐT hoặc CCCD..."
+                               class="w-full bg-transparent outline-none text-sm text-gray-700"
+                               onkeyup="if(event.key === 'Enter') searchTenant()" />
+                    </div>
+
+                    <!-- Nút tìm -->
+                    <button id="btnSearchTenant"
+                            onclick="searchTenant()"
+                            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition">
+                        <i class="fas fa-filter"></i>
+                        <span>Tìm kiếm</span>
+                    </button>
+
+                    <!-- Nút thêm khách -->
+                    <button onclick="openModal('createTenantModal')"
+                            class="btn-primary text-white px-4 py-2 rounded-lg flex items-center text-sm shadow-sm hover:opacity-90 transition">
                         <i class="fas fa-plus mr-2"></i>Thêm khách
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full">
+        <!-- Bảng dữ liệu -->
+        <div class="overflow-x-auto ">
+            <table class="min-w-max w-full border-collapse">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Họ tên</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số điện thoại</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CCCD</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phòng thuê</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày thuê</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa chỉ</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên phòng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa chỉ phòng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày bắt đầu</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày kết thúc</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr class="table-row">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%234F46E5'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='Arial' font-size='12' font-weight='bold'%3ENA%3C/text%3E%3C/svg%3E" alt="Avatar" class="w-8 h-8 rounded-full mr-3">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Nguyễn Văn A</div>
-                                    <div class="text-sm text-gray-500">Khách thuê chính</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0901234567</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">nguyenvana@email.com</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">123456789</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">P101</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01/01/2024</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="status-occupied px-3 py-1 text-xs font-semibold rounded-full text-white">Đang thuê</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="viewTenant('1')" class="text-green-600 hover:text-green-900 mr-3">
-                                <i class="fas fa-eye mr-1"></i>Xem
-                            </button>
-                            <button onclick="editTenant('1')" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit mr-1"></i>Sửa
-                            </button>
-                            <button onclick="deleteTenant('1')" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash mr-1"></i>Xóa
-                            </button>
-                        </td>
-                    </tr>
-                    <tr class="table-row">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23EF4444'/%3E%3Ctext x='16' y='21' text-anchor='middle' fill='white' font-family='Arial' font-size='12' font-weight='bold'%3ETB%3C/text%3E%3C/svg%3E" alt="Avatar" class="w-8 h-8 rounded-full mr-3">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Trần Thị B</div>
-                                    <div class="text-sm text-gray-500">Khách thuê chính</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0907654321</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">tranthib@email.com</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654321</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">P104</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/02/2024</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="status-occupied px-3 py-1 text-xs font-semibold rounded-full text-white">Đang thuê</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onclick="viewTenant('2')" class="text-green-600 hover:text-green-900 mr-3">
-                                <i class="fas fa-eye mr-1"></i>Xem
-                            </button>
-                            <button onclick="editTenant('2')" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit mr-1"></i>Sửa
-                            </button>
-                            <button onclick="deleteTenant('2')" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash mr-1"></i>Xóa
-                            </button>
-                        </td>
-                    </tr>
+                    @if (ViewBag.KhachThueList != null && ViewBag.KhachThueList.Count > 0)
+                    {
+                        @foreach (var khach in ViewBag.KhachThueList)
+                        {
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-medium text-gray-900">@khach.HoTen</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@khach.SoDienThoai</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@khach.DiaChi</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@khach.TenPhong</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@khach.DiaChiPhong</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@khach.NgayBatDau</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@khach.NgayKetThuc</td>
+                                <td class="px-6 py-4 text-sm font-medium">
+                                    <button onclick="viewTenant('@khach.MaKhach')" class="text-green-600 hover:text-green-800 mr-2"><i class="fas fa-eye mr-1"></i>Xem</button>
+                                    <button onclick="editTenant('@khach.MaKhach')" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit mr-1"></i>Sửa</button>
+                                    <button onclick="deleteTenant('@khach.MaKhach')" class="text-red-600 hover:text-red-800"><i class="fas fa-trash mr-1"></i>Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-gray-500">Không có dữ liệu khách thuê.</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@await Html.PartialAsync("~/Areas/QuanLy/Views/KhachThue/Seen.cshtml")
+@await Html.PartialAsync("~/Areas/QuanLy/Views/KhachThue/Create.cshtml", new QuanLyPhongTro.Models.KhachThue())
+@await Html.PartialAsync("~/Areas/QuanLy/Views/KhachThue/Edit.cshtml", new QuanLyPhongTro.Models.KhachThue())
+
+
+<script>
+    // ============ HÀM TÌM KIẾM KHÁCH THUÊ ============
+    async function searchTenant() {
+        const searchInput = document.getElementById('khachThueSearchInput');
+        const keyword = searchInput ? searchInput.value.trim() : "";
+
+        try {
+            const res = await fetch(`/QuanLy/KhachThue/ReloadFilterKhachThue?searchString=${encodeURIComponent(keyword)}`);
+            const html = await res.text();
+
+            // Tạo document ảo để lấy tbody mới
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newTbody = doc.querySelector('#tenants-section tbody');
+            const oldTbody = document.querySelector('#tenants-section tbody');
+
+            if (newTbody && oldTbody) {
+                oldTbody.innerHTML = newTbody.innerHTML;
+                showNotification("Đã lọc danh sách khách thuê!", "success");
+            } else {
+                showNotification("Không thể cập nhật danh sách khách thuê.", "error");
+            }
+        } catch (err) {
+            console.error(err);
+            showNotification("Lỗi kết nối máy chủ khi tìm kiếm!", "error");
+        }
+    }
+
+    // ============ KHI TRANG LOAD XONG ============
+    document.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById("khachThueSearchInput");
+        const btn = document.getElementById("btnSearchTenant");
+
+        // Nhấn Enter để tìm
+        if (input) {
+            input.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    searchTenant();
+                }
+            });
+        }
+
+        // Click nút “Tìm kiếm”
+        if (btn) {
+            btn.addEventListener("click", searchTenant);
+        }
+    });
+
+    // === HÀM THÊM KHÁCH THUÊ ===
+    async function handleCreateTenant(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const errorDiv = document.getElementById('create-error-message');
+        const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        try {
+            const response = await fetch("/QuanLy/KhachThue/Create", {
+                method: "POST",
+                body: formData,
+                headers: { "RequestVerificationToken": token }
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                closeModal('createTenantModal');
+                showNotification(result.message, "success");
+                $("#tenants-section").load("/QuanLy/KhachThue/ReloadKhachThue #tenants-section > *");
+            } else {
+                let errorHtml = `<strong>Lỗi:</strong> ${result.message}`;
+                if (result.errors) {
+                    errorHtml += "<ul>" + result.errors.map(e => `<li>${e}</li>`).join('') + "</ul>";
+                }
+                errorDiv.innerHTML = errorHtml;
+                errorDiv.classList.remove('hidden');
+                showNotification(result.message, "error");
+            }
+        } catch (error) {
+            console.error('❌ Lỗi khi gửi Create:', error);
+            showNotification("Không thể kết nối tới máy chủ.", "error");
+        }
+    }
+
+    // === HÀM XEM CHI TIẾT ===
+    async function viewTenant(id) {
+        const modalId = 'viewTenantModal';
+        const detailsDiv = document.getElementById('viewTenantDetails');
+        detailsDiv.innerHTML = '<p class="text-center text-gray-500">Đang tải dữ liệu...</p>';
+        openModal(modalId);
+
+        try {
+            const response = await fetch(`/QuanLy/KhachThue/Details/${id}`);
+            const result = await response.json();
+
+            if (result.success) {
+                const data = result.data;
+                detailsDiv.innerHTML = `
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <strong class="text-gray-500">Họ tên:</strong>
+                        <span class="text-gray-900">${data.hoTen}</span>
+                        <strong class="text-gray-500">CCCD:</strong>
+                        <span class="text-gray-900">${data.cccd}</span>
+                        <strong class="text-gray-500">Ngày sinh:</strong>
+                        <span class="text-gray-900">${data.ngaySinh}</span>
+                        <strong class="text-gray-500">Số điện thoại:</strong>
+                        <span class="text-gray-900">${data.soDienThoai}</span>
+                        <strong class="text-gray-500">Địa chỉ:</strong>
+                        <span class="text-gray-900">${data.diaChi}</span>
+                        <hr class="col-span-2 my-2"/>
+                        <strong class="text-gray-500">Tên phòng:</strong>
+                        <span class="text-gray-900">${data.tenPhong}</span>
+                        <strong class="text-gray-500">Địa chỉ phòng:</strong>
+                        <span class="text-gray-900">${data.diaChiPhong}</span>
+                        <strong class="text-gray-500">Ngày vào:</strong>
+                        <span class="text-gray-900">${data.ngayBatDau}</span>
+                        <strong class="text-gray-500">Ngày kết thúc HĐ:</strong>
+                        <span class="text-gray-900">${data.ngayKetThuc}</span>
+                        <strong class="text-gray-500">Tiền cọc:</strong>
+                        <span class="text-gray-900">${new Intl.NumberFormat('vi-VN').format(data.tienCoc)} VNĐ</span>
+                    </div>`;
+            } else {
+                detailsDiv.innerHTML = `<p class="text-center text-red-500">${result.message}</p>`;
+                showNotification(result.message, "warning");
+            }
+        } catch (error) {
+            detailsDiv.innerHTML = `<p class="text-center text-red-500">Không thể kết nối tới máy chủ.</p>`;
+            showNotification("Không thể kết nối tới máy chủ.", "error");
+        }
+    }
+
+    // === HÀM LẤY DỮ LIỆU SỬA ===
+    async function editTenant(id) {
+        try {
+            const response = await fetch(`/QuanLy/KhachThue/Edit/${id}`);
+            const result = await response.json();
+
+            if (result.success) {
+                const data = result.data;
+                document.getElementById('edit_MaKhach').value = data.maKhach;
+                document.getElementById('edit_HoTen').value = data.hoTen;
+                document.getElementById('edit_Cccd').value = data.cccd;
+                document.getElementById('edit_SoDienThoai').value = data.soDienThoai;
+                document.getElementById('edit_DiaChi').value = data.diaChi;
+                document.getElementById('edit_NgaySinh').value = data.ngaySinh;
+                openModal('editTenantModal');
+            } else {
+                showNotification("Lỗi: " + result.message, "error");
+            }
+        } catch (error) {
+            showNotification("Không thể tải dữ liệu để sửa.", "error");
+        }
+    }
+
+    // === HÀM GỬI FORM SỬA ===
+    async function handleEditTenant(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const errorDiv = document.getElementById('edit-error-message');
+        const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        try {
+            const response = await fetch("/QuanLy/KhachThue/Edit", {
+                method: "POST",
+                body: formData,
+                headers: { "RequestVerificationToken": token }
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                closeModal('editTenantModal');
+                showNotification(result.message, "success");
+                $("#tenants-section").load("/QuanLy/KhachThue/ReloadKhachThue #tenants-section > *");
+            } else {
+                let errorHtml = `<strong>Lỗi:</strong> ${result.message}`;
+                if (result.errors) {
+                    errorHtml += "<ul>" + result.errors.map(e => `<li>${e}</li>`).join('') + "</ul>";
+                }
+                errorDiv.innerHTML = errorHtml;
+                errorDiv.classList.remove('hidden');
+                showNotification(result.message, "error");
+            }
+        } catch (error) {
+            console.error('❌ Lỗi khi gửi Edit:', error);
+            showNotification("Không thể kết nối tới máy chủ.", "error");
+        }
+    }
+
+    // === HÀM XÓA KHÁCH THUÊ ===
+    async function deleteTenant(id) {
+        if (!confirm("Bạn có chắc chắn muốn xóa khách thuê này không?")) return;
+
+        try {
+            const token = document.querySelector('#createTenantForm input[name="__RequestVerificationToken"]').value;
+            const response = await fetch(`/QuanLy/KhachThue/Delete/${id}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification(result.message, "success");
+                $("#tenants-section").load("/QuanLy/KhachThue/ReloadKhachThue #tenants-section > *");
+            } else {
+                showNotification("Lỗi: " + result.message, "error");
+            }
+        } catch (error) {
+            showNotification("Đã xảy ra lỗi khi thực hiện xóa.", "error");
+        }
+    }
+</script>
