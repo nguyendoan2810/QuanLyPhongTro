@@ -228,10 +228,15 @@
                 const existed = hd.chiTiet.find(ct => ct.maDv === maDv);
                 const checked = existed ? "checked" : "";
 
-                // chỉ tính tiền nếu checked
-                const thanhTien = existed
-                    ? existed.thanhTien
-                    : (checked ? (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng") ? donGia : donGia * soNguoi) : 0);
+                let thanhTien = 0;
+                if (existed) {
+                    thanhTien = existed.thanhTien || 0; // lấy đúng giá trị từ hóa đơn cũ
+                } else if (checked) {
+                    // trường hợp hiếm khi thêm dịch vụ mặc định checked (không có ở đây)
+                    thanhTien = (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng"))
+                        ? (soNguoi > 0 ? donGia : 0)
+                        : donGia * soNguoi;
+                }
 
                 html += `
                     <tr class="border-t border-gray-200">
@@ -252,8 +257,10 @@
             // ===== TÍNH TOÁN REALTIME =====
             function tinhThanhTienDichVu(tenDv, donGia, checked) {
                 if (!checked) return 0;
-                if (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng"))
-                    return donGia;
+                if (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng")) {
+                    const soNguoi = parseInt(soNguoiInput.value) || 0;
+                    return soNguoi > 0 ? donGia : 0;
+                }
                 return donGia * (parseInt(soNguoiInput.value) || 0);
             }
 
@@ -280,7 +287,7 @@
                 });
                 document.getElementById("billServiceTotal").innerText = tong.toLocaleString();
             }
-
+            
             $(".dv-check").on("change", capNhatThanhTienDichVu);
             $("#billPeopleCount").on("input", capNhatThanhTienDichVu);
 
@@ -306,16 +313,8 @@
                 capNhatTongTien();
             });
 
-            function capNhatTongTien() {
-                const tienPhong = parseInt(removeCommas($("#billRoomTotal").text())) || 0;
-                const tienDien = parseInt(removeCommas($("#billElectricTotal").text())) || 0;
-                const tienNuoc = parseInt(removeCommas($("#billWaterTotal").text())) || 0;
-                const tienDv = parseInt(removeCommas($("#billServiceTotal").text())) || 0;
-                const tong = tienPhong + tienDien + tienNuoc + tienDv;
-                $("#billTotalAmount").text(numberWithCommas(tong));
-            }        
+            capNhatThanhTienDichVu(); // Cập nhật lần cuối sau khi gán xong tất cả
             capNhatTongTien();
-            capNhatTongTienDichVu();
 
              // ===== KIỂM TRA TRẠNG THÁI VÀ KHÓA FORM =====
             if (hd.trangThai === "Đã thanh toán") {

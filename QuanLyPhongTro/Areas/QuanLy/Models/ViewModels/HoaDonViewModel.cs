@@ -30,7 +30,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Models.ViewModels
 
     public class ChiTietHoaDonRequest
     {
-        public int MaDv { get; set; }         // mã dịch vụ (0 cho tiền phòng nếu bạn muốn)
+        public int MaDv { get; set; }
         public decimal SoLuong { get; set; }
         public decimal DonGia { get; set; }
         public decimal ThanhTien { get; set; }

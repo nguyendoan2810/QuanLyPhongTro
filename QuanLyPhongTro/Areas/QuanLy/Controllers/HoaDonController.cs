@@ -134,10 +134,9 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                     TongTien = model.ThanhTienThangNay
                 };
                 _context.HoaDons.Add(hoaDon);
-                _context.SaveChanges();
 
                 // 2) Thêm chi tiết hóa đơn
-                if (model.ChiTiet != null)
+                if (model.ChiTiet != null && model.ChiTiet.Any())
                 {
                     foreach (var ct in model.ChiTiet)
                     {
@@ -151,9 +150,8 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                             DonGia = ct.DonGia,
                             ThanhTien = ct.ThanhTien
                         };
-                        _context.ChiTietHoaDons.Add(cthd);
+                        hoaDon.ChiTietHoaDons.Add(cthd);
                     }
-                    _context.SaveChanges();
                 }
 
                 // 3) Lưu chỉ số điện (MaDv = 1) nếu có
@@ -174,7 +172,6 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                             ChiSoMoi = model.ChiSoDien.Moi
                         };
                         _context.ChiSoDichVus.Add(csDien);
-                        _context.SaveChanges();
                     }
                 }
 
@@ -196,11 +193,11 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                             ChiSoMoi = model.ChiSoNuoc.Moi
                         };
                         _context.ChiSoDichVus.Add(csNuoc);
-                        _context.SaveChanges();
                     }
 
                 }
 
+                _context.SaveChanges();
                 transaction.Commit();
                 return Ok(new { success = true, message = "Tạo hóa đơn thành công!", hoaDonId = hoaDon.MaHd });
             }
@@ -220,62 +217,76 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         [HttpGet]
         public async Task<IActionResult> LayChiTietHoaDon(int maHd)
         {
-            var hoaDon = await _context.HoaDons
-                .Include(h => h.MaHopDongNavigation)
-                    .ThenInclude(hd => hd.MaPhongNavigation)
-                        .ThenInclude(p => p.ChiTietPhong)
-                .Include(h => h.MaHopDongNavigation)
-                    .ThenInclude(hd => hd.MaKhachNavigation)
-                .FirstOrDefaultAsync(h => h.MaHd == maHd);
-
-            if (hoaDon == null)
-                return NotFound(new { success = false, message = "Không tìm thấy hóa đơn." });
-
-            var phong = hoaDon.MaHopDongNavigation?.MaPhongNavigation;
-            var khach = hoaDon.MaHopDongNavigation?.MaKhachNavigation;
-
-            // Lấy chi tiết dịch vụ (không bao gồm tiền phòng)
-            var chiTiet = await _context.ChiTietHoaDons
-                .Include(ct => ct.MaDvNavigation)
-                .Where(ct => ct.MaHd == maHd)
-                .Select(ct => new
-                {
-                    ct.MaDv,
-                    TenDv = ct.MaDvNavigation.TenDv,
-                    ct.SoLuong,
-                    ct.DonGia,
-                    ct.ThanhTien
-                })
-                .ToListAsync();
-
-            // Lấy chỉ số điện nước (nếu có)
-            var chiSoDien = await _context.ChiSoDichVus
-                .Where(cs => cs.MaHopDong == hoaDon.MaHopDong && cs.Thang == hoaDon.Thang && cs.Nam == hoaDon.Nam && cs.MaDv == 1)
-                .Select(cs => new { cs.ChiSoCu, cs.ChiSoMoi })
-                .FirstOrDefaultAsync();
-
-            var chiSoNuoc = await _context.ChiSoDichVus
-                .Where(cs => cs.MaHopDong == hoaDon.MaHopDong && cs.Thang == hoaDon.Thang && cs.Nam == hoaDon.Nam && cs.MaDv == 2)
-                .Select(cs => new { cs.ChiSoCu, cs.ChiSoMoi })
-                .FirstOrDefaultAsync();
-
-            var result = new
+            try
             {
-                MaHd = hoaDon.MaHd,
-                TenPhong = phong != null ? $"{phong.TenPhong} - {phong.ChiTietPhong.DiaChi}" : "Không rõ",
-                GiaPhong = phong?.GiaPhong ?? 0,
-                TenKhachThue = khach?.HoTen ?? "Không rõ",
-                Thang = hoaDon.Thang,
-                Nam = hoaDon.Nam,
-                TongTien = hoaDon.TongTien,
-                TrangThai = hoaDon.TrangThai,
-                NgayTao = hoaDon.NgayTao,
-                ChiTiet = chiTiet,
-                ChiSoDien = chiSoDien,
-                ChiSoNuoc = chiSoNuoc
-            };
+                var hoaDon = await _context.HoaDons
+                    .Include(h => h.MaHopDongNavigation)
+                        .ThenInclude(hd => hd.MaPhongNavigation)
+                            .ThenInclude(p => p.ChiTietPhong)
+                    .Include(h => h.MaHopDongNavigation)
+                        .ThenInclude(hd => hd.MaKhachNavigation)
+                    .FirstOrDefaultAsync(h => h.MaHd == maHd);
 
-            return Json(new { success = true, data = result });
+                if (hoaDon == null)
+                    return Json(new { success = false, message = "Không tìm thấy hóa đơn." });
+
+                var phong = hoaDon.MaHopDongNavigation?.MaPhongNavigation;
+                var khach = hoaDon.MaHopDongNavigation?.MaKhachNavigation;
+
+                // Lấy chi tiết hóa đơn (dịch vụ)
+                var chiTiet = await _context.ChiTietHoaDons
+                    .Include(ct => ct.MaDvNavigation)
+                    .Where(ct => ct.MaHd == maHd)
+                    .Select(ct => new
+                    {
+                        ct.MaDv,
+                        TenDv = ct.MaDvNavigation.TenDv,
+                        ct.SoLuong,
+                        ct.DonGia,
+                        ct.ThanhTien
+                    })
+                    .ToListAsync();
+
+                // Lấy chỉ số điện/nước (nếu có)
+                var maHopDong = hoaDon.MaHopDong ?? 0;
+                var (thang, nam) = (hoaDon.Thang ?? 0, hoaDon.Nam ?? 0);
+
+                var chiSoDien = await _context.ChiSoDichVus
+                    .Where(cs => cs.MaHopDong == maHopDong && cs.Thang == thang && cs.Nam == nam && cs.MaDv == 1)
+                    .Select(cs => new { cs.ChiSoCu, cs.ChiSoMoi })
+                    .FirstOrDefaultAsync();
+
+                var chiSoNuoc = await _context.ChiSoDichVus
+                    .Where(cs => cs.MaHopDong == maHopDong && cs.Thang == thang && cs.Nam == nam && cs.MaDv == 2)
+                    .Select(cs => new { cs.ChiSoCu, cs.ChiSoMoi })
+                    .FirstOrDefaultAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        hoaDon.MaHd,
+                        TenPhong = phong != null
+                            ? $"{phong.TenPhong} - {phong.ChiTietPhong?.DiaChi ?? ""}"
+                            : "Không rõ",
+                        GiaPhong = phong?.GiaPhong ?? 0,
+                        TenKhachThue = khach?.HoTen ?? "Không rõ",
+                        hoaDon.Thang,
+                        hoaDon.Nam,
+                        hoaDon.TongTien,
+                        hoaDon.TrangThai,
+                        hoaDon.NgayTao,
+                        ChiTiet = chiTiet,
+                        ChiSoDien = chiSoDien,
+                        ChiSoNuoc = chiSoNuoc
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lấy chi tiết hóa đơn: " + ex.Message });
+            }
         }
 
         [HttpPost]
@@ -289,15 +300,14 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                 .FirstOrDefault(h => h.MaHd == maHd);
 
             if (hoaDon == null)
-                return NotFound(new { success = false, message = "Không tìm thấy hóa đơn cần xóa." });
+                return Json(new { success = false, message = "Không tìm thấy hóa đơn cần xóa." });
 
             if (hoaDon.TrangThai == "Đã thanh toán")
                 return Json(new { success = false, message = "Không thể xóa hóa đơn đã thanh toán." });
 
-            using var transaction = _context.Database.BeginTransaction();
+            using var tran = _context.Database.BeginTransaction();
             try
             {
-                // ✅ Kiểm tra Tháng/Năm có null không
                 if (hoaDon.Thang == null || hoaDon.Nam == null)
                     return Json(new { success = false, message = "Hóa đơn thiếu thông tin tháng hoặc năm." });
 
@@ -305,57 +315,41 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                 int thang = hoaDon.Thang.Value;
                 int nam = hoaDon.Nam.Value;
 
-                // ✅ Xóa chi tiết hóa đơn
-                var chiTiet = _context.ChiTietHoaDons
-                    .Where(ct => ct.MaHd == maHd)
-                    .ToList();
-
-                if (chiTiet.Any())
-                {
-                    _context.ChiTietHoaDons.RemoveRange(chiTiet);
-                    _context.SaveChanges();
-                }
-
-                // ✅ Xóa chỉ số điện nước thuộc hóa đơn này
-                var chiSoLienQuan = _context.ChiSoDichVus
+                // Xóa chi tiết, chỉ số liên quan (gom lại trước khi SaveChanges)
+                var chiTiet = _context.ChiTietHoaDons.Where(ct => ct.MaHd == maHd).ToList();
+                var chiSo = _context.ChiSoDichVus
                     .Where(cs => cs.MaHopDong == maHopDong && cs.Thang == thang && cs.Nam == nam)
                     .ToList();
 
-                if (chiSoLienQuan.Any())
-                {
-                    _context.ChiSoDichVus.RemoveRange(chiSoLienQuan);
-                    _context.SaveChanges();
-                }
+                if (chiTiet.Count > 0) _context.ChiTietHoaDons.RemoveRange(chiTiet);
+                if (chiSo.Count > 0) _context.ChiSoDichVus.RemoveRange(chiSo);
 
-                // ✅ Cuối cùng xóa hóa đơn
                 _context.HoaDons.Remove(hoaDon);
                 _context.SaveChanges();
 
-                transaction.Commit();
-                return Ok(new { success = true, message = "Xóa hóa đơn thành công!" });
+                tran.Commit();
+                return Json(new { success = true, message = "Xóa hóa đơn thành công!" });
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Lỗi khi xóa hóa đơn: " + (ex.InnerException?.Message ?? ex.Message)
-                });
+                tran.Rollback();
+                return Json(new { success = false, message = "Lỗi khi xóa hóa đơn: " + ex.Message });
             }
         }
 
         [HttpPost]
         public IActionResult CapNhatHoaDon([FromBody] TaoHoaDonRequest model)
         {
-            if (model == null) return Json(new { success = false, message = "Dữ liệu rỗng." });
-            
-            if (model.MaHd <= 0) return Json(new { success = false, message = "Thiếu mã hóa đơn cần cập nhật." });
-            
+            if (model == null)
+                return Json(new { success = false, message = "Dữ liệu rỗng." });
+
+            if (model.MaHd <= 0)
+                return Json(new { success = false, message = "Thiếu mã hóa đơn cần cập nhật." });
+
             if (model.Thang < 1 || model.Nam < 2000)
                 return Json(new { success = false, message = "Dữ liệu hóa đơn không hợp lệ." });
 
-            using var transaction = _context.Database.BeginTransaction();
+            using var tran = _context.Database.BeginTransaction();
             try
             {
                 var hoaDon = _context.HoaDons
@@ -363,13 +357,12 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                     .FirstOrDefault(h => h.MaHd == model.MaHd);
 
                 if (hoaDon == null)
-                    return NotFound(new { success = false, message = "Không tìm thấy hóa đơn." });
+                    return Json(new { success = false, message = "Không tìm thấy hóa đơn." });
 
-                // Nếu MaHopDong null thì lỗi (an toàn hơn)
                 if (hoaDon.MaHopDong == null)
-                    return Json(new { success = false, message = "Hóa đơn thiếu MaHopDong." });
+                    return Json(new { success = false, message = "Hóa đơn thiếu mã hợp đồng." });
 
-                // ======= KIỂM TRA TRÙNG KỲ =======
+                // Kiểm tra trùng kỳ
                 bool trungKy = _context.HoaDons.Any(h =>
                     h.MaHopDong == hoaDon.MaHopDong &&
                     h.Thang == model.Thang &&
@@ -377,102 +370,81 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                     h.MaHd != hoaDon.MaHd);
 
                 if (trungKy)
-                    return Json(new { success = false, message = "Đã tồn tại hóa đơn cho hợp đồng này trong tháng/năm này." });
+                    return Json(new { success = false, message = "Đã tồn tại hóa đơn cho hợp đồng này trong kỳ này." });
 
-                // ===== Valid backend: kiểm tra chỉ số điện/nước =====
+                // Kiểm tra chỉ số điện/nước hợp lệ
                 if (model.ChiSoDien != null && model.ChiSoDien.Moi < model.ChiSoDien.Cu)
-                    return Json(new { success = false, message = "Chỉ số điện mới phải lớn hơn hoặc bằng chỉ số cũ." });
+                    return Json(new { success = false, message = "Chỉ số điện mới phải >= chỉ số cũ." });
 
                 if (model.ChiSoNuoc != null && model.ChiSoNuoc.Moi < model.ChiSoNuoc.Cu)
-                    return Json(new { success = false, message = "Chỉ số nước mới phải lớn hơn hoặc bằng chỉ số cũ." });
+                    return Json(new { success = false, message = "Chỉ số nước mới phải >= chỉ số cũ." });
 
-                // ===== Cập nhật thông tin hóa đơn =====
+                // ===== Cập nhật hóa đơn =====
                 hoaDon.Thang = model.Thang;
                 hoaDon.Nam = model.Nam;
                 hoaDon.TongTien = model.ThanhTienThangNay;
                 hoaDon.TrangThai = "Chưa thanh toán";
 
                 // ===== Cập nhật chi tiết hóa đơn =====
-                _context.ChiTietHoaDons.RemoveRange(hoaDon.ChiTietHoaDons);
+                if (hoaDon.ChiTietHoaDons?.Any() == true)
+                    _context.ChiTietHoaDons.RemoveRange(hoaDon.ChiTietHoaDons);
 
                 if (model.ChiTiet != null)
                 {
-                    foreach (var ct in model.ChiTiet)
-                    {
-                        if (ct.MaDv <= 0) continue;
-
-                        _context.ChiTietHoaDons.Add(new ChiTietHoaDon
+                    var chiTietList = model.ChiTiet
+                        .Where(ct => ct.MaDv > 0)
+                        .Select(ct => new ChiTietHoaDon
                         {
                             MaHd = hoaDon.MaHd,
                             MaDv = ct.MaDv,
                             DonGia = ct.DonGia,
                             SoLuong = ct.SoLuong,
                             ThanhTien = ct.ThanhTien
-                        });
-                    }
+                        })
+                        .ToList();
+
+                    _context.ChiTietHoaDons.AddRange(chiTietList);
                 }
 
-                // ===== Cập nhật chỉ số điện/nước =====
-                var csDien = _context.ChiSoDichVus.FirstOrDefault(x =>
-                    x.MaHopDong == hoaDon.MaHopDong && x.MaDv == 1 && x.Thang == model.Thang && x.Nam == model.Nam);
-
-                var csNuoc = _context.ChiSoDichVus.FirstOrDefault(x =>
-                    x.MaHopDong == hoaDon.MaHopDong && x.MaDv == 2 && x.Thang == model.Thang && x.Nam == model.Nam);
-
-                if (model.ChiSoDien != null)
-                {
-                    if (csDien != null)
-                    {
-                        csDien.ChiSoCu = model.ChiSoDien.Cu;
-                        csDien.ChiSoMoi = model.ChiSoDien.Moi;
-                    }
-                    else
-                    {
-                        _context.ChiSoDichVus.Add(new ChiSoDichVu
-                        {
-                            MaHopDong = hoaDon.MaHopDong ?? 0,
-                            MaDv = 1,
-                            Thang = model.Thang,
-                            Nam = model.Nam,
-                            ChiSoCu = model.ChiSoDien.Cu,
-                            ChiSoMoi = model.ChiSoDien.Moi
-                        });
-                    }
-                }
-
-                if (model.ChiSoNuoc != null)
-                {
-                    if (csNuoc != null)
-                    {
-                        csNuoc.ChiSoCu = model.ChiSoNuoc.Cu;
-                        csNuoc.ChiSoMoi = model.ChiSoNuoc.Moi;
-                    }
-                    else
-                    {
-                        _context.ChiSoDichVus.Add(new ChiSoDichVu
-                        {
-                            MaHopDong = hoaDon.MaHopDong ?? 0,
-                            MaDv = 2,
-                            Thang = model.Thang,
-                            Nam = model.Nam,
-                            ChiSoCu = model.ChiSoNuoc.Cu,
-                            ChiSoMoi = model.ChiSoNuoc.Moi
-                        });
-                    }
-                }
+                // ===== Cập nhật chỉ số điện nước =====
+                UpsertChiSo(hoaDon.MaHopDong.Value, 1, model.Thang, model.Nam, model.ChiSoDien);
+                UpsertChiSo(hoaDon.MaHopDong.Value, 2, model.Thang, model.Nam, model.ChiSoNuoc);
 
                 _context.SaveChanges();
-                transaction.Commit();
+                tran.Commit();
 
-                return Ok(new { success = true, message = "Cập nhật hóa đơn thành công!" });
+                return Json(new { success = true, message = "Cập nhật hóa đơn thành công!" });
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
-                return StatusCode(500, new
+                tran.Rollback();
+                return Json(new { success = false, message = "Lỗi khi cập nhật hóa đơn: " + ex.Message });
+            }
+        }
+
+        // ===== HÀM HỖ TRỢ UP SERT CHỈ SỐ =====
+        private void UpsertChiSo(int maHopDong, int maDv, int thang, int nam, ChiSoModel chiSo)
+        {
+            if (chiSo == null) return;
+
+            var cs = _context.ChiSoDichVus.FirstOrDefault(x =>
+                x.MaHopDong == maHopDong && x.MaDv == maDv && x.Thang == thang && x.Nam == nam);
+
+            if (cs != null)
+            {
+                cs.ChiSoCu = chiSo.Cu;
+                cs.ChiSoMoi = chiSo.Moi;
+            }
+            else
+            {
+                _context.ChiSoDichVus.Add(new ChiSoDichVu
                 {
-                    success = false,
-                    message = "Lỗi khi cập nhật hóa đơn: " + (ex.InnerException?.Message ?? ex.Message)
+                    MaHopDong = maHopDong,
+                    MaDv = maDv,
+                    Thang = thang,
+                    Nam = nam,
+                    ChiSoCu = chiSo.Cu,
+                    ChiSoMoi = chiSo.Moi
                 });
             }
         }
