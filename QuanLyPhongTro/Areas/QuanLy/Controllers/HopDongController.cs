@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using QuanLyPhongTro.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -308,13 +309,13 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                     maKhach = newTenant.MaKhach;
                 }
 
-                // Tạo hợp đồng mới - ĐÂY LÀ THAY ĐỔI CHÍNH
+                // Tạo hợp đồng mới
                 var hopDong = new HopDong
                 {
                     MaKhach = maKhach,
                     MaPhong = request.MaPhong,
-                    NgayBatDau = DateOnly.FromDateTime(DateTime.Parse(request.NgayBatDau)),
-                    NgayKetThuc = DateOnly.FromDateTime(DateTime.Parse(request.NgayKetThuc)),
+                    NgayBatDau = DateOnly.Parse(request.NgayBatDau),
+                    NgayKetThuc = DateOnly.Parse(request.NgayKetThuc),
                     TienCoc = request.TienCoc,
                     TrangThai = "Còn hiệu lực"
                 };
@@ -356,3 +357,4 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         public bool IsExisting { get; set; } = false;
     }
 }
+

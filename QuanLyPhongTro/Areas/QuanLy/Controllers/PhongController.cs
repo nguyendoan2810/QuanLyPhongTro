@@ -17,7 +17,36 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         }
 
 
+        // API để lấy danh sách phòng trống
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableRooms()
+        {
+            try
+            {
+                var availableRooms = await _context.Phongs
+                    .Where(p => p.TrangThai.ToLower() == "trống")
+                    .Include(p => p.ChiTietPhong)
+                    .Select(p => new
+                    {
+                        maPhong = p.MaPhong,
+                        tenPhong = p.TenPhong,
+                        giaPhong = p.GiaPhong,
+                        trangThai = p.TrangThai,
+                        dienTich = p.ChiTietPhong != null
+                            ? p.ChiTietPhong.DienTich.ToString()
+                            : "Chưa cập nhật",
 
+                        loaiPhong = p.ChiTietPhong != null ? p.ChiTietPhong.LoaiPhong : "Chưa phân loại"
+                    })
+                    .ToListAsync();
+
+                return Json(new { success = true, data = availableRooms });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi tải danh sách phòng: " + ex.Message });
+            }
+        }
 
 
         // 📌 Hiển thị danh sách phòng theo mã chủ trọ đang đăng nhập
