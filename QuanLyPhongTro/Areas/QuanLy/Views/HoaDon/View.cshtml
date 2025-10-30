@@ -65,8 +65,8 @@
                             <td class="font-medium border-r border-gray-300">Điện</td>
                             <td class="border-r border-gray-300 w-32">
                                 <div class="flex flex-col gap-1">
-                                    <input type="number" id="billElectricOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300" readonly>
-                                    <input type="number" id="billElectricNew" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="number" id="billElectricOld" min="0" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300" readonly>
+                                    <input type="number" id="billElectricNew" min="0" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
                                     <input type="text" id="billElectricUsage" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
                                 </div>
                             </td>
@@ -80,8 +80,8 @@
                             <td class="font-medium border-r border-gray-300">Nước</td>
                             <td class="border-r border-gray-300 w-32">
                                 <div class="flex flex-col gap-1">
-                                    <input type="number" id="billWaterOld" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300" readonly>
-                                    <input type="number" id="billWaterNew" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                    <input type="number" id="billWaterOld" min="0" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300" readonly>
+                                    <input type="number" id="billWaterNew" min="0" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
                                     <input type="text" id="billWaterUsage" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
                                 </div>
                             </td>
@@ -94,7 +94,7 @@
                             <td class="text-center py-2 border-r border-gray-300">4</td>
                             <td class="font-medium border-r border-gray-300">Dịch vụ khác</td>
                             <td class="border-r border-gray-300 text-center">
-                                <input type="number" id="billPeopleCount" placeholder="Số người" class="form-input w-full px-2 py-1 text-sm rounded-lg border-gray-300 text-center">
+                                <input type="number" id="billPeopleCount" min="0" placeholder="Số người" class="form-input w-full px-2 py-1 text-sm rounded-lg border-gray-300 text-center">
                             </td>
                             <td class="text-right border-r border-gray-300"><span id="billServicePrice">0</span></td>
                             <td class="text-right"><span id="billServiceTotal">0</span></td>
@@ -228,15 +228,9 @@
                 const existed = hd.chiTiet.find(ct => ct.maDv === maDv);
                 const checked = existed ? "checked" : "";
 
-                let thanhTien = 0;
-                if (existed) {
-                    thanhTien = existed.thanhTien || 0; // lấy đúng giá trị từ hóa đơn cũ
-                } else if (checked) {
-                    // trường hợp hiếm khi thêm dịch vụ mặc định checked (không có ở đây)
-                    thanhTien = (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng"))
-                        ? (soNguoi > 0 ? donGia : 0)
-                        : donGia * soNguoi;
-                }
+                // chỉ tính tiền nếu checked
+                const thanhTien = existed ? existed.thanhTien : (checked ? ((tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng"))
+                    ? (soNguoi > 0 ? donGia : 0) : donGia * soNguoi) : 0);
 
                 html += `
                     <tr class="border-t border-gray-200">
@@ -255,6 +249,16 @@
             container.innerHTML = html;
 
             // ===== TÍNH TOÁN REALTIME =====
+            $(document).on("input", "#billDetailModal input[type='number']", function () {
+                if (parseFloat(this.value) < 0) this.value = 0;
+            });
+
+            $(document).on("keypress", "#billDetailModal input[type='number']", function (e) {
+                if (e.key === "-" || e.key === "e") {
+                    e.preventDefault(); // chặn nhập dấu trừ hoặc ký tự "e"
+                }
+            });
+
             function tinhThanhTienDichVu(tenDv, donGia, checked) {
                 if (!checked) return 0;
                 if (tenDv.toLowerCase().includes("internet") || tenDv.toLowerCase().includes("mạng")) {
@@ -287,7 +291,7 @@
                 });
                 document.getElementById("billServiceTotal").innerText = tong.toLocaleString();
             }
-            
+
             $(".dv-check").on("change", capNhatThanhTienDichVu);
             $("#billPeopleCount").on("input", capNhatThanhTienDichVu);
 
@@ -313,7 +317,15 @@
                 capNhatTongTien();
             });
 
-            capNhatThanhTienDichVu(); // Cập nhật lần cuối sau khi gán xong tất cả
+            function capNhatTongTien() {
+                const tienPhong = parseInt(removeCommas($("#billRoomTotal").text())) || 0;
+                const tienDien = parseInt(removeCommas($("#billElectricTotal").text())) || 0;
+                const tienNuoc = parseInt(removeCommas($("#billWaterTotal").text())) || 0;
+                const tienDv = parseInt(removeCommas($("#billServiceTotal").text())) || 0;
+                const tong = tienPhong + tienDien + tienNuoc + tienDv;
+                $("#billTotalAmount").text(numberWithCommas(tong));
+            }
+            capNhatTongTienDichVu();
             capNhatTongTien();
 
              // ===== KIỂM TRA TRẠNG THÁI VÀ KHÓA FORM =====
@@ -449,5 +461,5 @@
             console.error(err);
             showNotification("Lỗi khi tải chi tiết hóa đơn", "error");
         }
-    }   
+    }
 </script>

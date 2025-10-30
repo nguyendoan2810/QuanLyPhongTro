@@ -66,8 +66,8 @@
                             <td class="border-r border-gray-300 w-32">
                                 <div class="space-y-1">
                                     <div class="flex flex-col gap-1">
-                                        <input type="number" id="dienCu" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
-                                        <input type="number" id="dienMoi" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                        <input type="number" id="dienCu" min="0" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                        <input type="number" id="dienMoi" min="0" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
                                     </div> <input type="text" id="tieuThuDien" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
                                 </div>
                             </td>
@@ -86,8 +86,8 @@
                             <td class="border-r border-gray-300 w-32">
                                 <div class="space-y-1">
                                     <div class="flex flex-col gap-1">
-                                        <input type="number" id="nuocCu" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
-                                        <input type="number" id="nuocMoi" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                        <input type="number" id="nuocCu" min="0" placeholder="Cũ" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
+                                        <input type="number" id="nuocMoi" min="0" placeholder="Mới" class="form-input px-2 py-1 text-sm rounded-lg border-gray-300">
                                     </div>
                                     <input type="text" id="tieuThuNuoc" readonly placeholder="Tiêu thụ" class="form-input w-full px-2 py-1 text-xs bg-gray-100 border-gray-300 rounded-lg">
                                 </div>
@@ -103,7 +103,7 @@
                             <td class="text-center py-2 border-r border-gray-300">4</td>
                             <td class="font-medium border-r border-gray-300">Dịch vụ khác</td>
                             <td class="border-r border-gray-300 text-center">
-                                <input type="number" id="soNguoi" placeholder="Nhập số người" class="form-input w-full px-2 py-1 text-sm rounded-lg border-gray-300 text-center">
+                                <input type="number" id="soNguoi" min="0" placeholder="Nhập số người" class="form-input w-full px-2 py-1 text-sm rounded-lg border-gray-300 text-center">
                             </td>
                             <td class="text-right border-r border-gray-300">
                                 <span id="donGiaDichVu"></span>
@@ -307,6 +307,17 @@
 
         html += `</tbody></table>`;
         container.html(html);
+
+        //chặn không cho nhập số âm
+        $(document).on("input", "#createBillModal input[type='number']", function () {
+            if (parseFloat(this.value) < 0) this.value = 0;
+        });
+
+        $(document).on("keypress", "#createBillModal input[type='number']", function (e) {
+            if (e.key === "-" || e.key === "e") {
+                e.preventDefault(); // chặn nhập dấu trừ hoặc ký tự "e"
+            }
+        });
 
         // Tick chọn dịch vụ
         $(".dv-check").on("change", function () {
