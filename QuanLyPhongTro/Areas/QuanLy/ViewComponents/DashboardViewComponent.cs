@@ -97,15 +97,19 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
 
 
 
-            //tính % số phong đã thuê
-            var tongSoPhong = _context.Phongs.Count();
-            var soPhongDaThue1 = _context.Phongs.Count(p => p.TrangThai == "Đang thuê");
+       
+            // Tính % số phòng đã thuê của chủ trọ hiện tại
+            var tongSoPhong1 = _context.Phongs.Count(p => p.MaChuTro == maChuTro);
+            var soPhongDaThue1 = _context.Phongs.Count(p => p.MaChuTro == maChuTro && p.TrangThai == "Đang thuê");
 
-            decimal tyLeLapDay = tongSoPhong > 0 ? Math.Round((decimal)soPhongDaThue / tongSoPhong * 100, 2) : 0;
+            decimal tyLeLapDay = tongSoPhong1 > 0
+                ? Math.Round((decimal)soPhongDaThue1 / tongSoPhong1 * 100, 2)
+                : 0;
 
-            ViewBag.SoLuongPhong = tongSoPhong;
+            ViewBag.SoLuongPhong = tongSoPhong1;
             ViewBag.SoPhongDaThue = soPhongDaThue1;
             ViewBag.TyLeLapDay = tyLeLapDay;
+
 
 
 

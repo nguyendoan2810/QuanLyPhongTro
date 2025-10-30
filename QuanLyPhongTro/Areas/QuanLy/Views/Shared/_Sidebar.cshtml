@@ -3,49 +3,52 @@
     var email = Context.Session.GetString("Email");
 }
 
-<div id="sidebar" class="fixed left-0 top-0 h-full w-64 sidebar-gradient text-white sidebar-transition z-30 lg:translate-x-0 -translate-x-full">
-    <div class="p-6 border-b border-blue-800">
+<div id="sidebar" class="fixed left-0 top-0 h-screen w-64 sidebar-gradient text-white sidebar-transition z-30 lg:translate-x-0 -translate-x-full flex flex-col">
+    <!-- 🔷 Header -->
+    <div class="p-6 border-b border-blue-800 shrink-0">
         <h1 class="text-xl font-bold flex items-center">
             <i class="fas fa-building mr-3"></i>
             Quản lý Phòng trọ
         </h1>
     </div>
 
-    <nav class="mt-6 flex-1 custom-scrollbar overflow-y-auto">
-        <div class="px-4 space-y-2">
-            <button onclick="showSection('dashboard')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center nav-item-active">
-                <i class="fas fa-chart-dashboard mr-3"></i>Dashboard
-            </button>
-            <button onclick="showSection('rooms')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-door-open mr-3"></i>Quản lý Phòng
-            </button>
-            <button onclick="showSection('tenants')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-users mr-3"></i>Quản lý Khách thuê
-            </button>
-            <button onclick="showSection('contracts')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-file-contract mr-3"></i>Hợp đồng thuê
-            </button>
-            <button onclick="showSection('services')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-cogs mr-3"></i>Quản lý Dịch vụ
-            </button>
-            <button onclick="showSection('bills')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-receipt mr-3"></i>Quản lý Hóa đơn
-            </button>
-            <button onclick="showSection('finance')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-money-bill-wave mr-3"></i>Thu Chi
-            </button>
-            <button onclick="showSection('reports')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-chart-bar mr-3"></i>Báo cáo & Thống kê
-            </button>
-            <button onclick="showSection('accounts')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
-                <i class="fas fa-user-cog mr-3"></i>Quản lý Tài khoản
-            </button>
-        </div>
+    <!-- 📋 Menu cuộn được -->
+    <nav class="flex-1 overflow-y-auto overflow-x-auto scroll-smooth custom-scrollbar px-4 py-6 space-y-2">
+        <button onclick="showSection('dashboard')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center nav-item-active">
+            <i class="fas fa-chart-dashboard mr-3"></i>Dashboard
+        </button>
+        <button onclick="showSection('rooms')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-door-open mr-3"></i>Quản lý Phòng
+        </button>
+        <button onclick="showSection('tenants')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-users mr-3"></i>Quản lý Khách thuê
+        </button>
+        <button onclick="showSection('contracts')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-file-contract mr-3"></i>Hợp đồng thuê
+        </button>
+        <button onclick="showSection('services')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-cogs mr-3"></i>Quản lý Dịch vụ
+        </button>
+        <button onclick="showSection('bills')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-receipt mr-3"></i>Quản lý Hóa đơn
+        </button>
+        <button onclick="showSection('finance')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-money-bill-wave mr-3"></i>Thu Chi
+        </button>
+        <button onclick="showSection('reports')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-chart-bar mr-3"></i>Báo cáo & Thống kê
+        </button>
+        <button onclick="showSection('notifications')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-bell mr-3"></i>Quản lý Thông báo
+        </button>
+        <button onclick="showSection('accounts')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-blue-800 transition-colors flex items-center">
+            <i class="fas fa-user-cog mr-3"></i>Quản lý Tài khoản
+        </button>
     </nav>
 
-    <!-- Logout Section -->
-    <div class="p-4 border-t border-blue-800">
-        <div class="flex items-center mb-4 px-4">
+    <!-- 👤 Footer: Avatar + Logout -->
+    <div class="p-4 border-t border-blue-800 shrink-0">
+        <div class="flex items-center mb-4 px-2">
             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%234F46E5'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-family='Arial' font-size='16' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
             <div>
                 <p class="font-medium text-sm">@hoTen</p>

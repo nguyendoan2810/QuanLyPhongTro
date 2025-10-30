@@ -36,8 +36,13 @@
     <!--Trang báo cáo-thống kê-->
     @await Component.InvokeAsync("BaoCaoThongKe")
 
+    <!--Trang quản lý thông báo-->
+    @await Component.InvokeAsync("ThongBao")
+
     <!-- Accounts Section -->
     <!--Trang quản lý tài khoản-->
     @await Html.PartialAsync("~/Areas/QuanLy/Views/TaiKhoan/Index.cshtml")
+
+
 </main>
 

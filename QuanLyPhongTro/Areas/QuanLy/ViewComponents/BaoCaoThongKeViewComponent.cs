@@ -47,11 +47,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 .ToList();
 
             // Nếu không có phòng thì khỏi tính
-            if (!roomIds.Any())
-            {
-                ViewBag.TyLeLapDayTheoThang = new List<object>();
-                return View("~/Areas/QuanLy/Views/Dashboard/_TyLeLapDayChart.cshtml");
-            }
+           
 
             // Lấy hợp đồng thuộc các phòng đó
             var danhSachHopDong = _context.HopDongs
@@ -88,15 +84,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
 
             ViewBag.TyLeLapDayTheoThang = ketQua;
 
-
-
-
-
             //lấy danh sách phòng trống
-
-
-
-
             var danhSachPhongTrong = (from p in _context.Phongs
                                       join ct in _context.ChiTietPhongs on p.MaPhong equals ct.MaPhong
                                       where p.MaChuTro == maChuTro && p.TrangThai == "Trống"
@@ -115,6 +103,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
 
 
             //Khách chưa thanh toán
+            //ngày hết hạn = ngày tạo hóa + 5 ngày, sắp hết hạn : ngày hết hạn - ngày hôm nay, ngày hôm nay > ngày hết hạn => quá hạn
             var now = DateTime.Now;
             var currentMonth = now.Month;
             var currentYear = now.Year;
