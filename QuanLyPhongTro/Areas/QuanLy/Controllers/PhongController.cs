@@ -16,6 +16,10 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             _context = context;
         }
 
+
+
+
+
         // 📌 Hiển thị danh sách phòng theo mã chủ trọ đang đăng nhập
         public async Task<IActionResult> Index()
         {
