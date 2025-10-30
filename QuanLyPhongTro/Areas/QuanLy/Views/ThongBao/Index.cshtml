@@ -1,0 +1,211 @@
+﻿@{
+    var thongBaos = ViewBag.DanhSachThongBao as IEnumerable<dynamic>;
+    var tong = ViewBag.TongThongBao ?? 0;
+    var danhSachKhach = ViewBag.DanhSachKhach as IEnumerable<dynamic>;
+}
+
+<div id="notifications-section" class="section">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    📬 Danh sách thông báo (<span id="tongTB">@tong</span>)
+                </h3>
+                
+            </div>
+
+            <div id="listThongBao" class="p-6 max-h-[600px] overflow-y-auto space-y-3">
+                @if (thongBaos != null && thongBaos.Any())
+                {
+                    foreach (var tb in thongBaos)
+                    {
+                        var mau = tb.Loai == "ThanhToan" ? "bg-blue-50 border-blue-300" :
+                        tb.Loai == "DichVu" ? "bg-red-50 border-red-300" :
+                        tb.Loai == "HopDong" ? "bg-green-50 border-green-300" :
+                        "bg-yellow-50 border-yellow-300";
+
+                        <div class="p-4 mb-2 border rounded-lg @mau">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="font-medium text-gray-800">@tb.NoiDung</span>
+                                    <div class="text-sm text-gray-500 mt-1 space-y-1">
+                                        <div>🏠 <strong>Phòng:</strong> @tb.TenPhong</div>
+                                        <div>👤 <strong>Người nhận:</strong> @tb.NguoiNhan</div>
+                                        <div>🏷️ <strong>Loại:</strong> @tb.Loai</div>
+                                    </div>
+                                </div>
+                                <span class="text-sm text-gray-500">@tb.NgayGui.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-gray-500 italic">Chưa có thông báo nào.</p>
+                }
+            </div>
+
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">✉️ Gửi thông báo</h3>
+            </div>
+
+            <div class="p-6">
+                <form id="formThongBao" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Chọn phòng</label>
+                        <select id="chonPhong" name="chonPhong" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">-- Chọn phòng --</option>
+                            <option value="ALL">-- Gửi cho TẤT CẢ khách thuê --</option>
+                            @foreach (var p in ViewBag.DanhSachPhong)
+                            {
+                                <option value="@p.MaPhong">@p.TenPhong</option>
+                            }
+                        </select>
+                    </div>
+
+
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Chọn khách thuê</label>
+                        <select id="chonKhach" name="maKhach" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">-- Chọn khách thuê --</option>
+                           
+                            @if (danhSachKhach != null)
+                            {
+                                foreach (var khach in danhSachKhach)
+                                {
+                                    <option value="@khach.MaKhach">@khach.HoTen</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Loại thông báo</label>
+                            <select name="loai" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                                <option value="ThanhToan">Thanh toán</option>
+                                <option value="DichVu">Dịch vụ</option>
+                                <option value="HopDong">Hợp đồng</option>
+                                <option value="Khac">Khác</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nội dung</label>
+                        <textarea name="noiDung" rows="4" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Nhập nội dung thông báo..." required></textarea>
+                    </div>
+
+                    <div class="text-right">
+                        <button type="button" id="btnGuiThongBao"
+                                class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                            Gửi thông báo
+                        </button>
+
+
+                    </div>
+                </form>
+
+                <div id="tbMessage" class="mt-4 text-sm"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    const danhSachPhong = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.DanhSachPhong));
+
+    $("#chonPhong").on("change", function () {
+        const maPhong = $(this).val();
+        const selectKhach = $("#chonKhach");
+        selectKhach.empty();
+
+        if (maPhong === "") {
+            selectKhach.append('<option value="">-- Chọn khách thuê --</option>');
+            return;
+        }
+
+        // Gửi cho tất cả khách thuê trong hệ thống
+        if (maPhong === "ALL") {
+            selectKhach.append('<option value="">-- Chọn khách thuê --</option>');
+            selectKhach.append('<option value="ALL">-- TẤT CẢ KHÁCH THUÊ --</option>');
+            return;
+        }
+
+
+        // Lấy danh sách khách trong phòng
+        const phong = danhSachPhong.find(p => p.MaPhong == maPhong);
+        selectKhach.append('<option value="">-- Chọn khách thuê --</option>');
+        selectKhach.append('<option value="ALL">-- Gửi TẤT CẢ KHÁCH trong phòng này --</option>');
+
+        if (phong && phong.KhachThues && phong.KhachThues.length > 0) {
+            phong.KhachThues.forEach(k => {
+                selectKhach.append(`<option value="${k.MaKhach}">${k.HoTen}</option>`);
+            });
+        } else {
+            selectKhach.append('<option disabled>Không có khách thuê</option>');
+        }
+    });
+
+    // ✅ Hàm load lại danh sách thông báo
+    function reloadThongBaoList() {
+        $.get('/QuanLy/ThongBao/ReloadPartial', function (html) {
+            // Cập nhật lại phần danh sách trong khung hiện tại
+            $('#listThongBao').html($(html).find('#listThongBao').html());
+            // Cập nhật lại số lượng tổng (nếu có)
+            const tong = $(html).find('#tongTB').text();
+            $('#tongTB').text(tong);
+        });
+    }
+
+
+    // Xử lý gửi
+    $("#btnGuiThongBao").on("click", function () {
+        const maPhong = $("#chonPhong").val();
+        const maKhach = $("#chonKhach").val();
+        const loai = $("select[name='loai']").val();
+        const noiDung = $("textarea[name='noiDung']").val();
+
+        if (!maPhong || !maKhach || !noiDung) {
+            $("#tbMessage").html(`<span class="text-red-600">⚠️ Vui lòng chọn đủ thông tin!</span>`);
+            return;
+        }
+
+        // Xác nhận nếu gửi tất cả
+        if ((maPhong === "ALL" || maKhach === "ALL") &&
+            !confirm("Bạn có chắc muốn gửi cho tất cả khách thuê?")) return;
+
+        $.ajax({
+            url: '/QuanLy/ThongBao/Tao',
+            type: 'POST',
+            data: { maPhong, maKhach, loai, noiDung },
+            success: res => {
+                $("#tbMessage").html(`<span class="${res.success ? 'text-green-600' : 'text-red-600'}">${res.message}</span>`);
+                if (res.success) {
+                    $("textarea[name='noiDung']").val('');
+                    // 🔹 Gọi lại danh sách mà không reload toàn trang
+                    reloadThongBaoList();
+                }
+            },
+
+            error: xhr => {
+                $("#tbMessage").html(`<span class="text-red-600">❌ Lỗi khi gửi.</span>`);
+                console.error(xhr.responseText);
+            }
+        });
+    });
+</script>
+
+
+
+
+

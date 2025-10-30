@@ -21,6 +21,7 @@ function showSection(sectionName) {
         'bills': 'Quản lý Hóa đơn',
         'finance': 'Thu Chi',
         'reports': 'Báo cáo & Thống kê',
+        'notifications': 'Tin nhắn & Thông báo',
         'accounts': 'Quản lý Tài khoản'
     };
     document.getElementById('pageTitle').textContent = titles[sectionName];

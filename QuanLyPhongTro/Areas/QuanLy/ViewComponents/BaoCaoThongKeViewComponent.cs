@@ -42,6 +42,9 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 .Select(p => p.MaPhong)
                 .ToList();
 
+            // Nếu không có phòng thì khỏi tính
+           
+
             // Lấy hợp đồng thuộc các phòng đó
             var danhSachHopDong = _context.HopDongs
                 .Where(hd => hd.MaPhong.HasValue && roomIds.Contains(hd.MaPhong.Value))
@@ -94,6 +97,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
             ViewBag.DanhSachPhongTrong = danhSachPhongTrong;
 
             //Khách chưa thanh toán
+            //ngày hết hạn = ngày tạo hóa + 5 ngày, sắp hết hạn : ngày hết hạn - ngày hôm nay, ngày hôm nay > ngày hết hạn => quá hạn
             var now = DateTime.Now;
             var currentMonth = now.Month;
             var currentYear = now.Year;
