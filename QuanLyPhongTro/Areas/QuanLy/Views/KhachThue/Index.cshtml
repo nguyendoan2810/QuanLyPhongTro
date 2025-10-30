@@ -16,12 +16,20 @@
                                onkeyup="if(event.key === 'Enter') searchTenant()" />
                     </div>
 
-                    <!-- Nút tìm -->
-                    <button id="btnSearchTenant"
+                    <!-- Ô chọn trạng thái hợp đồng -->
+                    <select id="trangThaiHopDongSelect"
+                            class="border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm">
+                        <option value="Tất cả">Tất cả</option>
+                        <option value="Còn hiệu lực">Còn hiệu lực</option>
+                        <option value="Đã kết thúc">Đã kết thúc</option>
+                    </select>
+
+                    <!-- Nút lọc -->
+                    <button id="btnFilterTenant"
                             onclick="searchTenant()"
                             class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition">
                         <i class="fas fa-filter"></i>
-                        <span>Tìm kiếm</span>
+                        <span>Lọc</span>
                     </button>
 
                     <!-- Nút thêm khách -->
@@ -87,16 +95,14 @@
 
 
 <script>
-    // ============ HÀM TÌM KIẾM KHÁCH THUÊ ============
     async function searchTenant() {
-        const searchInput = document.getElementById('khachThueSearchInput');
-        const keyword = searchInput ? searchInput.value.trim() : "";
+        const keyword = document.getElementById('khachThueSearchInput')?.value.trim() || "";
+        const trangThai = document.getElementById('trangThaiHopDongSelect')?.value || "Tất cả";
 
         try {
-            const res = await fetch(`/QuanLy/KhachThue/ReloadFilterKhachThue?searchString=${encodeURIComponent(keyword)}`);
+            const res = await fetch(`/QuanLy/KhachThue/ReloadFilterKhachThue?searchString=${encodeURIComponent(keyword)}&trangThaiHopDong=${encodeURIComponent(trangThai)}`);
             const html = await res.text();
 
-            // Tạo document ảo để lấy tbody mới
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const newTbody = doc.querySelector('#tenants-section tbody');
@@ -104,13 +110,13 @@
 
             if (newTbody && oldTbody) {
                 oldTbody.innerHTML = newTbody.innerHTML;
-                showNotification("Đã lọc danh sách khách thuê!", "success");
+                showNotification(`Đã lọc theo trạng thái: ${trangThai}`, "success");
             } else {
                 showNotification("Không thể cập nhật danh sách khách thuê.", "error");
             }
         } catch (err) {
             console.error(err);
-            showNotification("Lỗi kết nối máy chủ khi tìm kiếm!", "error");
+            showNotification("Lỗi kết nối máy chủ khi lọc!", "error");
         }
     }
 
