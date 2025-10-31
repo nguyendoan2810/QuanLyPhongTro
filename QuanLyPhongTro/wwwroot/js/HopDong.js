@@ -93,13 +93,12 @@ function loadAvailableRooms() {
         success: function (response) {
             roomsLoading.classList.add('hidden');
 
-            if (response.success && response.data?.length > 0) {
-                roomsList.classList.remove('hidden');     // đưa lên trước
-                displayRooms(response.data);              // nếu lỗi sẽ thấy khối trắng thay vì spinner
+            if (response.success && response.data && response.data.length > 0) {
+                displayRooms(response.data);
+                roomsList.classList.remove('hidden');
             } else {
                 noRoomsMessage.classList.remove('hidden');
             }
-
         },
         error: function (xhr) {
             roomsLoading.classList.add('hidden');
@@ -555,5 +554,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
-
