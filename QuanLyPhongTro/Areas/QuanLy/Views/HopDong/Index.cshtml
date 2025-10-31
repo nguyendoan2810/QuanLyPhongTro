@@ -1,5 +1,4 @@
-﻿
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+﻿<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
@@ -297,8 +296,6 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<script src="~/js/HopDong.js"></script>
 <script>
     const ContractManager = {
         // State variables
@@ -693,6 +690,27 @@
     });
 </script>
 
-<script src="~/js/HopDong.js?v=@DateTime.Now.Ticks"></script>
 
+<script src="~/js/hopdong.js"></script>
+<script>
+    const ContractManager = {
+        // ... (giữ nguyên code ContractManager hiện tại)
+    };
 
+    // Global functions for compatibility
+    function toggleExpirationFilter() { ContractManager.toggleExpirationFilter(); }
+    function toggleActiveFilter() { ContractManager.toggleActiveFilter(); }
+    function viewContract(id) { ContractManager.viewContract(id); }
+    function terminateContract(id) { ContractManager.terminateContract(id); }
+    function refreshContracts() { ContractManager.refreshContracts(); }
+
+    // Initialize
+    ContractManager.init();
+
+    // Close dropdown when click outside
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#expirationFilterButton') && !e.target.closest('#expirationFilterDropdown')) {
+            document.getElementById('expirationFilterDropdown').classList.add('hidden');
+        }
+    });
+</script>
