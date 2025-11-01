@@ -53,7 +53,7 @@ function showRoomSelectionModal() {
     clearAllFormInputs();
     window.contractWizardData = { room: {}, contract: {}, tenant: {} };
     openModal('roomSelectionModal');
-    loadAvailableRooms();
+    loadAvailableRoomsForContract();
 }
 
 function closeAllContractModals() {
@@ -78,7 +78,7 @@ function closeAllContractModals() {
     }
 }
 
-function loadAvailableRooms() {
+function loadAvailableRoomsForContract() {
     const roomsLoading = document.getElementById('roomsLoading');
     const roomsList = document.getElementById('roomsList');
     const noRoomsMessage = document.getElementById('noRoomsMessage');
