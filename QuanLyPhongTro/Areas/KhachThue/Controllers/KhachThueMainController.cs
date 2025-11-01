@@ -2,9 +2,9 @@
 
 namespace QuanLyPhongTro.Areas.KhachThue.Controllers
 {
+    [Area("KhachThue")]
     public class KhachThueMainController : Controller
     {
-        [Area("KhachThue")]
         public IActionResult Index()
         {
             return View();

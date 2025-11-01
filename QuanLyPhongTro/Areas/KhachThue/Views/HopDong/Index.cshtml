@@ -1,7 +1,9 @@
-﻿<div id="contractsPage" class="page-content hidden">
+﻿@model IEnumerable<QuanLyPhongTro.Models.HopDong>
+
+<div id="contractsPage" class="page-content">
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Hợp đồng thuê</h2>
-        <p class="text-gray-600">Quản lý hợp đồng thuê phòng của bạn</p>
+        <p class="text-gray-600">Danh sách hợp đồng thuê phòng của bạn</p>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -10,36 +12,109 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã hợp đồng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách thuê</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phòng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa chỉ</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày bắt đầu</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày kết thúc</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiền cọc</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá phòng</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">HD001</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">P201</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01/01/2024</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">31/12/2024</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5,000,000 VNĐ</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2,500,000 VNĐ</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button class="text-blue-600 hover:text-blue-900 view-contract-btn" data-contract="HD001">
-                                <i class="fas fa-eye mr-1"></i>Xem chi tiết
-                            </button>
-                            <button class="text-green-600 hover:text-green-900 extend-contract-btn" data-contract="HD001">
-                                <i class="fas fa-plus mr-1"></i>Gia hạn
-                            </button>
-                            <button class="text-red-600 hover:text-red-900 terminate-contract-btn" data-contract="HD001">
-                                <i class="fas fa-times mr-1"></i>Chấm dứt
-                            </button>
-                        </td>
-                    </tr>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var hd in Model)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@($"HĐ{hd.MaHopDong:D4}")</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hd.MaKhachNavigation?.HoTen</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hd.MaPhongNavigation?.TenPhong</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hd.MaPhongNavigation?.ChiTietPhong?.DiaChi</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hd.NgayBatDau.ToString("dd/MM/yyyy")</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hd.NgayKetThuc.ToString("dd/MM/yyyy")</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@string.Format("{0:N0} VNĐ", hd.TienCoc)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@string.Format("{0:N0} VNĐ", hd.MaPhongNavigation?.GiaPhong)</td>
+
+                                <!-- 🟢 Cột thao tác -->
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button class="text-green-600 hover:text-green-900 extend-contract-btn">
+                                        <i class="fas fa-plus mr-1"></i>Gia hạn
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900 terminate-contract-btn">
+                                        <i class="fas fa-times mr-1"></i>Chấm dứt
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-gray-500 py-6">Không có hợp đồng nào được tìm thấy.</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<div id="extendModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Yêu cầu gia hạn hợp đồng</h3>
+        <form id="extendForm">
+            <input type="hidden" name="MaHopDong" id="extendMaHopDong" />
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu</label>
+                <input type="text" id="extendStartDate" class="w-full px-4 py-2 border rounded-lg bg-gray-100" readonly />
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Số tháng gia hạn</label>
+                <input type="number" name="SoThang" min="1" max="12" required class="w-full px-4 py-2 border rounded-lg" />
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeExtendModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Gửi yêu cầu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+     document.querySelectorAll(".extend-contract-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const row = btn.closest("tr");
+            const maHopDong = row.querySelector("td").textContent.replace("HĐ", "");
+            const ngayKetThuc = row.children[5].textContent;
+
+            document.getElementById("extendMaHopDong").value = maHopDong;
+            document.getElementById("extendStartDate").value = ngayKetThuc;
+            document.getElementById("extendModal").classList.remove("hidden");
+        });
+    });
+
+    function closeExtendModal() {
+        document.getElementById("extendModal").classList.add("hidden");
+    }
+
+    document.getElementById("extendForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch("/KhachThue/HopDong/GiaHan", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.ok ? res.text() : Promise.reject())
+        .then(msg => {
+            showNotification("Yêu cầu gia hạn đã được gửi!", "success");
+            closeExtendModal();
+        })
+        .catch(() => {
+            showNotification("Gửi yêu cầu thất bại!", "error");
+        });
+    });
+</script>

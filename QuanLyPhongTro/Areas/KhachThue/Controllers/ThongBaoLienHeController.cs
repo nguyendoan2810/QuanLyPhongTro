@@ -2,6 +2,7 @@
 
 namespace QuanLyPhongTro.Areas.KhachThue.Controllers
 {
+    [Area("KhachThue")]
     public class ThongBaoLienHeController : Controller
     {
         public IActionResult Index()

@@ -8,10 +8,10 @@
     @await Html.PartialAsync("~/Areas/KhachThue/Views/Dashboard/Index.cshtml")
 
     <!-- Profile Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/ThongTinCaNhan/Index.cshtml")
+    @await Component.InvokeAsync("ThongTinCaNhan")
 
     <!-- Contracts Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/HopDong/Index.cshtml")
+    @await Component.InvokeAsync("HopDong")
 
     <!-- Bills Page -->
     @await Html.PartialAsync("~/Areas/KhachThue/Views/HoaDon/Index.cshtml")

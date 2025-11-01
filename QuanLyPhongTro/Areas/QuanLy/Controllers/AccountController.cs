@@ -58,6 +58,13 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Account", new { area = "QuanLy" });
+        }
+
         //QUÊN MẬT KHẨU
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(string email)
