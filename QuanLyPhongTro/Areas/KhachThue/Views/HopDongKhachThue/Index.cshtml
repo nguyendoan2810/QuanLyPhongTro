@@ -37,7 +37,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@string.Format("{0:N0} VNĐ", hd.TienCoc)</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@string.Format("{0:N0} VNĐ", hd.MaPhongNavigation?.GiaPhong)</td>
 
-                                <!-- 🟢 Cột thao tác -->
+                                <!-- Cột thao tác -->
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                     <button class="text-green-600 hover:text-green-900 extend-contract-btn">
                                         <i class="fas fa-plus mr-1"></i>Gia hạn
@@ -61,60 +61,5 @@
     </div>
 </div>
 
-<div id="extendModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Yêu cầu gia hạn hợp đồng</h3>
-        <form id="extendForm">
-            <input type="hidden" name="MaHopDong" id="extendMaHopDong" />
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu</label>
-                <input type="text" id="extendStartDate" class="w-full px-4 py-2 border rounded-lg bg-gray-100" readonly />
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Số tháng gia hạn</label>
-                <input type="number" name="SoThang" min="1" max="12" required class="w-full px-4 py-2 border rounded-lg" />
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeExtendModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Gửi yêu cầu</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-     document.querySelectorAll(".extend-contract-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-            const row = btn.closest("tr");
-            const maHopDong = row.querySelector("td").textContent.replace("HĐ", "");
-            const ngayKetThuc = row.children[5].textContent;
-
-            document.getElementById("extendMaHopDong").value = maHopDong;
-            document.getElementById("extendStartDate").value = ngayKetThuc;
-            document.getElementById("extendModal").classList.remove("hidden");
-        });
-    });
-
-    function closeExtendModal() {
-        document.getElementById("extendModal").classList.add("hidden");
-    }
-
-    document.getElementById("extendForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const formData = new FormData(this);
-
-        fetch("/KhachThue/HopDong/GiaHan", {
-            method: "POST",
-            body: formData
-        })
-        .then(res => res.ok ? res.text() : Promise.reject())
-        .then(msg => {
-            showNotification("Yêu cầu gia hạn đã được gửi!", "success");
-            closeExtendModal();
-        })
-        .catch(() => {
-            showNotification("Gửi yêu cầu thất bại!", "error");
-        });
-    });
-</script>
+@await Html.PartialAsync("~/Areas/KhachThue/Views/HopDongKhachThue/GiaHan.cshtml")
+@await Html.PartialAsync("~/Areas/KhachThue/Views/HopDongKhachThue/KetThuc.cshtml")

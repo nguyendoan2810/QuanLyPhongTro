@@ -1,4 +1,4 @@
-﻿// ======== 🧭 HÀM THÔNG BÁO TOÀN CỤC (Notification) ========
+﻿// ======== HÀM THÔNG BÁO TOÀN CỤC (Notification) ========
 function showNotification(message, type = 'info') {
     // Tạo phần tử thông báo
     const notification = document.createElement('div');

@@ -4,11 +4,11 @@ using QuanLyPhongTro.Models;
 
 namespace QuanLyPhongTro.Areas.KhachThue.ViewComponents
 {
-    public class HopDongViewComponent : ViewComponent
+    public class HopDongKhachThueViewComponent : ViewComponent
     {
         private readonly QuanLyPhongTroContext _context;
 
-        public HopDongViewComponent(QuanLyPhongTroContext context)
+        public HopDongKhachThueViewComponent(QuanLyPhongTroContext context)
         {
             _context = context;
         }
@@ -17,7 +17,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.ViewComponents
         {
             var maKhach = HttpContext.Session.GetInt32("MaKhach");
             if (maKhach == null)
-                return View("~/Areas/KhachThue/Views/HopDong/Index.cshtml");
+                return View("~/Areas/KhachThue/Views/HopDongKhachThue/Index.cshtml");
 
             var hopDongs = await _context.HopDongs
                 .Include(h => h.MaKhachNavigation)
@@ -26,7 +26,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.ViewComponents
                 .Where(h => h.MaKhach == maKhach)
                 .ToListAsync();
 
-            return View("~/Areas/KhachThue/Views/HopDong/Index.cshtml", hopDongs);
+            return View("~/Areas/KhachThue/Views/HopDongKhachThue/Index.cshtml", hopDongs);
         }
     }
 }

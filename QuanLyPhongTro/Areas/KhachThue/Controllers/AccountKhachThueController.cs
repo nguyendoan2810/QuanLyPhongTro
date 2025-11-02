@@ -7,11 +7,11 @@ using QuanLyPhongTro.Models;
 namespace QuanLyPhongTro.Areas.KhachThue.Controllers
 {
     [Area("KhachThue")]
-    public class AccountController : Controller
+    public class AccountKhachThueController : Controller
     {
         private readonly QuanLyPhongTroContext _context;
 
-        public AccountController(QuanLyPhongTroContext context)
+        public AccountKhachThueController(QuanLyPhongTroContext context)
         {
             _context = context;
         }
@@ -64,7 +64,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Clear(); // ✅ Xóa toàn bộ session
-            return RedirectToAction("Login", "Account", new { area = "KhachThue" });
+            return RedirectToAction("Login", "AccountKhachThue", new { area = "KhachThue" });
         }
     }
 }
