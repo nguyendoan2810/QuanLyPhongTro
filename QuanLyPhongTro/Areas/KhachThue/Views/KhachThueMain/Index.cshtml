@@ -14,7 +14,7 @@
     @await Component.InvokeAsync("HopDongKhachThue")
 
     <!-- Bills Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/HoaDonKhachThue/Index.cshtml")
+    @await Component.InvokeAsync("HoaDonKhachThue")
 
     <!-- Notifications Page -->
     @await Component.InvokeAsync("ThongBaoLienHe")

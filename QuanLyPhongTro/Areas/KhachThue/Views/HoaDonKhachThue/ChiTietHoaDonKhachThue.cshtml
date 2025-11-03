@@ -1,0 +1,131 @@
+﻿<div id="billDetailModal"
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-lg">
+        <div class="p-6 border-b flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Chi tiết hóa đơn</h3>
+            <button onclick="closeModal('billDetailModal')" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-gray-600">Phòng</label>
+                    <input id="detailRoom" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Khách thuê</label>
+                    <input id="detailTenant" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Kỳ hóa đơn</label>
+                    <input id="detailPeriod" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Trạng thái</label>
+                    <input id="detailStatus" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-sm text-gray-600">Tiền phòng</label>
+                    <input id="detailRoomPrice" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Ngày tạo</label>
+                    <input id="detailDate" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-sm text-gray-600">Chỉ số điện (cũ - mới)</label>
+                    <input id="detailElectric" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600">Chỉ số nước (cũ - mới)</label>
+                    <input id="detailWater" class="w-full border rounded-lg px-3 py-2 bg-gray-100" readonly />
+                </div>
+            </div>
+
+            <div class="overflow-x-auto mt-6">
+                <table class="w-full border border-gray-200 text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-3 py-2 text-left">Dịch vụ</th>
+                            <th class="px-3 py-2 text-center">Số lượng</th>
+                            <th class="px-3 py-2 text-right">Đơn giá</th>
+                            <th class="px-3 py-2 text-right">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailBillServices" class="divide-y divide-gray-100"></tbody>
+                    <tfoot class="bg-blue-50 font-semibold">
+                        <tr>
+                            <td colspan="3" class="px-3 py-2 text-right text-blue-700">Tổng cộng</td>
+                            <td id="detailTotal" class="px-3 py-2 text-right text-blue-700">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="p-6 border-t text-right">
+            <button onclick="closeModal('billDetailModal')" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll(".view-bill-btn").forEach(btn => {
+        btn.addEventListener("click", async function () {
+            const id = this.dataset.id;
+            try {
+                const res = await fetch(`/KhachThue/HoaDonKhachThue/LayChiTietHoaDon?maHd=${id}`);
+                const data = await res.json();
+                if (!data.success) {
+                    showNotification(data.message || "Không lấy được dữ liệu", "error");
+                    return;
+                }
+
+                const hd = data.data;
+                document.getElementById("detailRoom").value = hd.tenPhong;
+                document.getElementById("detailTenant").value = hd.tenKhachThue;
+                document.getElementById("detailPeriod").value = `${hd.thang}/${hd.nam}`;
+                document.getElementById("detailStatus").value = hd.trangThai;
+                document.getElementById("detailRoomPrice").value = Number(hd.tienPhong).toLocaleString() + " VNĐ";
+                document.getElementById("detailDate").value = hd.ngayTao || "Chưa có";
+                document.getElementById("detailElectric").value = hd.chiSoDien ? `${hd.chiSoDien.chiSoCu} - ${hd.chiSoDien.chiSoMoi}` : "Không có";
+                document.getElementById("detailWater").value = hd.chiSoNuoc ? `${hd.chiSoNuoc.chiSoCu} - ${hd.chiSoNuoc.chiSoMoi}` : "Không có";
+                document.getElementById("detailTotal").innerText = Number(hd.tongTien).toLocaleString();
+
+                const tbody = document.getElementById("detailBillServices");
+                tbody.innerHTML = "";
+                hd.chiTietDichVu.forEach(ct => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="px-3 py-2">${ct.tenDv}</td>
+                            <td class="px-3 py-2 text-center">${ct.soLuong}</td>
+                            <td class="px-3 py-2 text-right">${Number(ct.donGia).toLocaleString()}</td>
+                            <td class="px-3 py-2 text-right">${Number(ct.thanhTien).toLocaleString()}</td>
+                        </tr>`;
+                });
+
+                openModal("billDetailModal");
+            } catch (err) {
+                console.error(err);
+                showNotification("Lỗi khi tải chi tiết hóa đơn", "error");
+            }
+        });
+    });
+
+    function openModal(id) {
+        document.getElementById(id).classList.remove("hidden");
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.add("hidden");
+    }
+</script>
