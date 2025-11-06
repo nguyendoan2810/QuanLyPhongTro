@@ -1,6 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using QuanLyPhongTro.Models;
+using QuanLyPhongTro.Models.Momo;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace QuanLyPhongTro.Areas.KhachThue.Controllers
 {
@@ -8,11 +14,14 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
     public class HoaDonKhachThueController : Controller
     {
         private readonly QuanLyPhongTroContext _context;
+        private readonly IConfiguration _config;
 
-        public HoaDonKhachThueController(QuanLyPhongTroContext context)
+        public HoaDonKhachThueController(QuanLyPhongTroContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -101,5 +110,65 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ThanhToanThanhCong(string? extraData, int? resultCode)
+        {
+            ViewBag.Message = "Thanh toán thất bại hoặc bị hủy.";
+
+            if (resultCode == null || resultCode != 0 || string.IsNullOrEmpty(extraData))
+                return View();
+
+            if (!int.TryParse(extraData, out int maHd))
+                return View();
+
+            var hoaDon = await _context.HoaDons
+                .Include(h => h.MaHopDongNavigation)
+                .ThenInclude(hd => hd.MaKhachNavigation)
+                .ThenInclude(k => k.TaiKhoans)
+                .Include(h => h.MaHopDongNavigation)
+                .ThenInclude(hd => hd.MaPhongNavigation)
+                .ThenInclude(p => p.ChiTietPhong)
+                .FirstOrDefaultAsync(h => h.MaHd == maHd);
+
+            if (hoaDon == null || hoaDon.TrangThai == "Đã thanh toán")
+                return View();
+
+            // ✅ Cập nhật trạng thái hóa đơn
+            hoaDon.TrangThai = "Đã thanh toán";
+
+            // ✅ Ghi vào bảng ThuChi
+            var phong = hoaDon.MaHopDongNavigation?.MaPhongNavigation;
+            var diaChi = phong?.ChiTietPhong?.DiaChi ?? "Không rõ địa chỉ";
+            var tenPhong = phong?.TenPhong ?? "Phòng trọ";
+
+            _context.ThuChis.Add(new ThuChi
+            {
+                Ngay = DateTime.Now,
+                Loai = "Thu",
+                SoTien = hoaDon.TongTien,
+                NoiDung = $"{tenPhong} - {diaChi} - thanh toán hóa đơn tháng {hoaDon.Thang}/{hoaDon.Nam}",
+                MaHd = hoaDon.MaHd
+            });
+
+            // ✅ Gửi thông báo cho khách thuê
+            var khach = hoaDon.MaHopDongNavigation?.MaKhachNavigation;
+            var maTk = khach?.TaiKhoans.FirstOrDefault()?.MaTk;
+
+            if (maTk.HasValue)
+            {
+                _context.ThongBaos.Add(new ThongBao
+                {
+                    MaTk = maTk.Value,
+                    NoiDung = $"Bạn đã thanh toán hóa đơn tháng {hoaDon.Thang}/{hoaDon.Nam}",
+                    NgayGui = DateTime.Now,
+                    Loai = "ThanhToan"
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            ViewBag.Message = "🎉 Thanh toán thành công! Cảm ơn bạn đã sử dụng MoMo.";
+            return View();
+        }
     }
 }

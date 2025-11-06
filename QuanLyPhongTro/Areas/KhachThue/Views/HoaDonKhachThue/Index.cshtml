@@ -141,6 +141,25 @@
     });
 </script>
 
+<script>
+    document.querySelectorAll(".pay-bill-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const maHd = btn.dataset.id;
+            const res = await fetch('/KhachThue/Payments/CreateQr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ MaHd: parseInt(maHd) })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = data.payUrl; // Chuyển qua trang QR của MoMo
+            } else {
+                alert(data.message || "Không tạo được mã QR thanh toán");
+            }
+        });
+    });
+</script>
+
 <style>
     .active-tab {
         background: linear-gradient(90deg, #2563eb, #1e40af); /* xanh dương gradient */
