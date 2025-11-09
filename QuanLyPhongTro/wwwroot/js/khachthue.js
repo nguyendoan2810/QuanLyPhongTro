@@ -1,204 +1,118 @@
-﻿// Sample data and state management
-let currentUser = null;
-let isEditingProfile = false;
+﻿// ======== HÀM THÔNG BÁO TOÀN CỤC (Notification) ========
+function showNotification(message, type = 'info') {
+    // Tạo phần tử thông báo
+    const notification = document.createElement('div');
+    notification.className = `
+        fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm bounce-in
+        ${type === 'success' ? 'bg-green-500 text-white' :
+            type === 'error' ? 'bg-red-500 text-white' :
+                type === 'warning' ? 'bg-yellow-500 text-white' :
+                    'bg-blue-500 text-white'}
+    `;
 
-// Login functionality
-document.getElementById('loginForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    // Nội dung
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' :
+            type === 'error' ? 'fa-exclamation-circle' :
+                type === 'warning' ? 'fa-exclamation-triangle' :
+                    'fa-info-circle'
+        } mr-2"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
 
-    // Simple validation (in real app, this would be server-side)
-    if (username && password) {
-        currentUser = { username: username, name: 'Nguyễn Văn A' };
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        showPage('dashboard');
-    } else {
-        alert('Vui lòng nhập đầy đủ thông tin đăng nhập');
-    }
-});
+    document.body.appendChild(notification);
 
-// Logout functionality
-document.getElementById('logoutBtn').addEventListener('click', function () {
-    currentUser = null;
-    document.getElementById('mainApp').classList.add('hidden');
-    document.getElementById('loginPage').classList.remove('hidden');
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-});
-
-// Sidebar toggle for mobile
-document.getElementById('sidebarToggle').addEventListener('click', function () {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-
-    sidebar.classList.toggle('-translate-x-full');
-    overlay.classList.toggle('hidden');
-});
-
-// Close sidebar when clicking overlay
-document.getElementById('sidebarOverlay').addEventListener('click', function () {
-    document.getElementById('sidebar').classList.add('-translate-x-full');
-    this.classList.add('hidden');
-});
-
-// Navigation functionality
-function showPage(pageId) {
-    // Hide all pages
-    document.querySelectorAll('.page-content').forEach(page => {
-        page.classList.add('hidden');
-    });
-
-    // Show selected page
-    document.getElementById(pageId + 'Page').classList.remove('hidden');
-    document.getElementById(pageId + 'Page').classList.add('fade-in');
-
-    // Update navigation active state
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('bg-blue-50', 'text-blue-600');
-        item.classList.add('text-gray-700');
-    });
-
-    document.querySelector(`[data-page="${pageId}"]`).classList.add('bg-blue-50', 'text-blue-600');
-    document.querySelector(`[data-page="${pageId}"]`).classList.remove('text-gray-700');
-
-    // Close mobile sidebar
-    document.getElementById('sidebar').classList.add('-translate-x-full');
-    document.getElementById('sidebarOverlay').classList.add('hidden');
+    // Tự động biến mất sau 5 giây
+    setTimeout(() => {
+        if (notification.parentElement) notification.remove();
+    }, 5000);
 }
 
-// Add navigation event listeners
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function () {
-        const pageId = this.getAttribute('data-page');
-        showPage(pageId);
+// khachthue.js - quản lý onepage KhachThue
+document.addEventListener("DOMContentLoaded", () => {
+    // Element references (an toàn nếu không tồn tại)
+    const mainApp = document.getElementById("mainApp");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+
+    // === Helper: an toàn khi query selector (tránh lỗi nếu element không có) ===
+    const q = sel => document.querySelector(sel);
+    const qa = sel => Array.from(document.querySelectorAll(sel));
+
+    // === Sidebar mobile toggle ===
+    sidebarToggle?.addEventListener("click", () => {
+        sidebar?.classList.toggle("-translate-x-full");
+        overlay?.classList.toggle("hidden");
     });
-});
 
-// Profile editing functionality
-document.getElementById('editProfileBtn').addEventListener('click', function () {
-    const inputs = document.querySelectorAll('#profileForm input');
-    const actions = document.getElementById('profileActions');
-
-    inputs.forEach(input => input.disabled = false);
-    actions.classList.remove('hidden');
-    isEditingProfile = true;
-});
-
-document.getElementById('cancelEditBtn').addEventListener('click', function () {
-    const inputs = document.querySelectorAll('#profileForm input');
-    const actions = document.getElementById('profileActions');
-
-    inputs.forEach(input => input.disabled = true);
-    actions.classList.add('hidden');
-    isEditingProfile = false;
-});
-
-document.getElementById('saveProfileBtn').addEventListener('click', function () {
-    const inputs = document.querySelectorAll('#profileForm input');
-    const actions = document.getElementById('profileActions');
-
-    inputs.forEach(input => input.disabled = true);
-    actions.classList.add('hidden');
-    isEditingProfile = false;
-
-    alert('Thông tin cá nhân đã được cập nhật thành công!');
-});
-
-// Contract modal functionality
-document.querySelectorAll('.view-contract-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        document.getElementById('contractModal').classList.remove('hidden');
-        document.getElementById('contractModal').classList.add('flex');
+    overlay?.addEventListener("click", () => {
+        sidebar?.classList.add("-translate-x-full");
+        overlay?.classList.add("hidden");
     });
-});
 
-document.getElementById('closeContractModal').addEventListener('click', function () {
-    document.getElementById('contractModal').classList.add('hidden');
-    document.getElementById('contractModal').classList.remove('flex');
-});
+    // === showPage: ẩn tất cả page-content và hiển thị page được chọn ===
+    function showPage(pageId) {
+        qa(".page-content").forEach(p => {
+            p.classList.add("hidden");
+            p.classList.remove("fade-in");
+        });
 
-// Contract actions
-document.querySelectorAll('.extend-contract-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        alert('Yêu cầu gia hạn hợp đồng đã được gửi. Chủ trọ sẽ liên hệ với bạn sớm.');
-    });
-});
-
-document.querySelectorAll('.terminate-contract-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        if (confirm('Bạn có chắc chắn muốn yêu cầu chấm dứt hợp đồng?')) {
-            alert('Yêu cầu chấm dứt hợp đồng đã được gửi. Chủ trọ sẽ liên hệ với bạn để xử lý.');
+        const page = document.getElementById(`${pageId}Page`);
+        if (page) {
+            page.classList.remove("hidden");
+            // trigger reflow để animation hoạt động nếu cần
+            void page.offsetWidth;
+            page.classList.add("fade-in");
         }
-    });
-});
 
-// Bill tabs functionality
-document.querySelectorAll('.bill-tab-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const tabId = this.getAttribute('data-tab');
-
-        // Update tab buttons
-        document.querySelectorAll('.bill-tab-btn').forEach(b => {
-            b.classList.remove('bg-blue-600', 'text-white');
-            b.classList.add('bg-gray-200', 'text-gray-700');
+        // cập nhật trạng thái active trên sidebar
+        qa(".nav-item").forEach(item => {
+            item.classList.remove("bg-blue-50", "text-blue-600");
+            item.classList.add("text-gray-700");
         });
-        this.classList.add('bg-blue-600', 'text-white');
-        this.classList.remove('bg-gray-200', 'text-gray-700');
-
-        // Update tab content
-        document.querySelectorAll('.bill-tab-content').forEach(content => {
-            content.classList.add('hidden');
-        });
-
-        if (tabId === 'current') {
-            document.getElementById('currentBills').classList.remove('hidden');
-        } else {
-            document.getElementById('historyBills').classList.remove('hidden');
+        const activeItem = q(`[data-page="${pageId}"]`);
+        if (activeItem) {
+            activeItem.classList.add("bg-blue-50", "text-blue-600");
+            activeItem.classList.remove("text-gray-700");
         }
-    });
-});
 
-// Bill modal functionality
-document.querySelectorAll('.view-bill-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        document.getElementById('billModal').classList.remove('hidden');
-        document.getElementById('billModal').classList.add('flex');
-    });
-});
-
-document.getElementById('closeBillModal').addEventListener('click', function () {
-    document.getElementById('billModal').classList.add('hidden');
-    document.getElementById('billModal').classList.remove('flex');
-});
-
-// Payment functionality
-document.querySelectorAll('.pay-bill-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        alert('Chức năng thanh toán online đang được phát triển. Vui lòng thanh toán trực tiếp hoặc chuyển khoản.');
-    });
-});
-
-// Contact form functionality
-document.getElementById('contactForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    alert('Yêu cầu của bạn đã được gửi thành công! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.');
-    this.reset();
-});
-
-// Close modals when clicking outside
-document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('modal-backdrop')) {
-        document.querySelectorAll('.modal-backdrop').forEach(modal => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        });
+        // đóng sidebar mobile nếu mở
+        sidebar?.classList.add("-translate-x-full");
+        overlay?.classList.add("hidden");
     }
-});
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', function () {
-    // Show login page by default
-    document.getElementById('loginPage').classList.remove('hidden');
+    // ==== Gán sự kiện cho nav items (nếu có) ====
+    qa(".nav-item").forEach(item => {
+        item.addEventListener("click", function () {
+            const pageId = this.getAttribute("data-page");
+            if (pageId) showPage(pageId);
+        });
+    });
+
+    // ==== Close modal khi click backdrop ====
+    document.addEventListener("click", e => {
+        if (e.target.classList && e.target.classList.contains("modal-backdrop")) {
+            qa(".modal-backdrop").forEach(m => {
+                m.classList.add("hidden");
+                m.classList.remove("flex");
+            });
+        }
+    });
+
+    // ==== Khi vào KhachThueMain/Index (mainApp có trong DOM) ====
+    if (mainApp) {
+        // Mặc định hiển thị dashboard
+        showPage("dashboard");
+
+        // (TÙY CHỌN) nếu muốn nhớ trang đang mở giữa các lần reload
+        const saved = localStorage.getItem("kh_page");
+        if (saved) showPage(saved);
+        qa(".nav-item").forEach(i => i.addEventListener('click', () => localStorage.setItem('kh_page', i.dataset.page)));
+    }
 });

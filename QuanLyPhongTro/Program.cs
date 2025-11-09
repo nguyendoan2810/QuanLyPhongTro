@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuanLyPhongTro.Areas.KhachThue.Controllers;
 using QuanLyPhongTro.Areas.QuanLy.Services;
 using QuanLyPhongTro.Models;
 
@@ -10,12 +11,21 @@ namespace QuanLyPhongTro
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Đọc cấu hình từ appsettings.json
+            var configuration = builder.Configuration;
+
+            // Thêm HttpContextAccessor (QUAN TRỌNG)
+            builder.Services.AddHttpContextAccessor();
+
             // Kết nối SQL Server
             builder.Services.AddDbContext<QuanLyPhongTroContext>(options => options
             .UseSqlServer(builder.Configuration.GetConnectionString("QuanLyPhongTroConnectionString")));
 
             // Đăng ký SendGridService để sử dụng trong các controller
             builder.Services.AddTransient<SendGridService>();
+
+            // Đăng ký MoMo Controllers cho DI
+            builder.Services.AddScoped<HoaDonKhachThueController>();
 
             // Session (cần cho lưu Session thông tin user)
             builder.Services.AddDistributedMemoryCache();

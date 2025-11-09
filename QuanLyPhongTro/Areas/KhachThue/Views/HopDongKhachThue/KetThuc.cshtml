@@ -1,0 +1,74 @@
+﻿<!-- Modal kết thúc hợp đồng -->
+<div id="terminateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Yêu cầu kết thúc hợp đồng</h3>
+        <form id="terminateForm">
+            <input type="hidden" name="MaHopDong" id="terminateMaHopDong" />
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày hết hạn hợp đồng *dd/mm/yyy*</label>
+                <input type="text" id="terminateEndDate" class="w-full px-4 py-2 border rounded-lg bg-gray-100" readonly />
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày kết thúc thực tế *mm/dd/yyyy*</label>
+                <input type="date" name="NgayKetThucThucTe" id="terminateActualDate" required class="w-full px-4 py-2 border rounded-lg" />
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeTerminateModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">Hủy</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Gửi yêu cầu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll(".terminate-contract-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const row = btn.closest("tr");
+            const maHopDongText = row.querySelector("td").textContent || "";
+            const maHopDong = parseInt(maHopDongText.replace(/\D/g, ""), 10);
+            const ngayKetThucText = row.children[5].textContent.trim(); // cột ngày kết thúc
+
+            document.getElementById("terminateMaHopDong").value = maHopDong;
+            document.getElementById("terminateEndDate").value = ngayKetThucText;
+            document.getElementById("terminateModal").classList.remove("hidden");
+        });
+    });
+
+    function closeTerminateModal() {
+        document.getElementById("terminateModal").classList.add("hidden");
+    }
+
+    document.getElementById("terminateForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const endDateStr = document.getElementById("terminateEndDate").value;
+        const actualDateStr = document.getElementById("terminateActualDate").value;
+
+        const endDate = parseDDMMYYYY(endDateStr);
+        const actualDate = new Date(actualDateStr);
+
+        if (!endDate || !actualDate) {
+            showNotification("Ngày không hợp lệ!", "error");
+            return;
+        }
+
+        if (actualDate > endDate) {
+            showNotification("Ngày kết thúc phải nằm trong thời hạn hợp đồng!", "error");
+            return;
+        }
+
+        fetch("/KhachThue/HopDongKhachThue/KetThuc", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.ok ? res.text() : Promise.reject())
+        .then(msg => {
+            showNotification("Yêu cầu kết thúc hợp đồng đã được gửi!", "success");
+            closeTerminateModal();
+        })
+        .catch(() => {
+            showNotification("Gửi yêu cầu thất bại!", "error");
+        });
+    });
+</script>

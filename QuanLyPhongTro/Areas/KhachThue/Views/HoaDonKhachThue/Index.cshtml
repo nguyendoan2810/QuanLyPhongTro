@@ -1,0 +1,198 @@
+﻿@model IEnumerable<QuanLyPhongTro.Models.HoaDon>
+
+<div id="billsPage" class="page-content fade-in">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Hóa đơn</h2>
+        <p class="text-gray-600">Quản lý hóa đơn thanh toán hàng tháng</p>
+    </div>
+
+    <div class="mb-6">
+        <div class="flex space-x-4">
+            <button class="bill-tab-btn active-tab px-5 py-2.5 rounded-lg font-medium text-white transition-all duration-300 ease-in-out"
+                    data-tab="current">
+                Hóa đơn hiện tại
+            </button>
+            <button class="bill-tab-btn inactive-tab px-5 py-2.5 rounded-lg font-medium text-gray-700 transition-all duration-300 ease-in-out"
+                    data-tab="history">
+                Lịch sử thanh toán
+            </button>
+        </div>
+    </div>
+
+    @{
+        var hoaDonChuaTT = Model.Where(h => h.TrangThai == "Chưa thanh toán").ToList();
+        var hoaDonDaTT = Model.Where(h => h.TrangThai == "Đã thanh toán").ToList();
+    }
+
+    <!-- Hóa đơn hiện tại -->
+    <div id="currentBills" class="bill-tab-content bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kỳ hóa đơn</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái hóa đơn</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hạn thanh toán</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @if (hoaDonChuaTT.Any())
+                    {
+                        foreach (var hd in hoaDonChuaTT)
+                        {
+                            var hanThanhToan = hd.NgayTao.HasValue
+                            ? hd.NgayTao.Value.AddDays(5)
+                            : DateOnly.FromDateTime(DateTime.Now);
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@($"{hd.Thang}/{hd.Nam}")</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hd.TongTien.ToString("N0") VNĐ</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Chưa thanh toán</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hanThanhToan.ToString("dd/MM/yyyy")</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-900 view-bill-btn" data-id="@hd.MaHd">
+                                        <i class="fas fa-eye mr-1"></i>Chi tiết
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-800 pay-bill-btn" data-id="@hd.MaHd">
+                                        <i class="fas fa-qrcode mr-1"></i>Thanh toán
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-gray-500 py-4">Không có hóa đơn nào chưa thanh toán.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Lịch sử thanh toán -->
+    <div id="historyBills" class="bill-tab-content hidden bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kỳ hóa đơn</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng tiền</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái hóa đơn</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @if (hoaDonDaTT.Any())
+                    {
+                        foreach (var hd in hoaDonDaTT)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@($"{hd.Thang}/{hd.Nam}")</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@hd.TongTien.ToString("N0") VNĐ</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Đã thanh toán</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                                    <button class="text-blue-600 hover:text-blue-900 view-bill-btn" data-id="@hd.MaHd">
+                                        <i class="fas fa-eye mr-1"></i>Chi tiết
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-gray-500 py-4">Chưa có hóa đơn nào đã thanh toán.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 🔄 Hiệu ứng chuyển tab đẹp hơn
+    document.querySelectorAll(".bill-tab-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            // Gỡ class active cũ
+            document.querySelectorAll(".bill-tab-btn").forEach(b => {
+                b.classList.remove("active-tab");
+                b.classList.add("inactive-tab", "text-gray-700");
+            });
+
+            // Gán class active cho nút đang chọn
+            this.classList.remove("inactive-tab", "text-gray-700");
+            this.classList.add("active-tab", "text-white");
+
+            // Hiển thị tab tương ứng
+            const tab = this.dataset.tab;
+            document.querySelectorAll(".bill-tab-content").forEach(c => {
+                c.classList.add("hidden");
+            });
+            document.getElementById(tab + "Bills").classList.remove("hidden");
+        });
+    });
+</script>
+
+<script>
+    document.querySelectorAll(".pay-bill-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const maHd = btn.dataset.id;
+            const res = await fetch('/KhachThue/Payments/CreateQr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ MaHd: parseInt(maHd) })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = data.payUrl; // Chuyển qua trang QR của MoMo
+            } else {
+                alert(data.message || "Không tạo được mã QR thanh toán");
+            }
+        });
+    });
+</script>
+
+<style>
+    .active-tab {
+        background: linear-gradient(90deg, #2563eb, #1e40af); /* xanh dương gradient */
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .inactive-tab {
+        background-color: #f3f4f6; /* xám nhạt */
+    }
+
+    .bill-tab-btn {
+        transition: all 0.3s ease;
+    }
+
+    .bill-tab-btn:hover {
+        background-color: #e0e7ff;
+        color: #1e3a8a;
+    }
+
+    .bill-tab-btn.active-tab:hover {
+        background: linear-gradient(90deg, #1e3a8a, #2563eb);
+        color: #fff;
+    }
+
+    .bill-tab-content {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+        .bill-tab-content:not(.hidden) {
+            opacity: 1;
+        }
+</style>
+
+@await Html.PartialAsync("~/Areas/KhachThue/Views/HoaDonKhachThue/ChiTietHoaDonKhachThue.cshtml")
