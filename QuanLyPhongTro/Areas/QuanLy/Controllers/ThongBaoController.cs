@@ -18,10 +18,13 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         }
 
         [HttpGet]
-        public IActionResult ReloadPartial()
+       
+        [ActionName("ReloadPartial")]
+        public IActionResult ReloadPartialAction(string loc = "all")
         {
-            return ViewComponent("ThongBao");
+            return ViewComponent("ThongBao", new { loc });
         }
+
         [HttpPost]
         public IActionResult Tao(string maKhach, string maPhong, string loai, string noiDung)
         {

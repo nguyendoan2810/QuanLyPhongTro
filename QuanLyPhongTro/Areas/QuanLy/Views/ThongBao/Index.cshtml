@@ -12,7 +12,11 @@
                 <h3 class="text-lg font-semibold text-gray-800">
                     📬 Danh sách thông báo (<span id="tongTB">@tong</span>)
                 </h3>
-                
+                <select id="locLoaiThongBao" class="border rounded-lg p-2 text-sm">
+                    <option value="all">Tất cả</option>
+                    <option value="chu">Thông báo gửi đến</option>
+                    <option value="khach">Thông báo gửi đi</option>
+                </select>
             </div>
 
             <div id="listThongBao" class="p-6 max-h-[600px] overflow-y-auto space-y-3">
@@ -166,6 +170,16 @@
             $('#tongTB').text(tong);
         });
     }
+
+    // Khi chọn lọc loại thông báo
+    $("#locLoaiThongBao").on("change", function () {
+        const loc = $(this).val();
+        $.get(`/QuanLy/ThongBao/ReloadPartial?loc=${loc}`, function (html) {
+            $('#listThongBao').html($(html).find('#listThongBao').html());
+            const tong = $(html).find('#tongTB').text();
+            $('#tongTB').text(tong);
+        });
+    });
 
 
     // Xử lý gửi
