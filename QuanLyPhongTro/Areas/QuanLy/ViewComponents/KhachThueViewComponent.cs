@@ -17,8 +17,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
             _context = context;
         }
 
-        // Thêm tham số searchString
-        public async Task<IViewComponentResult> InvokeAsync(string searchString)
+        public async Task<IViewComponentResult> InvokeAsync(string searchString, string trangThaiHopDong)
         {
             var maChuTro = HttpContext.Session.GetInt32("MaChuTro");
             if (maChuTro == null)
@@ -46,6 +45,12 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 );
             }
 
+            // ⚡ Lọc theo trạng thái hợp đồng
+            if (!string.IsNullOrEmpty(trangThaiHopDong) && trangThaiHopDong != "Tất cả")
+            {
+                query = query.Where(x => x.hd.TrangThai == trangThaiHopDong);
+            }
+
             var khachThueList = await query
                 .Select(x => new
                 {
@@ -56,16 +61,14 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                     TenPhong = x.p.TenPhong,
                     DiaChiPhong = x.ct != null ? x.ct.DiaChi : "N/A",
                     NgayBatDau = x.hd.NgayBatDau.ToString("dd/MM/yyyy"),
-                    NgayKetThuc = x.hd.NgayKetThuc.ToString("dd/MM/yyyy")
+                    NgayKetThuc = x.hd.NgayKetThuc.ToString("dd/MM/yyyy"),
+                    TrangThaiHopDong = x.hd.TrangThai
                 })
                 .Distinct()
                 .ToListAsync();
 
             ViewBag.KhachThueList = khachThueList;
-
-            // ⚡ Quan trọng: tắt layout để chỉ trả phần HTML trong Index.cshtml
             ViewData["Layout"] = null;
-
             return View("~/Areas/QuanLy/Views/KhachThue/Index.cshtml");
         }
 

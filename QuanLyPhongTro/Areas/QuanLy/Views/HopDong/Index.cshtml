@@ -1,55 +1,714 @@
-﻿<div id="contracts-section" class="section hidden">
+﻿<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 50;
+    }
+
+    .modal-box {
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-body {
+        flex: 1;
+        overflow: auto;
+    }
+</style>
+
+<div id="contracts-section" class="section">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <!-- Header -->
         <div class="p-6 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h3 class="text-lg font-semibold text-gray-800">Quản lý Hợp đồng thuê</h3>
-                <button onclick="openModal('contractModal')" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center">
-                    <i class="fas fa-plus mr-2"></i>Tạo hợp đồng
+                <button onclick="showRoomSelectionModal()" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Tạo hợp đồng mới
                 </button>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã HĐ</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách thuê</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phòng</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày bắt đầu</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày kết thúc</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá thuê</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiền cọc</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr class="table-row">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">HD001</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Nguyễn Văn A</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">P101</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01/01/2024</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">31/12/2024</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2,500,000 VNĐ</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2,500,000 VNĐ</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="status-occupied px-3 py-1 text-xs font-semibold rounded-full text-white">Đang hiệu lực</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button class="text-green-600 hover:text-green-900 mr-3">
-                                <i class="fas fa-eye mr-1"></i>Xem
-                            </button>
-                            <button class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit mr-1"></i>Gia hạn
-                            </button>
-                            <button class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-times mr-1"></i>Kết thúc
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Filters -->
+        <div class="p-4 border-b border-gray-100 relative">
+            <div class="flex gap-2">
+                <div class="relative inline-block text-left">
+                    <button id="expirationFilterButton" onclick="toggleExpirationFilter()"
+                            class="bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white flex items-center">
+                        <i class="fas fa-filter mr-2"></i> Bộ lọc sắp hết hạn <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                    </button>
+                    <div id="expirationFilterDropdown" class="hidden absolute mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        <button class="w-full text-left px-4 py-2 hover:bg-blue-50 filter-exp" data-range="1week">
+                            <i class="fas fa-hourglass-end mr-2 text-blue-500"></i> Trong 1 tuần
+                        </button>
+                        <button class="w-full text-left px-4 py-2 hover:bg-blue-50 filter-exp" data-range="1month">
+                            <i class="fas fa-hourglass-half mr-2 text-blue-500"></i> Trong 1 tháng
+                        </button>
+                        <button class="w-full text-left px-4 py-2 hover:bg-blue-50 filter-exp" data-range="2months">
+                            <i class="fas fa-hourglass mr-2 text-blue-500"></i> Trong 2 tháng
+                        </button>
+                    </div>
+                </div>
+                <button id="activeContractsFilter" onclick="toggleActiveFilter()"
+                        class="bg-white border border-green-600 text-green-600 px-4 py-2 rounded-lg hover:bg-green-600 hover:text-white flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i> Chỉ hiển thị còn hiệu lực
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="contractsLoading" class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+            <p class="mt-2 text-gray-500">Đang tải danh sách hợp đồng...</p>
+        </div>
+
+        <!-- Table -->
+        <div id="contractsTable" class="overflow-x-auto hidden">
+            <div class="max-h-[450px] overflow-y-auto">
+                <table class="w-full border-collapse">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách thuê</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phòng</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày bắt đầu</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày kết thúc</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá thuê</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiền cọc</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contractsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- No Data Message -->
+        <div id="noContractsMessage" class="hidden text-center py-8">
+            <i class="fas fa-file-contract text-4xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500">Chưa có hợp đồng nào được tạo</p>
+            <button onclick="showRoomSelectionModal()" class="mt-4 btn-primary text-white px-4 py-2 rounded-lg">
+                Tạo hợp đồng đầu tiên
+            </button>
         </div>
     </div>
 </div>
+
+<!-- Modal: Chọn phòng -->
+<div id="roomSelectionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 modal-backdrop">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">Bước 1: Chọn phòng để tạo hợp đồng</h3>
+                <button onclick="closeAllContractModals()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[60vh]">
+                <div id="roomsLoading" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                    <p class="mt-2 text-gray-500">Đang tải danh sách phòng...</p>
+                </div>
+                <div id="roomsList" class="hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+                <div id="noRoomsMessage" class="hidden text-center py-8">
+                    <i class="fas fa-home text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">Không có phòng trống nào để tạo hợp đồng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Thông tin hợp đồng -->
+<div id="contractInfoModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 modal-backdrop hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full modal-box">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Bước 2: Thông tin hợp đồng</h3>
+                <button onclick="closeAllContractModals()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 modal-body">
+                <div id="selectedRoomInfo" class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <h4 class="font-semibold text-blue-800 mb-2">Thông tin phòng được chọn:</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div><span class="text-gray-600">Tên phòng:</span> <span class="font-medium text-blue-600" id="roomName"></span></div>
+                        <div><span class="text-gray-600">Loại phòng:</span> <span class="font-medium" id="roomType"></span></div>
+                        <div><span class="text-gray-600">Diện tích:</span> <span class="font-medium" id="roomArea"></span></div>
+                        <div><span class="text-gray-600">Giá thuê:</span> <span class="font-medium text-green-600" id="roomPrice"></span></div>
+                    </div>
+                </div>
+
+                <form id="contractInfoForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="ngayBatDau" class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu *</label>
+                            <input id="ngayBatDau" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-input w-full px-3 py-2 rounded-lg border border-gray-300" required>
+                        </div>
+                        <div>
+                            <label for="ngayKetThuc" class="block text-sm font-medium text-gray-700 mb-2">Ngày kết thúc *</label>
+                            <input id="ngayKetThuc" type="date" value="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")" class="form-input w-full px-3 py-2 rounded-lg border border-gray-300" required>
+                        </div>
+                        <div>
+                            <label for="tienCoc" class="block text-sm font-medium text-gray-700 mb-2">Tiền cọc (VNĐ) *</label>
+                            <input id="tienCoc" type="number" min="0" class="form-input w-full px-3 py-2 rounded-lg border border-gray-300" required>
+                        </div>
+                        <div>
+                            <label for="trangThai" class="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
+                            <select id="trangThai" class="form-input w-full px-3 py-2 rounded-lg border border-gray-300">
+                                <option value="Còn hiệu lực" selected>Còn hiệu lực</option>
+                                <option value="Hết hạn">Hết hạn</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="ghiChu" class="block text-sm font-medium text-gray-700 mb-2">Ghi chú</label>
+                        <textarea id="ghiChu" rows="3" class="form-input w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="Nhập ghi chú (nếu có)..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="p-6 border-t border-gray-200 flex justify-between">
+                <button onclick="goBackToRoomSelection()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay lại
+                </button>
+                <button onclick="goToTenantInfo()" class="btn-primary px-6 py-2 text-white rounded-lg bg-blue-600 hover:bg-blue-700">
+                    Tiếp <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Thông tin khách thuê -->
+<div id="tenantInfoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 modal-backdrop">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full modal-box">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Bước 3: Thông tin khách thuê</h3>
+                <button onclick="closeAllContractModals()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 modal-body">
+                <form id="tenantInfoForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Họ và tên *</label>
+                        <input id="hoTen" type="text" class="form-input w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Số CCCD *</label>
+                        <input id="cccd" type="text" class="form-input w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại *</label>
+                        <input id="soDienThoai" type="tel" class="form-input w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
+                        <input id="ngaySinh" type="date" class="form-input w-full border border-gray-300 rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ thường trú</label>
+                        <textarea id="diaChi" rows="2" class="form-input w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-between">
+                <button onclick="goBackToContractInfo()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay lại
+                </button>
+                <button onclick="goToContractPreview()" class="btn-primary px-6 py-2 text-white rounded-lg bg-blue-600 hover:bg-blue-700">
+                    Tiếp <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Xem trước hợp đồng -->
+<div id="contractPreviewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 modal-backdrop">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full modal-box">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Bước 4: Xem trước hợp đồng</h3>
+                <button onclick="closeAllContractModals()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 modal-body">
+                <div id="contractPreviewContent" class="bg-white"></div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-between items-center">
+                <button onclick="goBackToTenantInfo()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay lại
+                </button>
+                <div class="flex space-x-3">
+                    <button onclick="saveContract()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                        <i class="fas fa-save mr-2"></i>Lưu hợp đồng
+                    </button>
+                    <button onclick="printToPDF()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg">
+                        <i class="fas fa-file-pdf mr-2"></i>In PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Xem chi tiết hợp đồng -->
+<div id="viewContractModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 modal-backdrop">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full modal-box">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Chi tiết hợp đồng</h3>
+                <button onclick="closeModal('viewContractModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 modal-body">
+                <div id="contractDetailLoading" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                    <p class="mt-2 text-gray-500">Đang tải chi tiết hợp đồng...</p>
+                </div>
+                <div id="contractDetailContent" class="hidden"></div>
+                <div id="contractExpiredMessage" class="hidden text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                    <h4 class="text-xl font-semibold text-red-600 mb-2">Hợp đồng đã hết hiệu lực</h4>
+                    <p class="text-gray-600">Hợp đồng này đã được kết thúc và phòng đã được giải phóng.</p>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('viewContractModal')" class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">
+                    <i class="fas fa-times mr-2"></i>Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    const ContractManager = {
+        // State variables
+        isFiltering: false,
+        currentFilter: null,
+        isFilteringActive: false,
+
+        // Initialize
+        init() {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.loadContracts();
+                this.setupFilters();
+            });
+        },
+
+        // Setup filters
+        setupFilters() {
+            document.querySelectorAll('.filter-exp').forEach(btn => {
+                btn.onclick = () => {
+                    const range = btn.getAttribute('data-range');
+                    this.applyFilter(range);
+                    document.getElementById('expirationFilterDropdown').classList.add('hidden');
+                };
+            });
+        },
+
+        // Toggle dropdown
+        toggleExpirationFilter() {
+            const dropdown = document.getElementById('expirationFilterDropdown');
+            dropdown.classList.toggle('hidden');
+        },
+
+        // Apply filter
+        applyFilter(range) {
+            const button = document.getElementById('expirationFilterButton');
+
+            if (this.currentFilter === range) {
+                this.resetFilter();
+                return;
+            }
+
+            const texts = { '1week': 'Lọc: 1 tuần', '1month': 'Lọc: 1 tháng', '2months': 'Lọc: 2 tháng' };
+
+            button.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center';
+            button.innerHTML = `<i class="fas fa-filter mr-2"></i> ${texts[range]} <i class="fas fa-times ml-2" onclick="event.stopPropagation(); ContractManager.resetFilter();"></i>`;
+
+            this.currentFilter = range;
+            this.isFiltering = true;
+
+            fetch(`/QuanLy/HopDong/FilterByExpiration?range=${range}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.displayContracts(data.data);
+                        this.showHideTable(data.data.length > 0);
+                    } else {
+                        alert('Lỗi: ' + data.message);
+                        this.resetFilter();
+                    }
+                })
+                .catch(() => {
+                    alert('Lỗi khi lọc!');
+                    this.resetFilter();
+                });
+        },
+
+        // Reset filter
+        resetFilter() {
+            const button = document.getElementById('expirationFilterButton');
+            button.className = 'bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white flex items-center';
+            button.innerHTML = '<i class="fas fa-filter mr-2"></i> Bộ lọc sắp hết hạn <i class="fas fa-chevron-down ml-2 text-sm"></i>';
+
+            this.currentFilter = null;
+            this.isFiltering = false;
+            this.loadContracts();
+        },
+
+        // Toggle active filter
+        toggleActiveFilter() {
+            const button = document.getElementById('activeContractsFilter');
+
+            if (this.isFilteringActive) {
+                button.className = 'bg-white border border-green-600 text-green-600 px-4 py-2 rounded-lg hover:bg-green-600 hover:text-white flex items-center';
+                button.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Chỉ hiển thị còn hiệu lực';
+                this.isFilteringActive = false;
+                this.loadContracts();
+            } else {
+                button.className = 'bg-green-600 text-white px-4 py-2 rounded-lg flex items-center';
+                button.innerHTML = '<i class="fas fa-times mr-2"></i> Bỏ lọc còn hiệu lực';
+                this.isFilteringActive = true;
+                this.resetFilter();
+                this.loadActiveContracts();
+            }
+        },
+
+        // Show/hide table
+        showHideTable(hasData) {
+            const loading = document.getElementById('contractsLoading');
+            const table = document.getElementById('contractsTable');
+            const noMessage = document.getElementById('noContractsMessage');
+
+            loading.classList.add('hidden');
+
+            if (hasData) {
+                table.classList.remove('hidden');
+                noMessage.classList.add('hidden');
+            } else {
+                table.classList.add('hidden');
+                noMessage.classList.remove('hidden');
+                if (this.isFiltering) {
+                    noMessage.innerHTML = '<div class="text-center py-8"><p class="text-gray-500">Không có hợp đồng sắp hết hạn</p><button onclick="ContractManager.resetFilter()" class="mt-2 text-blue-600">Xem tất cả</button></div>';
+                }
+            }
+        },
+
+        // Load contracts
+        loadContracts() {
+            if (this.isFiltering || this.isFilteringActive) return;
+
+            this.showLoading(true);
+
+            fetch('/QuanLy/HopDong/GetAllContracts')
+                .then(response => response.json())
+                .then(data => {
+                    this.showLoading(false);
+                    if (data.success && data.data?.length > 0) {
+                        this.displayContracts(data.data);
+                        document.getElementById('contractsTable').classList.remove('hidden');
+                    } else {
+                        this.showNoDataMessage();
+                    }
+                })
+                .catch(() => {
+                    this.showLoading(false);
+                    document.getElementById('noContractsMessage').classList.remove('hidden');
+                });
+        },
+
+        // Load active contracts
+        loadActiveContracts() {
+            this.showLoading(true);
+
+            fetch('/QuanLy/HopDong/FilterActiveContracts')
+                .then(response => response.json())
+                .then(data => {
+                    this.showLoading(false);
+                    if (data.success && data.data?.length > 0) {
+                        this.displayContracts(data.data);
+                        document.getElementById('contractsTable').classList.remove('hidden');
+                    } else {
+                        const noMessage = document.getElementById('noContractsMessage');
+                        noMessage.innerHTML = '<div class="text-center py-8"><p class="text-gray-500">Không có hợp đồng còn hiệu lực</p><button onclick="ContractManager.toggleActiveFilter()" class="mt-2 text-green-600">Xem tất cả</button></div>';
+                        noMessage.classList.remove('hidden');
+                    }
+                })
+                .catch(() => {
+                    this.showLoading(false);
+                    document.getElementById('noContractsMessage').classList.remove('hidden');
+                });
+        },
+
+        // Show loading
+        showLoading(show) {
+            const loading = document.getElementById('contractsLoading');
+            const table = document.getElementById('contractsTable');
+            const noMessage = document.getElementById('noContractsMessage');
+
+            if (show) {
+                loading.classList.remove('hidden');
+                table.classList.add('hidden');
+                noMessage.classList.add('hidden');
+            } else {
+                loading.classList.add('hidden');
+            }
+        },
+
+        // Show no data message
+        showNoDataMessage() {
+            const noMessage = document.getElementById('noContractsMessage');
+            noMessage.innerHTML = '<div class="text-center py-8"><i class="fas fa-file-contract text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">Chưa có hợp đồng nào</p><button onclick="showRoomSelectionModal()" class="mt-4 btn-primary text-white px-4 py-2 rounded-lg">Tạo hợp đồng đầu tiên</button></div>';
+            noMessage.classList.remove('hidden');
+        },
+
+        // Display contracts
+        displayContracts(contracts) {
+            const tbody = document.getElementById('contractsTableBody');
+            tbody.innerHTML = '';
+
+            contracts.forEach(contract => {
+                const isExpired = contract.trangThai?.toLowerCase() === 'hết hạn';
+                const statusClass = contract.trangThai?.toLowerCase() === 'còn hiệu lực'
+                    ? 'bg-green-100 text-green-800'
+                    : contract.trangThai?.toLowerCase() === 'hết hạn'
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-gray-100 text-gray-800';
+
+                const actionButtons = isExpired
+                    ? `<button class="text-blue-600 hover:text-blue-900" onclick="ContractManager.viewContract(${contract.maHopDong})"><i class="fas fa-eye mr-1"></i>Xem</button>`
+                    : `<button class="text-blue-600 hover:text-blue-900 mr-3" onclick="ContractManager.viewContract(${contract.maHopDong})"><i class="fas fa-eye mr-1"></i>Xem</button>
+                       <button class="text-red-600 hover:text-red-900" onclick="ContractManager.terminateContract(${contract.maHopDong})"><i class="fas fa-times mr-1"></i>Kết thúc</button>`;
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-sm text-gray-500">${contract.tenKhach}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${contract.tenPhong}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${contract.ngayBatDau}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${contract.ngayKetThuc}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${this.formatCurrency(contract.giaPhong)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${this.formatCurrency(contract.tienCoc)}</td>
+                    <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-semibold rounded-full ${statusClass}">${contract.trangThai}</span></td>
+                    <td class="px-6 py-4 text-sm font-medium">${actionButtons}</td>
+                `;
+            });
+        },
+
+        // View contract
+        viewContract(contractId) {
+            openModal('viewContractModal');
+            const loading = document.getElementById('contractDetailLoading');
+            const content = document.getElementById('contractDetailContent');
+            const expiredMessage = document.getElementById('contractExpiredMessage');
+
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            expiredMessage.classList.add('hidden');
+
+            fetch(`/QuanLy/HopDong/GetContractDetail/${contractId}`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.classList.add('hidden');
+                    if (data.success) {
+                        const contract = data.data;
+                        if (contract.trangThai?.toLowerCase() === 'hết hạn') {
+                            expiredMessage.classList.remove('hidden');
+                        } else {
+                            this.displayContractDetail(contract);
+                            content.classList.remove('hidden');
+                        }
+                    } else {
+                        expiredMessage.classList.remove('hidden');
+                    }
+                })
+                .catch(() => {
+                    loading.classList.add('hidden');
+                    expiredMessage.classList.remove('hidden');
+                });
+        },
+
+        // Display contract detail
+        displayContractDetail(contract) {
+            const contentEl = document.getElementById('contractDetailContent');
+            contentEl.innerHTML = `
+                   <div style="font-family:'Times New Roman',serif; line-height:1.7;">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold uppercase mb-2">HỢP ĐỒNG THUÊ PHÒNG TRỌ</h1>
+            <p class="text-sm">Số: HD${contract.maHopDong.toString().padStart(3, '0')}</p>
+        </div>
+
+        <!-- Thông tin hai bên -->
+        <div class="space-y-4 mb-6">
+            <div>
+                <h3 class="font-bold mb-2">BÊN CHO THUÊ (Bên A):</h3>
+                <p><strong>Họ tên:</strong> Đinh Công Vinh</p>
+                <p><strong>CCCD:</strong> 123456789</p>
+                <p><strong>Địa chỉ:</strong> Số 3, phố Cầu Giấy, P.Láng Thượng, Q.Đống Đa, Hà Nội</p>
+                <p><strong>Số điện thoại:</strong> 0123 456 789</p>
+            </div>
+
+            <div>
+                <h3 class="font-bold mb-2">BÊN THUÊ (Bên B):</h3>
+                <p><strong>Họ tên:</strong> ${contract.tenant.hoTen}</p>
+                <p><strong>CCCD:</strong> ${contract.tenant.cccd}</p>
+                <p><strong>Điện thoại:</strong> ${contract.tenant.soDienThoai}</p>
+                <p><strong>Địa chỉ thường trú:</strong> ${contract.tenant.diaChi || 'Chưa cập nhật'}</p>
+            </div>
+        </div>
+
+        <!-- Thông tin phòng -->
+        <div class="mb-6">
+            <h3 class="font-bold mb-2">ĐIỀU 1. THÔNG TIN PHÒNG THUÊ</h3>
+            <p><strong>Tên phòng:</strong> ${contract.room.tenPhong}</p>
+            <p><strong>Loại phòng:</strong> ${contract.room.loaiPhong}</p>
+            <p><strong>Diện tích:</strong> ${contract.room.dienTich} m²</p>
+            <p><strong>Giá thuê:</strong> ${this.formatCurrency(contract.room.giaPhong)} / tháng</p>
+            <p><strong>Tiền cọc:</strong> ${this.formatCurrency(contract.tienCoc)}</p>
+            <p><strong>Thời hạn thuê:</strong> Từ ${contract.ngayBatDau} đến ${contract.ngayKetThuc}</p>
+        </div>
+
+        <!-- Điều khoản hợp đồng -->
+        <div class="mb-6">
+            <h3 class="font-bold mb-2">ĐIỀU 2. TRÁCH NHIỆM VÀ NGHĨA VỤ CỦA CÁC BÊN</h3>
+            <ul class="list-disc pl-6 space-y-1">
+                <li><strong>Bên A</strong> có trách nhiệm cung cấp phòng đúng mô tả, đảm bảo an ninh, điện nước ổn định.</li>
+                <li><strong>Bên B</strong> phải sử dụng phòng đúng mục đích, không tự ý sang nhượng, sửa chữa khi chưa được đồng ý.</li>
+                <li>Tiền thuê được thanh toán hàng tháng, vào ngày 05 hàng tháng.</li>
+                <li>Tiền điện, nước, internet tính theo chỉ số sử dụng thực tế hàng tháng.</li>
+                <li>Bên B phải giữ gìn tài sản, nếu làm hỏng phải bồi thường theo giá trị thực tế.</li>
+            </ul>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="font-bold mb-2">ĐIỀU 3. CHẤM DỨT HỢP ĐỒNG</h3>
+            <ul class="list-disc pl-6 space-y-1">
+                <li>Hợp đồng tự động chấm dứt khi hết thời hạn thuê, trừ khi hai bên có thỏa thuận gia hạn.</li>
+                <li>Bên nào muốn chấm dứt sớm phải thông báo cho bên kia ít nhất 15 ngày.</li>
+                <li>Tiền cọc sẽ được hoàn trả khi bên B bàn giao phòng, thanh toán đầy đủ công nợ.</li>
+            </ul>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="font-bold mb-2">ĐIỀU 4. CAM KẾT CHUNG</h3>
+            <ul class="list-disc pl-6 space-y-1">
+                <li>Hai bên đã đọc, hiểu rõ nội dung hợp đồng và tự nguyện ký kết.</li>
+                <li>Hợp đồng có hiệu lực kể từ ngày ký.</li>
+                <li>Mỗi bên giữ một bản, có giá trị pháp lý như nhau.</li>
+            </ul>
+        </div>
+
+        <!-- Chữ ký -->
+        <div class="grid grid-cols-2 mt-10 text-center">
+            <div>
+                <p class="font-bold">ĐẠI DIỆN BÊN CHO THUÊ</p>
+                <p class="text-sm italic">(Ký và ghi rõ họ tên)</p>
+                <div class="h-24"></div>
+                <p>Đinh Công Vinh</p>
+            </div>
+            <div>
+                <p class="font-bold">ĐẠI DIỆN BÊN THUÊ</p>
+                <p class="text-sm italic">(Ký và ghi rõ họ tên)</p>
+                <div class="h-24"></div>
+                <p>${contract.tenant.hoTen}</p>
+            </div>
+        </div>
+    </div>
+
+            `;
+        },
+
+        // Terminate contract
+        terminateContract(contractId) {
+            if (confirm('Bạn có chắc muốn kết thúc hợp đồng?')) {
+                fetch('/QuanLy/HopDong/TerminateContract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(contractId)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Kết thúc hợp đồng thành công!');
+                        this.refreshContracts();
+                    } else {
+                        alert('Lỗi: ' + data.message);
+                    }
+                })
+                .catch(() => alert('Có lỗi xảy ra!'));
+            }
+        },
+
+        // Refresh contracts
+        refreshContracts() {
+            if (this.isFilteringActive) {
+                this.loadActiveContracts();
+            } else if (this.isFiltering && this.currentFilter) {
+                this.applyFilter(this.currentFilter);
+            } else {
+                this.loadContracts();
+            }
+        },
+
+        // Format currency
+        formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+    };
+
+    // Global functions for compatibility
+    function toggleExpirationFilter() { ContractManager.toggleExpirationFilter(); }
+    function toggleActiveFilter() { ContractManager.toggleActiveFilter(); }
+    function viewContract(id) { ContractManager.viewContract(id); }
+    function terminateContract(id) { ContractManager.terminateContract(id); }
+    function refreshContracts() { ContractManager.refreshContracts(); }
+
+    // Initialize
+    ContractManager.init();
+
+    // Close dropdown when click outside
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#expirationFilterButton') && !e.target.closest('#expirationFilterDropdown')) {
+            document.getElementById('expirationFilterDropdown').classList.add('hidden');
+        }
+    });
+</script>
+
+
+<script src="~/js/hopdong.js"></script>
+<script>
+   
+
+    // Global functions for compatibility
+    function toggleExpirationFilter() { ContractManager.toggleExpirationFilter(); }
+    function toggleActiveFilter() { ContractManager.toggleActiveFilter(); }
+    function viewContract(id) { ContractManager.viewContract(id); }
+    function terminateContract(id) { ContractManager.terminateContract(id); }
+    function refreshContracts() { ContractManager.refreshContracts(); }
+
+    // Initialize
+    ContractManager.init();
+
+    // Close dropdown when click outside
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#expirationFilterButton') && !e.target.closest('#expirationFilterDropdown')) {
+            document.getElementById('expirationFilterDropdown').classList.add('hidden');
+        }
+    });
+</script>

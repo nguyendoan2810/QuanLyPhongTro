@@ -1,4 +1,6 @@
-﻿<div id="profilePage" class="page-content hidden">
+﻿@model QuanLyPhongTro.Models.KhachThue
+
+<div id="profilePage" class="page-content">
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Thông tin cá nhân</h2>
         <p class="text-gray-600">Quản lý thông tin cá nhân của bạn</p>
@@ -15,27 +17,27 @@
         <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Họ và tên</label>
-                <input type="text" value="Nguyễn Văn A" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+                <input id="HoTen" type="text" value="@Model.HoTen" class="form-input" disabled>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Số CCCD</label>
-                <input type="text" value="123456789012" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+                <input id="Cccd" type="text" value="@Model.Cccd" class="form-input" disabled>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
-                <input type="tel" value="0987654321" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+                <input id="SoDienThoai" type="tel" value="@Model.SoDienThoai" class="form-input" disabled>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input type="email" value="nguyenvana@email.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày sinh</label>
+                <input id="NgaySinh" type="date" value="@(Model.NgaySinh?.ToString("yyyy-MM-dd") ?? "")" class="form-input" disabled>
             </div>
 
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
-                <input type="text" value="123 Đường ABC, Phường XYZ, Quận 1, TP.HCM" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+                <input id="DiaChi" type="text" value="@Model.DiaChi" class="form-input" disabled>
             </div>
 
             <div class="md:col-span-2 hidden" id="profileActions">
@@ -51,3 +53,168 @@
         </form>
     </div>
 </div>
+
+<script>
+    (function () {
+        // lấy các element
+        const editBtn = document.getElementById("editProfileBtn");
+        const saveBtn = document.getElementById("saveProfileBtn");
+        const cancelBtn = document.getElementById("cancelEditBtn");
+        const profileActions = document.getElementById("profileActions");
+        const form = document.getElementById("profileForm");
+
+        if (!form || !editBtn || !saveBtn || !cancelBtn || !profileActions) return;
+
+        const inputs = {
+            HoTen: document.getElementById("HoTen"),
+            Cccd: document.getElementById("Cccd"),
+            SoDienThoai: document.getElementById("SoDienThoai"),
+            NgaySinh: document.getElementById("NgaySinh"),
+            DiaChi: document.getElementById("DiaChi")
+        };
+
+        // lưu dữ liệu gốc để có thể phục hồi khi hủy
+        let original = {};
+        function captureOriginal() {
+            Object.keys(inputs).forEach(k => {
+                const el = inputs[k];
+                original[k] = el ? el.value : "";
+            });
+        }
+
+        function setDisabledAll(val) {
+            Object.keys(inputs).forEach(k => {
+                const el = inputs[k];
+                if (el) {
+                    el.disabled = val;
+                    if (!val) {
+                        // thêm style khi chuyển sang edit (nếu muốn)
+                        el.classList.add("border", "border-blue-300", "bg-white");
+                    } else {
+                        el.classList.remove("border", "border-blue-300", "bg-white");
+                    }
+                }
+            });
+        }
+
+        // khi bấm Chỉnh sửa
+        editBtn.addEventListener("click", () => {
+            captureOriginal();
+            setDisabledAll(false);
+            profileActions.classList.remove("hidden");
+            editBtn.classList.add("hidden");
+            // focus vào trường họ tên
+            inputs.HoTen?.focus();
+        });
+
+        // khi bấm Hủy
+        cancelBtn.addEventListener("click", () => {
+            // khôi phục dữ liệu gốc
+            Object.keys(inputs).forEach(k => {
+                const el = inputs[k];
+                if (el) el.value = original[k] ?? "";
+            });
+
+            setDisabledAll(true);
+            profileActions.classList.add("hidden");
+            editBtn.classList.remove("hidden");
+            // thông báo hủy
+            if (typeof showNotification === "function") {
+                showNotification("Đã hủy chỉnh sửa", "warning");
+            }
+        });
+
+        // helper: validate cơ bản
+        function validate(data) {
+            if (!data.HoTen || data.HoTen.length < 2) return "Họ tên không hợp lệ.";
+            if (!data.SoDienThoai || data.SoDienThoai.length < 7) return "Số điện thoại không hợp lệ.";
+            // (nếu cần có thể thêm regex cho CCCD)
+            return null;
+        }
+
+        // khi bấm Lưu thay đổi
+        saveBtn.addEventListener("click", async () => {
+            const data = {
+                HoTen: inputs.HoTen?.value.trim() ?? "",
+                Cccd: inputs.Cccd?.value.trim() ?? "",
+                SoDienThoai: inputs.SoDienThoai?.value.trim() ?? "",
+                NgaySinh: inputs.NgaySinh?.value ? inputs.NgaySinh.value : null,
+                DiaChi: inputs.DiaChi?.value.trim() ?? ""
+            };
+
+            // validate
+            const err = validate(data);
+            if (err) {
+                if (typeof showNotification === "function") showNotification(err, "warning");
+                return;
+            }
+
+            // disable UI trong khi gửi
+            saveBtn.disabled = true;
+            cancelBtn.disabled = true;
+            saveBtn.innerText = "Đang lưu...";
+
+            try {
+                const res = await fetch("/KhachThue/ThongTinCaNhan/CapNhatThongTin", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (!res.ok) {
+                    throw new Error("HTTP " + res.status);
+                }
+
+                const result = await res.json();
+
+                if (result && result.success) {
+                    // thành công
+                    if (typeof showNotification === "function") {
+                        showNotification(result.message || "Cập nhật thông tin thành công!", "success");
+                    }
+
+                    // cập nhật original thành data mới
+                    Object.keys(inputs).forEach(k => {
+                        const el = inputs[k];
+                        if (el) original[k] = el.value;
+                    });
+
+                    // khóa lại form
+                    setDisabledAll(true);
+                    profileActions.classList.add("hidden");
+                    editBtn.classList.remove("hidden");
+                } else {
+                    // thất bại: hiển thị message server trả về
+                    const msg = (result && result.message) ? result.message : "Cập nhật thất bại";
+                    if (typeof showNotification === "function") showNotification(msg, "error");
+                }
+            } catch (ex) {
+                console.error("Lỗi khi gửi yêu cầu cập nhật:", ex);
+                if (typeof showNotification === "function") showNotification("Lỗi khi cập nhật thông tin", "error");
+            } finally {
+                saveBtn.disabled = false;
+                cancelBtn.disabled = false;
+                saveBtn.innerText = "Lưu thay đổi";
+            }
+        });
+
+        // Khóa input ban đầu (đảm bảo trạng thái ban đầu đúng)
+        setDisabledAll(true);
+    })();
+</script>
+
+<style>
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+        outline: none;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+</style>

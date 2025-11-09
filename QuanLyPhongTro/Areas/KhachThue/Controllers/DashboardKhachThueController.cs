@@ -2,7 +2,8 @@
 
 namespace QuanLyPhongTro.Areas.KhachThue.Controllers
 {
-    public class DashboardController : Controller
+    [Area("KhachThue")]
+    public class DashboardKhachThueController : Controller
     {
         public IActionResult Index()
         {

@@ -29,9 +29,9 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
 
 
         [HttpGet]
-        public IActionResult ReloadFilterKhachThue(string searchString)
+        public IActionResult ReloadFilterKhachThue(string searchString, string trangThaiHopDong)
         {
-            return ViewComponent("KhachThue", new { searchString = searchString });
+            return ViewComponent("KhachThue", new { searchString = searchString, trangThaiHopDong = trangThaiHopDong });
         }
 
         [HttpPost]

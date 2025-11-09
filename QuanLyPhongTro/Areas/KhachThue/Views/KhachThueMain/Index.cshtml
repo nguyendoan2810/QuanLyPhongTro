@@ -5,17 +5,17 @@
 
 <main class="lg:ml-64 pt-16 p-6">
     <!-- Dashboard Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/Dashboard/Index.cshtml")
+    @await Component.InvokeAsync("DashboardKhachThue")
 
     <!-- Profile Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/ThongTinCaNhan/Index.cshtml")
+    @await Component.InvokeAsync("ThongTinCaNhan")
 
     <!-- Contracts Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/HopDong/Index.cshtml")
+    @await Component.InvokeAsync("HopDongKhachThue")
 
     <!-- Bills Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/HoaDon/Index.cshtml")
+    @await Component.InvokeAsync("HoaDonKhachThue")
 
     <!-- Notifications Page -->
-    @await Html.PartialAsync("~/Areas/KhachThue/Views/ThongBaoLienHe/Index.cshtml")
+    @await Component.InvokeAsync("ThongBaoLienHe")
 </main>
