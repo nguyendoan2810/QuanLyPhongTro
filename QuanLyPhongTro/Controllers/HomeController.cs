@@ -1,32 +1,39 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuanLyPhongTro.Models;
 
 namespace QuanLyPhongTro.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly QuanLyPhongTroContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(QuanLyPhongTroContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        // ✅ Trang quảng bá phòng
+        public async Task<IActionResult> Index(decimal? giaTu, decimal? giaDen)
         {
-            return View();
-        }
+            var query = _context.Phongs
+                .Include(p => p.ChiTietPhong)
+                .Include(p => p.MaChuTroNavigation)
+                .Where(p => p.TrangThai == "Trống");
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            // Lọc theo giá nếu có giá trị
+            if (giaTu.HasValue)
+                query = query.Where(p => p.GiaPhong >= giaTu.Value);
+            if (giaDen.HasValue)
+                query = query.Where(p => p.GiaPhong <= giaDen.Value);
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var danhSachPhong = await query.OrderBy(p => p.GiaPhong).ToListAsync();
+
+            // Truyền lại giá lọc để giữ giá trị trên giao diện
+            ViewBag.GiaTu = giaTu;
+            ViewBag.GiaDen = giaDen;
+
+            return View(danhSachPhong);
         }
     }
 }

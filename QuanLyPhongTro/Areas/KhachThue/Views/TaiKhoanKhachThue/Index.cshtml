@@ -1,0 +1,61 @@
+﻿<!-- Trang Tài khoản (Đổi mật khẩu) -->
+<div id="accountPage" class="page-content hidden">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Đổi mật khẩu</h2>
+        <p class="text-gray-600">Thay đổi mật khẩu đăng nhập của bạn</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6 max-w-lg">
+        <form id="formDoiMatKhau" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu hiện tại</label>
+                <input type="password" id="matKhauCu" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Nhập mật khẩu hiện tại" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mật khẩu mới</label>
+                <input type="password" id="matKhauMoi" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Nhập mật khẩu mới" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu mới</label>
+                <input type="password" id="xacNhan" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Nhập lại mật khẩu mới" required>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-2">
+                <button type="reset" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Hủy</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("formDoiMatKhau");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const body = {
+                matKhauCu: document.getElementById("matKhauCu").value,
+                matKhauMoi: document.getElementById("matKhauMoi").value,
+                xacNhan: document.getElementById("xacNhan").value
+            };
+
+            const res = await fetch("/KhachThue/TaiKhoanKhachThue/DoiMatKhau", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                showNotification(data.message, "success");
+                form.reset();
+            } else {
+                showNotification(data.message, "error");
+            }
+        });
+    });
+</script>

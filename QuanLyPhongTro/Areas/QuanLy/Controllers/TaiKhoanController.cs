@@ -46,7 +46,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             return Json(new { success = true, message = "Đổi mật khẩu thành công!" });
         }
 
-        // LẤY DANH SÁCH PHÒNG CÓ KHÁCH CHƯA CÓ TÀI KHOẢN
+        // LẤY DANH SÁCH PHÒNG CÓ KHÁCH CHƯA CÓ TÀI KHOẢN & HỢP ĐỒNG CÒN HIỆU LỰC
         [HttpGet]
         public IActionResult GetAvailableRooms()
         {
@@ -54,17 +54,23 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             if (maChuTro == null)
                 return Json(new { success = false, message = "Phiên đăng nhập hết hạn." });
 
+            // Lọc các hợp đồng của chủ trọ có trạng thái "Còn hiệu lực"
             var danhSach = _context.HopDongs
                 .Include(h => h.MaKhachNavigation)
                 .Include(h => h.MaPhongNavigation)
                     .ThenInclude(p => p.ChiTietPhong)
-                .Where(h => h.MaPhongNavigation.MaChuTro == maChuTro
-                    && !_context.TaiKhoans.Any(t => t.MaKhach == h.MaKhach && t.VaiTro == "Khach"))
+                .Where(h =>
+                    h.MaPhongNavigation.MaChuTro == maChuTro &&
+                    h.TrangThai == "Còn hiệu lực" &&
+                    !_context.TaiKhoans.Any(t => t.MaKhach == h.MaKhach && t.VaiTro == "Khach")
+                )
                 .Select(h => new
                 {
                     MaPhong = h.MaPhong,
                     TenPhong = h.MaPhongNavigation.TenPhong,
-                    DiaChi = h.MaPhongNavigation.ChiTietPhong != null ? h.MaPhongNavigation.ChiTietPhong.DiaChi : "",
+                    DiaChi = h.MaPhongNavigation.ChiTietPhong != null
+                        ? h.MaPhongNavigation.ChiTietPhong.DiaChi
+                        : "",
                     MaKhach = h.MaKhach,
                     TenKhach = h.MaKhachNavigation.HoTen
                 })
@@ -169,14 +175,24 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult XoaTaiKhoanKhach(int id)
         {
-            var tk = _context.TaiKhoans.FirstOrDefault(t => t.MaTk == id && t.VaiTro == "Khach");
+            var tk = _context.TaiKhoans
+                .Include(t => t.ThongBaos) // 🔹 Load danh sách Thông báo của tài khoản
+                .FirstOrDefault(t => t.MaTk == id && t.VaiTro == "Khach");
+
             if (tk == null)
                 return Json(new { success = false, message = "Không tìm thấy tài khoản." });
 
+            // 🔹 Xóa tất cả thông báo liên quan trước
+            if (tk.ThongBaos != null && tk.ThongBaos.Any())
+            {
+                _context.ThongBaos.RemoveRange(tk.ThongBaos);
+            }
+
+            // 🔹 Sau đó xóa tài khoản
             _context.TaiKhoans.Remove(tk);
             _context.SaveChanges();
 
-            return Json(new { success = true, message = "Xóa tài khoản thành công!" });
+            return Json(new { success = true, message = "Xóa tài khoản và các thông báo liên quan thành công!" });
         }
     }
 }

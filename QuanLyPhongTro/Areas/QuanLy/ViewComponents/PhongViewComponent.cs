@@ -25,7 +25,6 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 return View("~/Areas/QuanLy/Views/Phong/Index.cshtml");
             }
 
-            // Build query (chưa materialize)
             var query = _context.Phongs
                 .Where(p => p.MaChuTro == maChuTro)
                 .Join(_context.ChiTietPhongs,
@@ -37,20 +36,27 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                        hd => hd.MaPhong,
                        (pc, hdGroup) => new { pc, hdGroup })
                 .SelectMany(
-                    x => x.hdGroup.OrderByDescending(h => h.NgayBatDau).Take(1).DefaultIfEmpty(),
-                    (x, hd) => new
-                    {
-                        x.pc.p.MaPhong,
-                        x.pc.p.TenPhong,
-                        x.pc.p.GiaPhong,
-                        x.pc.p.TrangThai,
-                        x.pc.ctp.DiaChi,
-                        x.pc.ctp.DienTich,
-                        x.pc.ctp.Tang,
-                        x.pc.ctp.LoaiPhong,
-                        x.pc.ctp.MoTa,
-                        HoTenKhach = hd != null ? _context.KhachThues.Where(k => k.MaKhach == hd.MaKhach).Select(k => k.HoTen).FirstOrDefault() : "Chưa có khách thuê"
-                    }
+                     x => x.hdGroup.OrderByDescending(h => h.NgayBatDau).Take(1).DefaultIfEmpty(),
+                     (x, hd) => new
+                     {
+                          x.pc.p.MaPhong,
+                          x.pc.p.TenPhong,
+                          x.pc.p.GiaPhong,
+                          x.pc.p.TrangThai,
+                          x.pc.ctp.DiaChi,
+                          x.pc.ctp.DienTich,
+                          x.pc.ctp.Tang,
+                          x.pc.ctp.LoaiPhong,
+                          x.pc.ctp.MoTa,
+
+                          // CHỈ LẤY KHÁCH KHI PHÒNG ĐANG THUÊ
+                          HoTenKhach = x.pc.p.TrangThai == "Đang thuê" && hd != null
+                              ? _context.KhachThues
+                                  .Where(k => k.MaKhach == hd.MaKhach)
+                                  .Select(k => k.HoTen)
+                                  .FirstOrDefault()
+                              : "Chưa có khách thuê"
+                     }
                 );
 
             if (!string.IsNullOrEmpty(trangThai))
