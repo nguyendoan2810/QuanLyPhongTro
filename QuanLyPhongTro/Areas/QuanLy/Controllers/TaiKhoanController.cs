@@ -95,7 +95,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             // Tìm hợp đồng và khách tương ứng
             var hopDong = _context.HopDongs
                 .Include(h => h.MaKhachNavigation)
-                .FirstOrDefault(h => h.MaPhong == maPhong);
+                .FirstOrDefault(h => h.MaPhong == maPhong && h.TrangThai == "Còn hiệu lực");
 
             if (hopDong == null || hopDong.MaKhach == null)
                 return Json(new { success = false, message = "Không tìm thấy hợp đồng cho phòng này." });

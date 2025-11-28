@@ -6,29 +6,53 @@
     <title>@ViewData["Title"] - Cho Thuê Phòng Trọ</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
+        .btn-primary {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            transition: 0.3s ease;
+            box-shadow: 0px 6px 15px rgba(172, 64, 238, 0.4);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-3px) scale(1.02);
+                box-shadow: 0px 12px 28px rgba(172, 64, 238, 0.6);
+            }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            transition: 0.3s ease;
+            box-shadow: 0px 6px 15px rgba(99, 102, 241, 0.4);
+        }
+
+            .btn-secondary:hover {
+                transform: translateY(-3px) scale(1.02);
+                box-shadow: 0px 12px 28px rgba(99, 102, 241, 0.6);
+            }
+
         .room-card {
-            transition: all 0.3s ease;
+            transition: 0.35s;
         }
 
             .room-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+                transform: translateY(-8px);
+                box-shadow: 0px 15px 35px rgba(0,0,0,0.12);
             }
 
-        .room-image {
-            transition: transform 0.3s ease;
+        .room-img {
+            transition: 0.35s;
         }
 
-        .room-card:hover .room-image {
-            transform: scale(1.03);
-        }
+            .room-img:hover {
+                transform: scale(1.08);
+            }
 
         [x-cloak] {
             display: none !important;
@@ -37,77 +61,72 @@
 </head>
 
 <body x-data="{ showLoginModal: false }" class="bg-gray-50 min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+
+    <!-- HEADER -->
+    <header class="bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg fixed top-0 left-0 right-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <h1 class="text-xl font-bold text-blue-600">
-                    <a href="/">🏠 Cho thuê phòng trọ</a>
+                <h1 class="text-xl font-bold tracking-wide">
+                    <a href="/" class="flex items-center gap-2 text-xl font-semibold text-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"
+                             stroke-width="1.5" class="w-7 h-7">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M2 12L12 3l10 9M4 10v10h6V14h4v6h6V10" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M8 6c2-2 6-2 8 0" />
+                        </svg>
+                        <span>Phòng Trọ 24h</span>
+                    </a>
                 </h1>
 
-                <!-- Nút mở modal -->
-                <button @@click ="showLoginModal = true"
-                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-full font-medium transition">
+                <button @@click="showLoginModal = true"
+                        class="btn-secondary px-6 py-2 rounded-full font-semibold">
                     Đăng nhập
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main -->
-    <main class="pt-20 pb-16 flex-grow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            @RenderBody()
-        </div>
+    <!-- MAIN -->
+    <main class="pt-20 flex-grow">
+        @RenderBody()
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-300 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center space-y-2">
-            <p>🏠 © 2025 - Hệ thống Cho Thuê Phòng Trọ</p>
-            <p>
-                Liên hệ: <span class="text-blue-400">quanlyphongtro@gmail.com</span> |
-                Hotline: <span class="text-blue-400">0909 123 456</span>
-            </p>
-        </div>
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-300 py-6 text-center">
+        <p>© 2025 Cho Thuê Phòng Trọ • Liên hệ hỗ trợ</p>
     </footer>
 
-    <!-- Modal chọn loại đăng nhập -->
+    <!-- LOGIN MODAL -->
     <div x-show="showLoginModal"
-         x-transition.opacity
-         x-cloak
-         @@click.self ="showLoginModal = false"
-         class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-[1000]">
+         x-transition.opacity x-cloak
+         @@click.self="showLoginModal = false"
+         class="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]">
+
         <div x-transition.scale
-             class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center relative">
-            <!-- Nút đóng -->
-            <button @@click ="showLoginModal = false"
-                    class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl">
+             class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 text-center relative">
+
+            <button @@click="showLoginModal = false"
+                    class="absolute top-3 right-3 text-gray-500 text-xl">
                 ✕
             </button>
 
-            <!-- Tiêu đề -->
-            <h2 class="text-2xl font-bold text-blue-600 mb-4">Chọn loại đăng nhập</h2>
-            <p class="text-gray-600 mb-8">Vui lòng chọn vai trò để tiếp tục đăng nhập vào hệ thống.</p>
+            <h2 class="text-2xl font-bold text-purple-600 mb-4">Chọn loại đăng nhập</h2>
+            <p class="text-gray-600 mb-6">Vui lòng chọn vai trò:</p>
 
-            <!-- Hai nút lựa chọn -->
-            <div class="space-y-4">
-                <a href="/KhachThue/AccountKhachThue/Login"
-                   class="block w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-lg font-medium transition shadow-sm hover:shadow-md">
-                    👤 Đăng nhập Khách thuê
-                </a>
-                <a href="/QuanLy/Account/Login"
-                   class="block w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-lg font-medium transition shadow-sm hover:shadow-md">
-                    🏢 Đăng nhập Quản lý
-                </a>
-            </div>
+            <a href="/KhachThue/AccountKhachThue/Login"
+               class="btn-primary block w-full py-3 rounded-xl my-2 font-semibold">
+                👤 Khách thuê
+            </a>
+
+            <a href="/QuanLy/Account/Login"
+               class="btn-secondary block w-full py-3 rounded-xl my-2 font-semibold">
+                🏢 Quản lý
+            </a>
         </div>
     </div>
 
-    <!-- Alpine.js -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
     @RenderSection("Scripts", required: false)
 </body>
 </html>

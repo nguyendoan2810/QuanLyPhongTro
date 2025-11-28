@@ -3,96 +3,78 @@
     ViewData["Title"] = "Danh sách phòng trọ";
 }
 
-<!-- Title -->
-<div class="text-center mb-8">
-    <h2 class="text-3xl font-bold text-blue-600 mb-2">Danh sách phòng trọ đang trống</h2>
-    <p class="text-gray-600">Tìm kiếm phòng trọ phù hợp với ngân sách của bạn</p>
-</div>
+<!-- HERO -->
+<section class="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-16 text-center">
+    <h2 class="text-4xl font-bold mb-3 drop-shadow-lg">Tìm Phòng Trọ Phù Hợp Với Bạn</h2>
+    <p class="text-lg opacity-90">danh sách phòng trọ chất lượng, chính chủ</p>
+</section>
 
-<!-- Bộ lọc -->
-<form method="get" asp-action="Index" class="bg-white rounded-2xl shadow-lg p-6 mb-8 max-w-4xl mx-auto">
+<!-- BỘ LỌC GIÁ -->
+<form method="get" asp-action="Index"
+      class="bg-white rounded-2xl shadow-xl p-6 mb-8 max-w-4xl mx-auto -mt-10 relative z-10">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Giá từ</label>
-            <div class="relative">
-                <span class="absolute left-3 top-3 text-gray-500">₫</span>
-                <input type="number" name="giaTu" value="@ViewBag.GiaTu"
-                       placeholder="1.000.000"
-                       class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            </div>
+            <label class="font-medium text-gray-700">Giá từ</label>
+            <input type="number" name="giaTu" value="@ViewBag.GiaTu"
+                   class="w-full mt-2 px-4 py-3 border rounded-xl focus:ring-purple-400">
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Giá đến</label>
-            <div class="relative">
-                <span class="absolute left-3 top-3 text-gray-500">₫</span>
-                <input type="number" name="giaDen" value="@ViewBag.GiaDen"
-                       placeholder="5.000.000"
-                       class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            </div>
+            <label class="font-medium text-gray-700">Giá đến</label>
+            <input type="number" name="giaDen" value="@ViewBag.GiaDen"
+                   class="w-full mt-2 px-4 py-3 border rounded-xl focus:ring-purple-400">
         </div>
 
         <div class="flex items-end">
-            <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-medium transition">
-                💸 Lọc theo giá
+            <button class="btn-primary w-full py-3 rounded-xl font-semibold">
+                🔍 Lọc giá
             </button>
         </div>
     </div>
 </form>
 
-<!-- Danh sách phòng -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- DANH SÁCH PHÒNG -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6 pb-12">
     @foreach (var phong in Model)
     {
-        <div class="room-card bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300">
-            <!-- Ảnh phòng -->
-            <div class="relative h-48 overflow-hidden">
-                <img src="~/images/phong_default.jpg" alt="@phong.TenPhong"
-                     class="room-image w-full h-full object-cover hover:scale-105 transition duration-300">
+        <div class="room-card bg-white rounded-2xl overflow-hidden shadow-md">
+            <div class="h-48 overflow-hidden">
+                <img src="~/images/anh_tro_mau.jpg"
+                     class="room-img w-full h-full object-cover transition duration-300">
             </div>
 
-            <!-- Thông tin phòng -->
-            <div class="p-6">
-                <!-- 📍 Địa chỉ (in đậm, nổi bật) -->
-                <p class="text-base font-bold text-gray-800 mb-1 flex items-center gap-2">
-                    📍 <span>@phong.ChiTietPhong?.DiaChi</span>
+            <div class="p-6 space-y-3">
+                <p class="font-semibold text-gray-800 text-lg flex items-center gap-2">
+                    📍 Địa chỉ: @phong.ChiTietPhong?.DiaChi
                 </p>
 
-                <!-- 🏠 Tên phòng (nhẹ, không đậm) -->
-                <h3 class="text-sm text-gray-600 mb-3">@phong.TenPhong</h3>
+                <h3 class="text-sm text-gray-600">Số phòng: @phong.TenPhong</h3>
 
-                <!-- Thông tin cơ bản -->
-                <div class="space-y-2 mb-4">
-                    <div class="flex gap-4 text-sm text-gray-600">
-                        <span>🏢 <b>Tầng:</b> @phong.ChiTietPhong?.Tang</span>
-                        <span>📐 <b>Diện tích:</b> @phong.ChiTietPhong?.DienTich m²</span>
-                        <span>🛏️ <b>Loại:</b> @phong.ChiTietPhong?.LoaiPhong</span>
-                    </div>
+                <div class="grid grid-cols-3 gap-2 text-sm text-gray-600">
+                    <p>🏢 Tầng: <b>@phong.ChiTietPhong?.Tang</b></p>
+                    <p>📐 Diện tích: @phong.ChiTietPhong?.DienTich m²</p>
+                    <p>🛏️ Loại phòng: @phong.ChiTietPhong?.LoaiPhong</p>
                 </div>
 
-                <!-- Mô tả -->
-                <p class="text-sm text-gray-500 mb-4 line-clamp-3">@phong.ChiTietPhong?.MoTa</p>
+                <p class="text-gray-500 text-sm line-clamp-3">@phong.ChiTietPhong?.MoTa</p>
 
-                <!-- Giá -->
-                <div class="flex justify-between items-center">
-                    <p class="text-xl font-bold text-red-600">@phong.GiaPhong.ToString("N0") VNĐ / tháng</p>
-                </div>
+                <p class="text-xl font-bold text-pink-600">
+                    @phong.GiaPhong.ToString("N0") VNĐ / tháng
+                </p>
 
-                <!-- Chủ trọ & SĐT -->
-                <div class="flex justify-between items-center mt-3">
-                    <p class="text-sm text-gray-700 flex items-center gap-1">
-                        👤 @phong.MaChuTroNavigation?.HoTen
-                    </p>
-                    <p class="text-sm font-semibold text-blue-600 flex items-center gap-1">
-                        📞 <span>@phong.MaChuTroNavigation?.SoDienThoai</span>
-                    </p>
+                <div class="flex justify-between pt-2 text-sm text-gray-700">
+                    <span>👤 @phong.MaChuTroNavigation?.HoTen</span>
+                    <span class="text-purple-600 font-semibold">📞 @phong.MaChuTroNavigation?.SoDienThoai</span>
                 </div>
             </div>
         </div>
     }
+
     @if (!Model.Any())
     {
-        <p class="text-center text-gray-500 col-span-3 py-8">Không tìm thấy phòng nào phù hợp.</p>
+        <p class="col-span-3 text-center py-8 text-gray-500 text-lg">
+            Không tìm thấy phòng phù hợp.
+        </p>
     }
 </div>
