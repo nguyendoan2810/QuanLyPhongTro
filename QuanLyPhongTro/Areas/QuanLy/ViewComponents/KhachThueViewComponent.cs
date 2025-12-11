@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using QuanLyPhongTro.Models;
-using Microsoft.AspNetCore.Http; // Thêm
-using System.Collections.Generic; // Thêm
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
 {
@@ -45,7 +45,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 );
             }
 
-            // ⚡ Lọc theo trạng thái hợp đồng
+            // Lọc theo trạng thái hợp đồng
             if (!string.IsNullOrEmpty(trangThaiHopDong) && trangThaiHopDong != "Tất cả")
             {
                 query = query.Where(x => x.hd.TrangThai == trangThaiHopDong);

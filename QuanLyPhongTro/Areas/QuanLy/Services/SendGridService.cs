@@ -24,7 +24,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Services
             var msg = MailHelper.CreateSingleEmail(from, to, subject, "Mật khẩu mới", htmlContent);
 
             var response = await client.SendEmailAsync(msg);
-            Console.WriteLine($"📤 SendGrid status: {response.StatusCode}");
+            Console.WriteLine($"SendGrid status: {response.StatusCode}");
 
             if ((int)response.StatusCode >= 400)
                 throw new Exception("Gửi email thất bại qua SendGrid.");

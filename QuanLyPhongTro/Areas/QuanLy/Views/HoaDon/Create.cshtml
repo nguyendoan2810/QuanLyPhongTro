@@ -269,7 +269,6 @@
 
 
     // ================== XỬ LÝ DỊCH VỤ KHÁC ==================
-
     function renderDichVuKhac(dichVuKhac) {
         const container = $("#dichVuContainer");
         if (!dichVuKhac?.length) {
@@ -380,7 +379,6 @@
 
 
     // ================== XỬ LÝ TÍNH TOÁN ==================
-
     function tinhChiSo(loai) {
         const cu = parseInt($(`#${loai}Cu`).val()) || 0;
         const moi = parseInt($(`#${loai}Moi`).val()) || 0;
@@ -404,7 +402,6 @@
 
 
     // ================== TẠO PAYLOAD HÓA ĐƠN ==================
-
     function taoPayloadHoaDon() {
         const maHopDong = parseInt($("#selectPhong").val()) || 0;
         const thang = parseInt($("#thangKyHoaDon").val()) || 0;
@@ -465,7 +462,6 @@
     }
 
     // ================== HÀM TIỆN ÍCH ==================
-
     function removeCommas(x) { return x ? x.toString().replace(/,/g, "") : "0"; }
     function numberWithCommas(x) { return x == null ? "0" : x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
     function escapeHtml(t) { return !t ? "" : t.replace(/[\"&'\/<>]/g, a => ({'"':'&quot;','&':'&amp;',"'":'&#39;','/':'&#47;','<':'&lt;','>':'&gt;'}[a])); }

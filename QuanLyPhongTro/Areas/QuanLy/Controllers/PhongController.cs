@@ -49,7 +49,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         }
 
 
-        // 📌 Hiển thị danh sách phòng theo mã chủ trọ đang đăng nhập
+        // Hiển thị danh sách phòng theo mã chủ trọ đang đăng nhập
         public async Task<IActionResult> Index()
         {
             var maChuTro = HttpContext.Session.GetInt32("MaChuTro");
@@ -98,7 +98,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         }
 
 
-        // 📌 Thêm phòng mới
+        // Thêm phòng mới
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Phong phong, ChiTietPhong chiTiet)
@@ -124,7 +124,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             return Json(new { success = false, message = "Dữ liệu không hợp lệ!" });
         }
 
-        // 📌 Lấy dữ liệu phòng để sửa
+        // Lấy dữ liệu phòng để sửa
         [HttpGet]
         public async Task<IActionResult> GetPhong(int id)
         {
@@ -152,7 +152,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             return Json(new { success = true, data = phong });
         }
 
-        // 📌 Cập nhật phòng
+        // Cập nhật phòng
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Phong phong, ChiTietPhong chiTiet)
@@ -184,7 +184,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             return Json(new { success = true, message = "Cập nhật thành công!" });
         }
 
-        // 📌 Xóa phòng
+        // Xóa phòng
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

@@ -60,7 +60,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
             // Tong khach thue
             var tongKhachThue = (from hd in _context.HopDongs
                                  join p in _context.Phongs on hd.MaPhong equals p.MaPhong
-                                 where p.MaChuTro == maChuTro
+                                 where p.MaChuTro == maChuTro && hd.TrangThai == "Còn hiệu lực"
                                  select hd.MaKhach).Distinct().Count();
 
             ViewBag.TongKhachThue = tongKhachThue;

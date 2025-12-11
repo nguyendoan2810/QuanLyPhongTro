@@ -176,19 +176,19 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         public IActionResult XoaTaiKhoanKhach(int id)
         {
             var tk = _context.TaiKhoans
-                .Include(t => t.ThongBaos) // 🔹 Load danh sách Thông báo của tài khoản
+                .Include(t => t.ThongBaos) // Load danh sách Thông báo của tài khoản
                 .FirstOrDefault(t => t.MaTk == id && t.VaiTro == "Khach");
 
             if (tk == null)
                 return Json(new { success = false, message = "Không tìm thấy tài khoản." });
 
-            // 🔹 Xóa tất cả thông báo liên quan trước
+            // Xóa tất cả thông báo liên quan trước
             if (tk.ThongBaos != null && tk.ThongBaos.Any())
             {
                 _context.ThongBaos.RemoveRange(tk.ThongBaos);
             }
 
-            // 🔹 Sau đó xóa tài khoản
+            // Sau đó xóa tài khoản
             _context.TaiKhoans.Remove(tk);
             _context.SaveChanges();
 

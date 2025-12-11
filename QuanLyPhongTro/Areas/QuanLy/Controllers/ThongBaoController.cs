@@ -29,7 +29,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
         public IActionResult Tao(string maKhach, string maPhong, string loai, string noiDung)
         {
             if (string.IsNullOrWhiteSpace(noiDung))
-                return Json(new { success = false, message = "⚠️ Vui lòng nhập nội dung thông báo!" });
+                return Json(new { success = false, message = "Vui lòng nhập nội dung thông báo!" });
 
             var maChuTro = HttpContext.Session.GetInt32("MaChuTro");
             if (maChuTro == null)
@@ -94,11 +94,11 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
                 _context.SaveChanges();
 
                 var nguoiNhan = _context.KhachThues.FirstOrDefault(k => k.MaKhach == ma)?.HoTen;
-                return Json(new { success = true, message = $"✅ Gửi thông báo cho {nguoiNhan} thành công!" });
+                return Json(new { success = true, message = $"Gửi thông báo cho {nguoiNhan} thành công!" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "❌ Lỗi: " + ex.Message });
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
             }
         }
 
@@ -120,7 +120,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             }
 
             _context.SaveChanges();
-            return Json(new { success = true, message = $"✅ Đã gửi cho {danhSachMaKhach.Count} khách thuê!" });
+            return Json(new { success = true, message = $"Đã gửi cho {danhSachMaKhach.Count} khách thuê!" });
         }
     }
 }

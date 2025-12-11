@@ -107,7 +107,7 @@
 
             const result = await res.json();
 
-            // ✅ Dùng showNotification thay cho alert()
+            // Dùng showNotification thay cho alert()
             if (result.success) {
                 showNotification(result.message, "success");
                 $("#rooms-section").load("/QuanLy/Phong/ReloadPartial #rooms-section > *");
@@ -124,7 +124,7 @@
     document.getElementById("createPhongForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        // ✅ Danh sách các trường cần kiểm tra
+        // Danh sách các trường cần kiểm tra
         const requiredFields = [
             "TenPhong",
             "GiaPhong",
@@ -138,7 +138,7 @@
 
         let isValid = true;
 
-        // ✅ Kiểm tra các trường
+        // Kiểm tra các trường
         for (const name of requiredFields) {
             const input = this.querySelector(`[name="${name}"]`);
             if (!input || !input.value.trim()) {
@@ -149,13 +149,13 @@
             }
         }
 
-        // ✅ Nếu còn ô trống thì cảnh báo và dừng lại
+        // Nếu còn ô trống thì cảnh báo và dừng lại
         if (!isValid) {
             showNotification("Vui lòng nhập đầy đủ thông tin trước khi lưu!", 'warning');
             return;
         }
 
-        // ✅ Nếu hợp lệ thì gửi dữ liệu
+        // Nếu hợp lệ thì gửi dữ liệu
         const formData = new FormData(this);
         const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
 
@@ -220,7 +220,7 @@
     document.getElementById("editPhongForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        // ✅ Danh sách các trường cần nhập
+        // Danh sách các trường cần nhập
         const requiredFields = [
             "TenPhong",
             "GiaPhong",
@@ -234,7 +234,7 @@
 
         let isValid = true;
 
-        // ✅ Kiểm tra các trường
+        // Kiểm tra các trường
         for (const name of requiredFields) {
             const input = this.querySelector(`[name="${name}"]`);
             if (!input || !input.value.trim()) {
@@ -245,13 +245,13 @@
             }
         }
 
-        // ⚠️ Nếu còn trường trống → dừng lại
+        // Nếu còn trường trống → dừng lại
         if (!isValid) {
             showNotification("Vui lòng nhập đầy đủ thông tin trước khi lưu!", "warning");
             return;
         }
 
-        // ✅ Nếu hợp lệ → gửi request
+        // Nếu hợp lệ → gửi request
         const formData = new FormData(this);
         const token = this.querySelector('input[name="__RequestVerificationToken"]').value;
 

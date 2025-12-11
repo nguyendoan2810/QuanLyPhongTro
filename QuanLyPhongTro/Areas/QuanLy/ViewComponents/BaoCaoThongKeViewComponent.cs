@@ -47,7 +47,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
 
             // Lấy hợp đồng thuộc các phòng đó
             var danhSachHopDong = _context.HopDongs
-                .Where(hd => hd.MaPhong.HasValue && roomIds.Contains(hd.MaPhong.Value))
+                .Where(hd => hd.MaPhong.HasValue && roomIds.Contains(hd.MaPhong.Value) && hd.TrangThai == "Còn hiệu lực")
                 .ToList();
 
             var ketQua = new List<object>();
@@ -110,8 +110,8 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 where p.MaChuTro == maChuTro
                       && hd.TrangThai == "Chưa thanh toán"
                       // Chỉ lấy hóa đơn trong tháng và năm hiện tại
-                      && hd.NgayTao.Value.Month == currentMonth
-                      && hd.NgayTao.Value.Year == currentYear
+                      //&& hd.NgayTao.Value.Month == currentMonth
+                      //&& hd.NgayTao.Value.Year == currentYear
                 select new
                 {
                     HoTen = kt.HoTen,
@@ -127,7 +127,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 x.TenPhong,
                 x.TongTien,
                 x.NgayTao,
-                SoNgayChenhLech = (DateTime.Now.Date - x.NgayTao.Value.ToDateTime(TimeOnly.MinValue).Date).Days,
+                SoNgayChenhLech = Math.Abs((x.NgayTao.Value.ToDateTime(TimeOnly.MinValue).AddDays(5) - DateTime.Now.Date).Days),
                 TrangThai = (DateTime.Now.Date - x.NgayTao.Value.ToDateTime(TimeOnly.MinValue).Date).Days > 5
                     ? "Quá hạn"
                     : "Sắp đến hạn"

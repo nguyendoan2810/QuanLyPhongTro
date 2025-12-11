@@ -180,15 +180,15 @@
             const data = await res.json();
 
             if (data.success) {
-                showNotification("✅ " + data.message, 'success');
+                showNotification("" + data.message, 'success');
                 // Gọi lại bộ lọc hiện tại để reload danh sách
                 document.getElementById("btnLocHoaDon").click();
                 reloadThuChiList();
             } else {
-                showNotification("⚠️ " + data.message, 'warning');
+                showNotification("" + data.message, 'warning');
             }
         } catch (err) {
-            showNotification("❌ Lỗi: " + err.message, 'error');
+            showNotification("Lỗi: " + err.message, 'error');
         }
     });
 
@@ -212,12 +212,12 @@
             const data = await res.json();
 
             if (data.success) {
-                showNotification("✅ " + data.message, "success");
+                showNotification("" + data.message, "success");
             } else {
-                showNotification("⚠️ " + data.message, "warning");
+                showNotification("" + data.message, "warning");
             }
         } catch (err) {
-            showNotification("❌ Lỗi: " + err.message, "error");
+            showNotification("Lỗi: " + err.message, "error");
         }
     });
 </script>

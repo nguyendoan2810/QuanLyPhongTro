@@ -26,7 +26,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
                 return Content("Không có quyền truy cập");
             }
 
-            // 🔹 Lấy danh sách phòng chủ trọ đang quản lý
+            // Lấy danh sách phòng chủ trọ đang quản lý
             var danhSachPhong = (
                 from p in _context.Phongs
                 where p.MaChuTro == maChuTro
@@ -51,7 +51,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.ViewComponents
 
             ViewBag.DanhSachPhong = danhSachPhong;
 
-            // 🔹 Lấy danh sách thông báo (cả khách thuê và chủ trọ)
+            // Lấy danh sách thông báo (cả khách thuê và chủ trọ)
             DateTime thoiGianGioiHan = DateTime.Now.AddDays(-5);
 
             var danhSachThongBao = (

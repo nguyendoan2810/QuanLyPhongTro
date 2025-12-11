@@ -199,7 +199,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("❌ Lỗi khi lưu tài khoản: " + ex);
+                Console.WriteLine("Lỗi khi lưu tài khoản: " + ex);
                 if (ex.InnerException != null)
                     Console.WriteLine("Chi tiết: " + ex.InnerException.Message);
                 Console.WriteLine("StackTrace: " + ex.StackTrace);

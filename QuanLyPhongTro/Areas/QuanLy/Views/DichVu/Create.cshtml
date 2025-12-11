@@ -46,7 +46,7 @@
             const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
 
             if (!tenDv || isNaN(donGia) || donGia <= 0) {
-                showNotification("⚠️ Vui lòng nhập đầy đủ và hợp lệ!", "error");
+                showNotification("Vui lòng nhập đầy đủ và hợp lệ!", "error");
                 return;
             }
 
@@ -57,23 +57,18 @@
                 data: { TenDv: tenDv, DonGia: donGia },
                 success: function (res) {
                     if (res.success) {
-                        showNotification('✅ Thêm dịch vụ thành công!', 'success');
+                        showNotification('Thêm dịch vụ thành công!', 'success');
                         closeModal('serviceModal');
                         reloadDichVuList(); // tải lại danh sách
                     } else {
-                        showNotification(res.message || '❌ Có lỗi xảy ra khi thêm dịch vụ!', 'error');
+                        showNotification(res.message || 'Có lỗi xảy ra khi thêm dịch vụ!', 'error');
                     }
                 },
                 error: function (xhr) {
                     console.error('Lỗi:', xhr.responseText);
-                    showNotification('⚠️ Lỗi: ' + xhr.responseText, 'error');
+                    showNotification('Lỗi: ' + xhr.responseText, 'error');
                 }
             });
         });
     });
-
-    // Hàm load lại danh sách dịch vụ (AJAX)
-   
-
-    
 </script>
