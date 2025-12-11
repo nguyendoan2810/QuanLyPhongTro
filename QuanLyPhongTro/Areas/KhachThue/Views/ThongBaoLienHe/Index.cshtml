@@ -8,7 +8,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- 🔵 Danh sách thông báo -->
+        <!-- Danh sách thông báo -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Thông báo từ chủ trọ</h3>
 
@@ -30,7 +30,7 @@
             }
         </div>
 
-        <!-- 🟢 Form gửi yêu cầu -->
+        <!-- Form gửi yêu cầu -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Gửi yêu cầu / Kiến nghị</h3>
 
@@ -81,7 +81,7 @@
                 if (data.success) {
                     showNotification(data.message, "success");
 
-                    // ✅ Làm mới form sau khi gửi thành công
+                    // Làm mới form sau khi gửi thành công
                     const form = document.getElementById("contactForm");
                     form.reset();
 

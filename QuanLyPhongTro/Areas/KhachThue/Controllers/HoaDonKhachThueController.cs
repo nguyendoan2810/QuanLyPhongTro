@@ -53,10 +53,10 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
                 var phong = hopDong?.MaPhongNavigation;
                 var khach = hopDong?.MaKhachNavigation;
 
-                // 🔹 Lấy tiền phòng từ bảng Phòng
+                // Lấy tiền phòng từ bảng Phòng
                 decimal tienPhong = phong?.GiaPhong ?? 0;
 
-                // 🔹 Lấy danh sách chi tiết dịch vụ trong hóa đơn
+                // Lấy danh sách chi tiết dịch vụ trong hóa đơn
                 var chiTietDv = await _context.ChiTietHoaDons
                     .Include(ct => ct.MaDvNavigation)
                     .Where(ct => ct.MaHd == maHd)
@@ -69,7 +69,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
                     })
                     .ToListAsync();
 
-                // 🔹 Lấy chỉ số điện & nước
+                // Lấy chỉ số điện & nước
                 int maHopDong = hopDong?.MaHopDong ?? 0;
                 int thang = hoaDon.Thang ?? 0;
                 int nam = hoaDon.Nam ?? 0;
@@ -133,10 +133,10 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
             if (hoaDon == null || hoaDon.TrangThai == "Đã thanh toán")
                 return View();
 
-            // ✅ Cập nhật trạng thái hóa đơn
+            // Cập nhật trạng thái hóa đơn
             hoaDon.TrangThai = "Đã thanh toán";
 
-            // ✅ Ghi vào bảng ThuChi
+            // Ghi vào bảng ThuChi
             var phong = hoaDon.MaHopDongNavigation?.MaPhongNavigation;
             var diaChi = phong?.ChiTietPhong?.DiaChi ?? "Không rõ địa chỉ";
             var tenPhong = phong?.TenPhong ?? "Phòng trọ";
@@ -150,7 +150,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
                 MaHd = hoaDon.MaHd
             });
 
-            // ✅ Gửi thông báo cho khách thuê
+            // Gửi thông báo cho khách thuê
             var khach = hoaDon.MaHopDongNavigation?.MaKhachNavigation;
             var maTk = khach?.TaiKhoans.FirstOrDefault()?.MaTk;
 

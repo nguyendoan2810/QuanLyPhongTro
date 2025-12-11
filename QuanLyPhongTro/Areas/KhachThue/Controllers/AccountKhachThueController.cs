@@ -63,7 +63,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
         [HttpGet]
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear(); // ✅ Xóa toàn bộ session
+            HttpContext.Session.Clear(); // Xóa toàn bộ session
             return RedirectToAction("Login", "AccountKhachThue", new { area = "KhachThue" });
         }
     }

@@ -30,7 +30,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
             if (khach == null)
                 return Json(new { success = false, message = "Không tìm thấy khách thuê." });
 
-            // ✅ Cập nhật thông tin
+            // Cập nhật thông tin
             khach.HoTen = model.HoTen;
             khach.Cccd = model.Cccd;
             khach.SoDienThoai = model.SoDienThoai;

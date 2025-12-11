@@ -14,7 +14,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
             _context = context;
         }
 
-        // ✅ API xử lý đổi mật khẩu
+        // API xử lý đổi mật khẩu
         [HttpPost]
         public async Task<IActionResult> DoiMatKhau([FromBody] DoiMatKhauRequest req)
         {

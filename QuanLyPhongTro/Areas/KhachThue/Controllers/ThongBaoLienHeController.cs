@@ -24,7 +24,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
             if (string.IsNullOrWhiteSpace(noiDung))
                 return Json(new { success = false, message = "Vui lòng nhập nội dung yêu cầu!" });
 
-            // 🔹 Lấy thông tin hợp đồng để biết chủ trọ
+            // Lấy thông tin hợp đồng để biết chủ trọ
             var hopDong = await _context.HopDongs
                 .Include(h => h.MaPhongNavigation)
                 .ThenInclude(p => p.ChiTietPhong)
@@ -35,7 +35,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
             if (hopDong == null || hopDong.MaPhongNavigation == null)
                 return Json(new { success = false, message = "Không tìm thấy thông tin phòng trọ của bạn!" });
 
-            // 🔹 Lấy mã tài khoản của chủ trọ
+            // Lấy mã tài khoản của chủ trọ
             var chuTro = await _context.ChuTros
                 .Include(c => c.TaiKhoans)
                 .FirstOrDefaultAsync(c => c.MaChuTro == hopDong.MaPhongNavigation.MaChuTro);
@@ -47,12 +47,12 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
             if (maTkChuTro == null)
                 return Json(new { success = false, message = "Tài khoản chủ trọ không hợp lệ!" });
 
-            // 🔹 Ghép nội dung: "Tên phòng - Địa chỉ: Nội dung"
+            // Ghép nội dung: "Tên phòng - Địa chỉ: Nội dung"
             string tenPhong = hopDong.MaPhongNavigation.TenPhong ?? "Không rõ";
             string diaChi = hopDong.MaPhongNavigation.ChiTietPhong?.DiaChi ?? "Chưa có địa chỉ";
             string noiDungDayDu = $"{tenPhong} - {diaChi}: {noiDung.Trim()}";
 
-            // 🔹 Lưu thông báo
+            // Lưu thông báo
             var thongBao = new ThongBao
             {
                 MaTk = maTkChuTro.Value, // 🔸 Gửi cho chủ trọ

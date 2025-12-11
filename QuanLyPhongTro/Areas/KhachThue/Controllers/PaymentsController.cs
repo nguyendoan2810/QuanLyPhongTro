@@ -131,7 +131,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.Controllers
                 if (hoaDon == null)
                     return Ok(new { message = "Invoice not found" });
 
-                // ✅ Chỉ cập nhật khi resultCode = 0 (thành công)
+                // Chỉ cập nhật khi resultCode = 0 (thành công)
                 if (data.resultCode == 0 && hoaDon.TrangThai != "Đã thanh toán")
                 {
                     hoaDon.TrangThai = "Đã thanh toán";

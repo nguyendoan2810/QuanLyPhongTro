@@ -31,7 +31,7 @@ namespace QuanLyPhongTro.Areas.KhachThue.ViewComponents
                 return View("~/Areas/KhachThue/Views/DashboardKhachThue/Index.cshtml", emptyModel);
             }
 
-            // 🔹 Lấy hợp đồng hiện tại (mới nhất của khách thuê)
+            // Lấy hợp đồng hiện tại (mới nhất của khách thuê)
             var hopDong = await _context.HopDongs
                 .Include(h => h.MaPhongNavigation)
                 .ThenInclude(p => p.ChiTietPhong)
