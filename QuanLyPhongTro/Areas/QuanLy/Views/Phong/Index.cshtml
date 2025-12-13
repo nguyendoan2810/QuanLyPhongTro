@@ -4,7 +4,7 @@
 
 <div id="rooms-section" class="section">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <!-- ===== Header đẹp ===== -->
+        <!-- ===== Header ===== -->
         <div class="p-6 border-b border-gray-200 bg-white">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h3 class="text-lg font-semibold text-gray-800">Danh sách phòng</h3>
@@ -39,9 +39,13 @@
 
         <!-- ===== Bảng phòng ===== -->
         <div class="overflow-x-auto">
+            @{
+                int stt = 1;
+            }
             <table class="min-w-max w-full border-collapse">
                 <thead class="bg-gray-50 rounded-t-xl">
                     <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên phòng</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tầng</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
@@ -58,11 +62,15 @@
                     @foreach (var p in ViewBag.PhongList)
                     {
                         <tr class="hover:bg-gray-50 transition">
-                            <td class="px-6 py-4 font-medium text-gray-800">@p.TenPhong</td>
+                            <td class="px-6 py-4 text-gray-600">@stt</td> 
+                            @{
+                                stt++;
+                            }
+                            <td class="px-6 py-4 text-gray-600">@p.TenPhong</td>
                             <td class="px-6 py-4 text-gray-600">@p.Tang</td>
                             <td class="px-6 py-4 text-gray-600">@p.LoaiPhong</td>
                             <td class="px-6 py-4 text-gray-600">@p.DienTich m²</td>
-                            <td class="px-6 py-4 font-semibold text-gray-800">@p.GiaPhong.ToString("N0") VNĐ</td>
+                            <td class="px-6 py-4 text-gray-600">@p.GiaPhong.ToString("N0") VNĐ</td>
                             <td class="px-6 py-4 text-gray-600">@p.DiaChi</td>
                             <td class="px-6 py-4 text-gray-600">@p.HoTenKhach</td>
                             <td class="px-6 py-4 text-gray-600">@p.TrangThai</td>
@@ -90,7 +98,7 @@
     async function deletePhong(id) {
         if (!confirm("Bạn có chắc muốn xóa phòng này không?")) return;
 
-        // 🔒 Lấy token từ form thêm phòng (vì luôn tồn tại trên trang)
+        // Lấy token từ form thêm phòng (vì luôn tồn tại trên trang)
         const tokenInput = document.querySelector('#createPhongForm input[name="__RequestVerificationToken"]');
         if (!tokenInput) {
             showNotification("Lỗi bảo mật: Không tìm thấy token xác thực.", "error");
@@ -266,7 +274,7 @@
 
             const result = await response.json();
 
-            // ✅ Hiển thị kết quả bằng showNotification
+            // Hiển thị kết quả bằng showNotification
             if (result.success) {
                 showNotification(result.message, "success");
                 closeModal('roomEditModal'); // Đóng modal
@@ -280,7 +288,7 @@
         }
     });
 
-    //Lọc dữ liệu
+    // Lọc dữ liệu
     document.addEventListener("click", function (e) {
         if (e.target.closest("#btnLocTrangThai")) {
             const trangThai = document.getElementById("filterTrangThai").value;

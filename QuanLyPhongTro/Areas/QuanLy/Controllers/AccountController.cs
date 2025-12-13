@@ -115,6 +115,27 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             if (!acceptTerms)
                 return Json(new { success = false, message = "Bạn phải đồng ý điều khoản sử dụng" });
 
+            // Số điện thoại: 10 số
+            var phoneRegex = new System.Text.RegularExpressions.Regex(@"^\d{10}$");
+            if (!phoneRegex.IsMatch(phone))
+                return Json(new { success = false, message = "Số điện thoại phải đúng 10 số" });
+
+            // CCCD: 12 số
+            var cccdRegex = new System.Text.RegularExpressions.Regex(@"^\d{12}$");
+            if (!cccdRegex.IsMatch(cccd))
+                return Json(new { success = false, message = "CCCD phải đúng 12 số" });
+
+            // Mật khẩu mạnh: 8–12 ký tự, có chữ hoa + chữ thường + số
+            var passwordRegex = new System.Text.RegularExpressions.Regex(
+                @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,12}$"
+            );
+            if (!passwordRegex.IsMatch(password))
+                return Json(new
+                {
+                    success = false,
+                    message = "Mật khẩu phải 8–12 ký tự, gồm chữ hoa, chữ thường và số"
+                });
+
             // Kiểm tra username/email đã tồn tại
             if (_context.TaiKhoans.Any(t => t.TenDangNhap == username || t.Email == email))
                 return Json(new { success = false, message = "Tên đăng nhập hoặc email đã tồn tại" });

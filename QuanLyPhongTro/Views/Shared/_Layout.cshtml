@@ -78,11 +78,6 @@
                         <span>Phòng Trọ 24h</span>
                     </a>
                 </h1>
-
-                <button @@click="showLoginModal = true"
-                        class="btn-secondary px-6 py-2 rounded-full font-semibold">
-                    Đăng nhập
-                </button>
             </div>
         </div>
     </header>
@@ -96,35 +91,6 @@
     <footer class="bg-gray-900 text-gray-300 py-6 text-center">
         <p>© 2025 Cho Thuê Phòng Trọ • Liên hệ hỗ trợ</p>
     </footer>
-
-    <!-- LOGIN MODAL -->
-    <div x-show="showLoginModal"
-         x-transition.opacity x-cloak
-         @@click.self="showLoginModal = false"
-         class="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]">
-
-        <div x-transition.scale
-             class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 text-center relative">
-
-            <button @@click="showLoginModal = false"
-                    class="absolute top-3 right-3 text-gray-500 text-xl">
-                ✕
-            </button>
-
-            <h2 class="text-2xl font-bold text-purple-600 mb-4">Chọn loại đăng nhập</h2>
-            <p class="text-gray-600 mb-6">Vui lòng chọn vai trò:</p>
-
-            <a href="/KhachThue/AccountKhachThue/Login"
-               class="btn-primary block w-full py-3 rounded-xl my-2 font-semibold">
-                👤 Khách thuê
-            </a>
-
-            <a href="/QuanLy/Account/Login"
-               class="btn-secondary block w-full py-3 rounded-xl my-2 font-semibold">
-                🏢 Quản lý
-            </a>
-        </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     @RenderSection("Scripts", required: false)

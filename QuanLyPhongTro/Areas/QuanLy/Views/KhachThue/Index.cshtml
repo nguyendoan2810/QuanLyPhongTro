@@ -43,9 +43,13 @@
 
         <!-- Bảng dữ liệu -->
         <div class="overflow-x-auto ">
+            @{
+                int stt = 1;
+            }
             <table class="min-w-max w-full border-collapse">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Họ tên</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số điện thoại</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa chỉ</th>
@@ -62,7 +66,11 @@
                         @foreach (var khach in ViewBag.KhachThueList)
                         {
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 font-medium text-gray-900">@khach.HoTen</td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@stt</td>
+                                @{
+                                    stt++;
+                                }
+                                <td class="px-6 py-4 text-sm text-gray-600">@khach.HoTen</td>
                                 <td class="px-6 py-4 text-sm text-gray-600">@khach.SoDienThoai</td>
                                 <td class="px-6 py-4 text-sm text-gray-600">@khach.DiaChi</td>
                                 <td class="px-6 py-4 text-sm text-gray-600">@khach.TenPhong</td>

@@ -92,6 +92,20 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             if (string.IsNullOrWhiteSpace(tenDangNhap) || string.IsNullOrWhiteSpace(matKhau))
                 return Json(new { success = false, message = "Vui lòng nhập đầy đủ thông tin." });
 
+            // ==== VALIDATION MẬT KHẨU ====
+            var passwordRegex = new System.Text.RegularExpressions.Regex(
+                @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,12}$"
+            );
+
+            if (!passwordRegex.IsMatch(matKhau))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Mật khẩu phải từ 8–12 ký tự, có chữ hoa, chữ thường và số!"
+                });
+            }
+
             // Tìm hợp đồng và khách tương ứng
             var hopDong = _context.HopDongs
                 .Include(h => h.MaKhachNavigation)
@@ -103,7 +117,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             if (_context.TaiKhoans.Any(t => t.TenDangNhap == tenDangNhap))
                 return Json(new { success = false, message = "Tên đăng nhập đã tồn tại." });
 
-            // Mã hóa mật khẩu
+            // Mã hóa mật khẩu sau khi kiểm tra
             var hash = BCrypt.Net.BCrypt.HashPassword(matKhau);
 
             var taiKhoan = new TaiKhoan
@@ -120,6 +134,7 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
 
             return Json(new { success = true, message = "Thêm tài khoản khách thành công!" });
         }
+
 
         // Trả về ViewComponent để reload danh sách tài khoản (AJAX)
         [HttpGet]

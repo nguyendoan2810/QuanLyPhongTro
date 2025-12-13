@@ -164,10 +164,23 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             if (existingPhong == null)
                 return Json(new { success = false, message = "Không tìm thấy phòng!" });
 
+            // Không cho sửa nếu phòng đang thuê
+            if (!string.IsNullOrEmpty(existingPhong.TrangThai) &&
+                existingPhong.TrangThai.Trim().ToLower() == "đang thuê")
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Không thể sửa thông tin vì phòng đang được thuê!"
+                });
+            }
+
+            // Cập nhật phòng
             existingPhong.TenPhong = phong.TenPhong;
             existingPhong.GiaPhong = phong.GiaPhong;
             existingPhong.TrangThai = phong.TrangThai;
 
+            // Cập nhật chi tiết phòng
             var existingChiTiet = await _context.ChiTietPhongs
                 .FirstOrDefaultAsync(x => x.MaPhong == phong.MaPhong);
 
@@ -181,7 +194,8 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return Json(new { success = true, message = "Cập nhật thành công!" });
+
+            return Json(new { success = true, message = "Cập nhật phòng thành công!" });
         }
 
         // Xóa phòng
@@ -193,10 +207,25 @@ namespace QuanLyPhongTro.Areas.QuanLy.Controllers
             if (phong == null)
                 return Json(new { success = false, message = "Phòng không tồn tại!" });
 
-            var chiTiet = await _context.ChiTietPhongs.FirstOrDefaultAsync(x => x.MaPhong == id);
+            // Không cho xóa nếu phòng đang thuê
+            if (!string.IsNullOrEmpty(phong.TrangThai) &&
+                phong.TrangThai.Trim().ToLower() == "đang thuê")
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Không thể xóa phòng đang được thuê!"
+                });
+            }
+
+            // Xóa chi tiết phòng trước
+            var chiTiet = await _context.ChiTietPhongs
+                .FirstOrDefaultAsync(x => x.MaPhong == id);
+
             if (chiTiet != null)
                 _context.ChiTietPhongs.Remove(chiTiet);
 
+            // Xóa phòng
             _context.Phongs.Remove(phong);
             await _context.SaveChangesAsync();
 
